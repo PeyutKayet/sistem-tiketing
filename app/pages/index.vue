@@ -1,7 +1,7 @@
 <template>
   <div id="gridEventContainer">
     <div class="grid-event-header">
-      <h1>EventHub Discover v1</h1>
+      <h1>EventHub Discover v2</h1>
       <p>Temukan dan ikuti berbagai event menarik yang sedang berlangsung!</p>
     </div>
 
