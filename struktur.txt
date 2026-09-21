@@ -1,0 +1,33 @@
+.
+├── ai_command.txt
+├── app
+│   ├── app.vue
+│   ├── components
+│   │   └── admin
+│   │       ├── AdminEditEvent.vue
+│   │       ├── AdminEventDetail.vue
+│   │       ├── AdminHome.vue
+│   │       ├── AdminPeserta.vue
+│   │       ├── AdminSidebar.vue
+│   │       ├── AdminTopbar.vue
+│   │       └── AdminWizard.vue
+│   ├── composables
+│   │   └── useAdmin.ts
+│   ├── middleware
+│   │   └── auth.ts
+│   └── pages
+│       ├── admin.vue
+│       ├── index.vue
+│       ├── login.vue
+│       └── [slug].vue
+├── nuxt.config.ts
+├── package.json
+├── package-lock.json
+├── public
+│   ├── favicon.ico
+│   └── robots.txt
+├── README.md
+├── struktur.txt
+└── tsconfig.json
+
+8 directories, 23 files
