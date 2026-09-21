@@ -24,9 +24,18 @@ export const useAdmin = () => {
   const showWizard = useState('admin_showWizard', () => false)
   const wizardStepNow = useState('admin_wizardStepNow', () => 1)
   
-  const formEvent = useState('admin_formEvent', () => ({ nama: '', slug: '', tanggal: '', lokasi: '', deskripsi: '', poster_file: null, poster_preview: null }))
+  const formEvent = useState('admin_formEvent', () => ({ 
+    nama: '', slug: '', tanggal: '', lokasi: '', deskripsi: '', link_maps: '',
+    tipe_event: 'offline', sistem_checkin: 'scanner', target_absen: 0, link_online: '',
+    is_snk_active: true, snk_text: 'Syarat dan ketentuan berlaku mengikuti aturan panitia EventHub.',
+    is_anti_calo_email: false, is_anti_calo_wa: false, is_wa_konfirm: false,
+    is_donasi_active: false, donasi_header: '', donasi_options: '',
+    is_grup_wa_active: false, link_grup_wa: '',
+    poster_file: null, poster_preview: null 
+  }))
   const formTiketBaru = useState('admin_formTiketBaru', () => ({ nama: '', harga: '', kuota: '', buka: '', tutup: '' }))
   const wizardTiketList = useState('admin_wizardTiketList', () => [])
+  const formForgeItems = useState('admin_formForgeItems', () => [])
   const isSavingEvent = useState('admin_isSavingEvent', () => false)
   
   const totalPeserta = computed(() => daftarPeserta.value.length)
@@ -101,14 +110,60 @@ export const useAdmin = () => {
     }
   }
 
+  // --- NEW UI STATES ---
+  const toastList = useState('admin_toastList', () => [])
+  const showToast = (message, type = 'success') => {
+    const id = Date.now()
+    toastList.value.push({ id, message, type, show: false })
+    setTimeout(() => {
+      const toast = toastList.value.find(t => t.id === id)
+      if (toast) toast.show = true
+    }, 10)
+    setTimeout(() => {
+      const toast = toastList.value.find(t => t.id === id)
+      if (toast) toast.show = false
+      setTimeout(() => {
+        toastList.value = toastList.value.filter(t => t.id !== id)
+      }, 400)
+    }, 3000)
+  }
+
+  const confirmData = useState('admin_confirm', () => ({ show: false, title: '', message: '', actionText: '', type: 'success', callback: null }))
+  const showConfirm = (title, message, actionText, type, callback) => {
+    confirmData.value = { show: true, title, message, actionText, type, callback }
+  }
+  const closeConfirm = () => {
+    confirmData.value.show = false
+  }
+
+  const isOnline = useState('admin_isOnline', () => true)
+  const showOnboarding = useState('admin_showOnboarding', () => false)
+  const organizerProfile = useState('admin_organizerProfile', () => null)
+
+  const muatProfilOrganizer = async () => {
+    try {
+      if (!currentUser.value) return
+      const { data, error } = await supabase.from('organizer_profile').select('*').eq('id', currentUser.value.id).single()
+      if (data && !error) {
+        organizerProfile.value = data
+        if (!data.nama_organizer) showOnboarding.value = true
+      } else {
+        showOnboarding.value = true
+      }
+    } catch (e) {
+      showOnboarding.value = true
+    }
+  }
+
   return {
     supabase,
     currentUser, userEmail, showDropdown, activeTab, isLoading,
     allEvents, selectedEvent, showArsip,
     daftarPeserta, isLoadingPeserta, formEditEvent, isSavingEdit,
-    showWizard, wizardStepNow, formEvent, formTiketBaru, wizardTiketList, isSavingEvent,
+    showWizard, wizardStepNow, formEvent, formTiketBaru, wizardTiketList, isSavingEvent, formForgeItems,
     totalPeserta, totalLunas, totalPending, totalHadir, persenHadir,
     userName, userInitials, eventAktif, eventSelesai, eventArsip,
-    formatDate, muatDaftarEvent, muatDaftarPeserta, prosesLogout
+    formatDate, muatDaftarEvent, muatDaftarPeserta, prosesLogout,
+    toastList, showToast, confirmData, showConfirm, closeConfirm, isOnline, showOnboarding, organizerProfile, muatProfilOrganizer
   }
 }

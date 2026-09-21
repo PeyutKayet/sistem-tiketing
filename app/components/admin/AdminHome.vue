@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="page-home">
     <div v-if="isLoading" class="loader-container">
       <div class="spinner"></div>
       <div style="font-weight:500; font-size:13px;">Mengambil data event...</div>
@@ -26,7 +26,7 @@
       <!-- EVENT AKTIF -->
       <div class="section-header">
         <h3>🎯 Event Aktif</h3>
-        <div style="display:flex; gap:10px;">
+        <div class="flex" style="gap:10px;">
           <button class="btn-outline" @click="showArsip = !showArsip">
             📂 {{ showArsip ? 'Sembunyikan Arsip' : 'Lihat Arsip' }}
           </button>
@@ -98,11 +98,12 @@
 const {
   isLoading, eventAktif, eventSelesai, eventArsip,
   showArsip, formatDate, selectedEvent, activeTab,
-  showWizard, wizardStepNow, formEvent, wizardTiketList
+  showWizard, wizardStepNow, formEvent, wizardTiketList, muatDaftarPeserta
 } = useAdmin()
 
-const pilihEvent = (ev) => {
+const pilihEvent = async (ev) => {
   selectedEvent.value = ev
+  await muatDaftarPeserta()
   activeTab.value = 'event'
 }
 

@@ -4,11 +4,14 @@
 │   ├── app.vue
 │   ├── components
 │   │   └── admin
+│   │       ├── AdminConfirm.vue
 │   │       ├── AdminEditEvent.vue
 │   │       ├── AdminEventDetail.vue
 │   │       ├── AdminHome.vue
+│   │       ├── AdminOnboarding.vue
 │   │       ├── AdminPeserta.vue
 │   │       ├── AdminSidebar.vue
+│   │       ├── AdminToast.vue
 │   │       ├── AdminTopbar.vue
 │   │       └── AdminWizard.vue
 │   ├── composables
@@ -26,8 +29,9 @@
 ├── public
 │   ├── favicon.ico
 │   └── robots.txt
+├── push git.txt
 ├── README.md
 ├── struktur.txt
 └── tsconfig.json
 
-8 directories, 23 files
+8 directories, 27 files
