@@ -124,27 +124,7 @@
           </div>
           
           <div class="right">
-            <div class="hp">
-              <div class="screen" style="background: #f8fafc;">
-                <div style="display: flex; justify-content: space-between; font-size: 10px; color: #8a9aa8; padding-bottom: 4px; border-bottom: 1px solid #f0f4fa; margin-bottom: 6px;">
-                  <span>🔋 📶</span><span>12:30</span>
-                </div>
-                <div style="display:flex; justify-content:center; margin-bottom:12px;">
-                  <span style="background:#eef3f9; color:var(--primary); padding:4px 12px; border-radius:20px; font-size:9px; font-weight:700; letter-spacing:0.5px;">🎟️ EVENTHUB TICKET</span>
-                </div>
-                <div style="background:#ffffff; border-radius:16px; padding:12px; box-shadow:0 4px 12px rgba(0,0,0,0.03); margin-bottom:12px; border:1px solid #e6edf5;">
-                  <div style="height:120px; border-radius:10px; margin-bottom:12px; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 28px;" 
-                    :style="{ backgroundImage: formEvent.poster_preview ? `url('${formEvent.poster_preview}')` : 'none', background: formEvent.poster_preview ? 'none' : 'linear-gradient(145deg, var(--primary), #3b82f6)' }">
-                    {{ formEvent.poster_preview ? '' : '🚀' }}
-                  </div>
-                  <div style="font-size:16px; font-weight:800; text-align:center; color:#0a1929; letter-spacing:-0.3px;">{{ formEvent.nama || 'Event Baru' }}</div>
-                  <div style="font-size:10px; color:#1a6a4a; background:#e4f0e8; padding:4px 8px; border-radius:6px; text-align:center; font-weight:600; margin:8px auto 0 auto; width:fit-content;">
-                    📅 {{ formEvent.tanggal || 'Tgl' }} · 📍 {{ formEvent.lokasi || 'Lokasi' }}
-                  </div>
-                  <div style="text-align:center; margin-top:8px; font-size:11px; color:#4a5a6e; line-height:1.5;">{{ formEvent.deskripsi || 'Deskripsi acara...' }}</div>
-                </div>
-              </div>
-            </div>
+            <AdminMobilePreview :step="1" :formEvent="formEvent" :wizardTiketList="wizardTiketList" :hpPreviewHtml="hpPreviewHtml" />
           </div>
         </div>
       </div>
@@ -153,72 +133,56 @@
       <div class="wiz-step" :class="{ active: wizardStepNow === 2 }">
         <div class="wiz-grid">
           <div class="left">
-            <h4 style="margin-bottom:16px;font-weight:600;color:#0a1929;font-size:15px;display:flex;align-items:center;gap:6px;"><Icon name="lucide:ticket" style="color:var(--primary);" /> Tiket & Harga</h4>
-            <div class="row mb-3">
-              <div class="col">
-                <label class="form-label">Nama Tiket</label>
-                <input type="text" v-model="formTiketBaru.nama" placeholder="Contoh: VIP" class="form-control" />
-              </div>
-              <div class="col">
-                <label class="form-label">Harga</label>
-                <div style="position:relative; display:flex; align-items:center;">
-                  <span style="position:absolute; left:14px; color:#8a9aa8; font-weight:600;">Rp</span>
-                  <input type="text" v-model="formTiketBaru.harga" placeholder="0" class="form-control" style="padding-left:42px;" @input="formatRupiahInput" />
+            <h4 style="margin-bottom:16px;font-weight:600;color:#0a1929;font-size:15px;display:flex;align-items:center;gap:6px;"><Icon name="lucide:ticket" style="color:var(--primary);" /> Kelola Tiket</h4>
+            
+            <div style="background: #ffffff; border: 1px solid #e6edf5; border-radius: 16px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); margin-bottom: 24px;">
+              <h5 style="margin-bottom:16px;font-weight:600;color:#4a5a6e;font-size:13px;display:flex;align-items:center;gap:6px;"><Icon name="lucide:plus-square" style="font-size:14px;" /> Tambah Tiket Baru</h5>
+              <div class="row mb-3">
+                <div class="col" style="flex:2;">
+                  <label class="form-label" style="font-size:11px;">Nama Tiket</label>
+                  <input type="text" v-model="formTiketBaru.nama" placeholder="Contoh: VIP / Early Bird" class="form-control" style="font-size:12px;" />
+                </div>
+                <div class="col" style="flex:1;">
+                  <label class="form-label" style="font-size:11px;">Kuota</label>
+                  <input type="number" v-model="formTiketBaru.kuota" placeholder="Contoh: 100" class="form-control" style="font-size:12px;" />
                 </div>
               </div>
-              <div class="col">
-                <label class="form-label">Kuota</label>
-                <input type="number" v-model="formTiketBaru.kuota" placeholder="50" class="form-control" />
+              <div class="row mb-3">
+                <div class="col">
+                  <label class="form-label" style="font-size:11px;">Harga (Biarkan 0 jika Gratis)</label>
+                  <div style="position:relative; display:flex; align-items:center;">
+                    <span style="position:absolute; left:14px; color:#8a9aa8; font-weight:600; font-size:12px;">Rp</span>
+                    <input type="text" v-model="formTiketBaru.harga" placeholder="0" class="form-control" style="padding-left:42px; font-size:12px;" @input="formatRupiahInput" />
+                  </div>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col"><label class="form-label" style="font-size:11px;">Penjualan Dibuka</label><input type="datetime-local" v-model="formTiketBaru.buka" class="form-control" style="font-size:12px;" /></div>
+                <div class="col"><label class="form-label" style="font-size:11px;">Penjualan Ditutup</label><input type="datetime-local" v-model="formTiketBaru.tutup" class="form-control" style="font-size:12px;" /></div>
+              </div>
+              <div class="flex" style="gap:10px; margin-top:8px;">
+                <button class="btn-primary" style="padding:8px 20px; font-weight:600; display:flex; align-items:center; gap:6px; font-size:12px;" @click="tambahTiketSimulasi"><Icon name="lucide:plus-circle" style="font-size:16px;" /> Tambah Tiket</button>
+                <button class="btn-outline" style="padding:8px 20px; display:flex; align-items:center; gap:6px; font-size:12px;" @click="resetFormTiket"><Icon name="lucide:rotate-ccw" style="font-size:16px;" /> Reset</button>
               </div>
             </div>
-            <div class="row mb-3">
-              <div class="col"><label class="form-label">Waktu Buka</label><input type="datetime-local" v-model="formTiketBaru.buka" class="form-control" /></div>
-              <div class="col"><label class="form-label">Waktu Tutup</label><input type="datetime-local" v-model="formTiketBaru.tutup" class="form-control" /></div>
-            </div>
-            <div class="flex" style="gap:10px;">
-              <button class="btn-primary" style="padding:8px 20px; font-weight:600; display:flex; align-items:center; gap:6px;" @click="tambahTiketSimulasi"><Icon name="lucide:plus-circle" style="font-size:16px;" /> Tambah Tiket</button>
-              <button class="btn-outline" style="padding:8px 20px; display:flex; align-items:center; gap:6px;" @click="resetFormTiket"><Icon name="lucide:rotate-ccw" style="font-size:16px;" /> Reset</button>
-            </div>
             
-            <div style="background: #f7faff; border-radius: 12px; padding: 16px; margin-top: 24px; border: 1px solid #e6edf5;">
-              <h5 style="margin-bottom:12px;font-weight:600;color:#4a5a6e;font-size:13px;">Daftar Tiket:</h5>
-              <div v-if="wizardTiketList.length === 0" style="color:#8a9aa8; font-style:italic; text-align:center; padding:10px 0;">Belum ada tiket yang ditambahkan.</div>
-              <div v-for="(t, i) in wizardTiketList" :key="i" style="display: flex; justify-content: space-between; align-items:center; padding: 8px 0; border-bottom: 1px solid #e6edf5; font-size: 13px;">
-                <span style="font-weight:600; color:#0a1929;">{{ t.nama }}</span>
-                <span>{{ formatRupiah(t.harga) }} · <span style="color:#8a9aa8;">Kuota {{ t.kuota }}</span></span>
-                <span style="color:#d43f34; cursor:pointer; display:flex; align-items:center; padding:4px;" @click="hapusTiketSimulasi(i)"><Icon name="lucide:trash-2" style="font-size:16px;" /></span>
+            <div style="background: #f8fafc; border-radius: 16px; padding: 20px; border: 1px solid #e6edf5;">
+              <h5 style="margin-bottom:12px;font-weight:600;color:#4a5a6e;font-size:13px;display:flex;align-items:center;gap:6px;"><Icon name="lucide:list" style="font-size:14px;" /> Daftar Tiket Tersimpan</h5>
+              <div v-if="wizardTiketList.length === 0" style="color:#8a9aa8; font-style:italic; text-align:center; padding:20px 0; font-size:12px;">Belum ada tiket yang ditambahkan.</div>
+              <div v-for="(t, i) in wizardTiketList" :key="i" style="background: #ffffff; display: flex; justify-content: space-between; align-items:center; padding: 12px 16px; border: 1px solid #e6edf5; border-radius: 12px; margin-bottom: 8px; font-size: 13px; box-shadow: 0 1px 4px rgba(0,0,0,0.02);">
+                <div>
+                  <div style="font-weight:700; color:#0a1929; margin-bottom:4px;">{{ t.nama }}</div>
+                  <div style="font-size:11px; color:#8a9aa8;"><Icon name="lucide:users" style="font-size:12px;vertical-align:text-bottom;margin-right:2px;" /> Kuota: <span style="font-weight:600;color:#4a5a6e;">{{ t.kuota }}</span></div>
+                </div>
+                <div style="display:flex; align-items:center; gap:16px;">
+                  <div style="font-weight:700; color:var(--primary); background:#eef3f9; padding:4px 10px; border-radius:8px; font-size:12px;">{{ formatRupiah(t.harga) }}</div>
+                  <button style="background:none; border:none; color:#d43f34; cursor:pointer; display:flex; align-items:center; padding:6px; border-radius:6px; transition:0.2s;" @click="hapusTiketSimulasi(i)" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='none'"><Icon name="lucide:trash-2" style="font-size:16px;" /></button>
+                </div>
               </div>
             </div>
           </div>
           <div class="right">
-            <div class="hp">
-              <div class="screen" style="background: #f8fafc;">
-                <div style="display: flex; justify-content: space-between; font-size: 10px; color: #8a9aa8; padding-bottom: 4px; border-bottom: 1px solid #f0f4fa; margin-bottom: 6px;">
-                  <span>🔋 📶</span><span>12:30</span>
-                </div>
-                <div style="display:flex; justify-content:center; margin-bottom:12px;">
-                  <span style="background:#eef3f9; color:var(--primary); padding:4px 12px; border-radius:20px; font-size:9px; font-weight:700; letter-spacing:0.5px;">🎟️ EVENTHUB TICKET</span>
-                </div>
-                <div style="background:#ffffff; border-radius:16px; padding:12px; box-shadow:0 4px 12px rgba(0,0,0,0.03); margin-bottom:12px; border:1px solid #e6edf5;">
-                  <div style="height:120px; border-radius:10px; margin-bottom:12px; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 28px;" 
-                    :style="{ backgroundImage: formEvent.poster_preview ? `url('${formEvent.poster_preview}')` : 'none', background: formEvent.poster_preview ? 'none' : 'linear-gradient(145deg, var(--primary), #3b82f6)' }">
-                    {{ formEvent.poster_preview ? '' : '🚀' }}
-                  </div>
-                  <div style="font-size:16px; font-weight:800; text-align:center; color:#0a1929; letter-spacing:-0.3px;">{{ formEvent.nama || 'Event Baru' }}</div>
-                  <div style="font-size:10px; color:#1a6a4a; background:#e4f0e8; padding:4px 8px; border-radius:6px; text-align:center; font-weight:600; margin:8px auto 0 auto; width:fit-content;">
-                    📅 {{ formEvent.tanggal || 'Tgl' }} · 📍 {{ formEvent.lokasi || 'Lokasi' }}
-                  </div>
-                </div>
-                <div style="background:#ffffff; border-radius:16px; padding:12px; box-shadow:0 4px 12px rgba(0,0,0,0.03); border:1px solid #e6edf5;">
-                  <div style="font-weight:700; font-size:11px; color:#0a1929; margin-bottom:8px; display:flex; align-items:center; gap:4px;"><span>🎟️</span> Pilih Tiket</div>
-                  <div v-if="wizardTiketList.length === 0" style="color:#8a9aa8;font-size:11px;text-align:center;padding:10px 0;">Tiket belum tersedia</div>
-                  <div v-for="(t, i) in wizardTiketList" :key="i" style="background: #f7faff; border-radius: 8px; padding: 6px 12px; margin-bottom: 3px; border: 1px solid #e6edf5;">
-                    ○ {{ t.nama }} &nbsp; <span style="color:#8a9aa8;font-size:11px;">📊 Tersisa {{ t.kuota }}</span>
-                  </div>
-                  <button style="width:100%; padding:9px; background:#1a6a4a; color:white; border:none; border-radius:40px; font-weight:700; font-size:12px; margin-top:10px; box-shadow:0 4px 12px rgba(26, 106, 74, 0.3);">🛒 Beli Tiket</button>
-                </div>
-              </div>
-            </div>
+            <AdminMobilePreview :step="2" :formEvent="formEvent" :wizardTiketList="wizardTiketList" :hpPreviewHtml="hpPreviewHtml" />
           </div>
         </div>
       </div>
@@ -230,30 +194,7 @@
             <AdminFormBuilder v-if="wizardStepNow === 3" />
           </div>
           <div class="right">
-            <div class="hp">
-              <div class="screen" style="background: #f8fafc;">
-                <div style="display: flex; justify-content: space-between; font-size: 10px; color: #8a9aa8; padding-bottom: 4px; border-bottom: 1px solid #f0f4fa; margin-bottom: 6px;">
-                  <span>🔋 📶</span><span>12:30</span>
-                </div>
-                <div style="display:flex; justify-content:center; margin-bottom:12px;">
-                  <span style="background:#eef3f9; color:var(--primary); padding:4px 12px; border-radius:20px; font-size:9px; font-weight:700; letter-spacing:0.5px;">🎟️ EVENTHUB TICKET</span>
-                </div>
-                <div style="background:#ffffff; border-radius:16px; padding:12px; box-shadow:0 4px 12px rgba(0,0,0,0.03); margin-bottom:12px; border:1px solid #e6edf5;">
-                  <div style="height:120px; border-radius:10px; margin-bottom:12px; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 28px;" 
-                    :style="{ backgroundImage: formEvent.poster_preview ? `url('${formEvent.poster_preview}')` : 'none', background: formEvent.poster_preview ? 'none' : 'linear-gradient(145deg, var(--primary), #3b82f6)' }">
-                    {{ formEvent.poster_preview ? '' : '🚀' }}
-                  </div>
-                  <div style="font-size:16px; font-weight:800; text-align:center; color:#0a1929; letter-spacing:-0.3px;">{{ formEvent.nama || 'Event Baru' }}</div>
-                  <div style="font-size:10px; color:#1a6a4a; background:#e4f0e8; padding:4px 8px; border-radius:6px; text-align:center; font-weight:600; margin:8px auto 0 auto; width:fit-content;">
-                    📅 {{ formEvent.tanggal || 'Tgl' }} · 📍 {{ formEvent.lokasi || 'Lokasi' }}
-                  </div>
-                </div>
-                <div style="background:#ffffff; border-radius:16px; padding:12px; box-shadow:0 4px 12px rgba(0,0,0,0.03); border:1px solid #e6edf5;">
-                  <div v-html="hpPreviewHtml"></div>
-                  <button style="width:100%; padding:9px; background:#1a3a5c; color:white; border:none; border-radius:40px; font-weight:700; font-size:12px; margin-top:10px; box-shadow:0 4px 12px var(--primary-shadow);">📝 DAFTAR SEKARANG</button>
-                </div>
-              </div>
-            </div>
+            <AdminMobilePreview :step="3" :formEvent="formEvent" :wizardTiketList="wizardTiketList" :hpPreviewHtml="hpPreviewHtml" />
           </div>
         </div>
       </div>
@@ -305,47 +246,21 @@
             </div>
           </div>
           <div class="right">
-            <div class="hp">
-              <div class="screen" style="background: #f8fafc;">
-                <div style="display: flex; justify-content: space-between; font-size: 10px; color: #8a9aa8; padding-bottom: 4px; border-bottom: 1px solid #f0f4fa; margin-bottom: 6px;">
-                  <span>🔋 📶</span><span>12:30</span>
-                </div>
-                <div style="display:flex; justify-content:center; margin-bottom:12px;">
-                  <span style="background:#eef3f9; color:var(--primary); padding:4px 12px; border-radius:20px; font-size:9px; font-weight:700; letter-spacing:0.5px;">🎟️ EVENTHUB TICKET</span>
-                </div>
-                <div style="background:#ffffff; border-radius:16px; padding:12px; box-shadow:0 4px 12px rgba(0,0,0,0.03); margin-bottom:12px; border:1px solid #e6edf5;">
-                  <div style="height:120px; border-radius:10px; margin-bottom:12px; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 28px;" 
-                    :style="{ backgroundImage: formEvent.poster_preview ? `url('${formEvent.poster_preview}')` : 'none', background: formEvent.poster_preview ? 'none' : 'linear-gradient(145deg, var(--primary), #3b82f6)' }">
-                    {{ formEvent.poster_preview ? '' : '🚀' }}
-                  </div>
-                  <div style="font-size:16px; font-weight:800; text-align:center; color:#0a1929; letter-spacing:-0.3px;">{{ formEvent.nama || 'Event Baru' }}</div>
-                  <div style="font-size:10px; color:#1a6a4a; background:#e4f0e8; padding:4px 8px; border-radius:6px; text-align:center; font-weight:600; margin:8px auto 0 auto; width:fit-content;">
-                    📅 {{ formEvent.tanggal || 'Tgl' }} · 📍 {{ formEvent.lokasi || 'Lokasi' }}
-                  </div>
-                  <div style="text-align:center; margin-top:8px; font-size:11px; color:#4a5a6e; line-height:1.5;">{{ formEvent.deskripsi || 'Deskripsi acara...' }}</div>
-                </div>
-                <div style="background:#ffffff; border-radius:16px; padding:12px; box-shadow:0 4px 12px rgba(0,0,0,0.03); border:1px solid #e6edf5; margin-bottom:12px;">
-                  <div style="font-weight:700; font-size:11px; color:#0a1929; margin-bottom:8px; display:flex; align-items:center; gap:4px;"><span>🎟️</span> Pilih Tiket</div>
-                  <div v-if="wizardTiketList.length === 0" style="color:#8a9aa8;font-size:11px;text-align:center;padding:10px 0;">Tiket belum tersedia</div>
-                  <div v-for="(t, i) in wizardTiketList" :key="i" style="background: #f7faff; border-radius: 8px; padding: 6px 12px; margin-bottom: 3px; border: 1px solid #e6edf5;">
-                    ○ {{ t.nama }} &nbsp; <span style="color:#8a9aa8;font-size:11px;">📊 Tersisa {{ t.kuota }}</span>
-                  </div>
-                </div>
-                <div style="background:#ffffff; border-radius:16px; padding:12px; box-shadow:0 4px 12px rgba(0,0,0,0.03); border:1px solid #e6edf5;">
-                  <div style="font-weight:700; font-size:11px; color:#0a1929; margin-bottom:8px; display:flex; align-items:center; gap:4px;"><span>📝</span> Form Pendaftaran</div>
-                  <div v-html="hpPreviewHtml"></div>
-                  <button style="width:100%; padding:9px; background:#1a3a5c; color:white; border:none; border-radius:40px; font-weight:700; font-size:12px; margin-top:10px; box-shadow:0 4px 12px var(--primary-shadow);">📝 DAFTAR SEKARANG</button>
-                </div>
-              </div>
-            </div>
+            <AdminMobilePreview :step="4" :formEvent="formEvent" :wizardTiketList="wizardTiketList" :hpPreviewHtml="hpPreviewHtml" />
           </div>
         </div>
       </div>
 
       <div class="nav-buttons">
-        <button class="btn-outline" :style="{ visibility: wizardStepNow === 1 ? 'hidden' : 'visible' }" @click="wizardStepNow--">⬅️ Kembali</button>
-        <button class="btn-primary" @click="goNext" :disabled="isSavingEvent">
-          {{ wizardStepNow === 4 ? (isSavingEvent ? '⏳ Menyimpan...' : '🚀 Publikasikan') : 'Lanjut ➡️' }}
+        <button class="btn-outline" :style="{ visibility: wizardStepNow === 1 ? 'hidden' : 'visible' }" @click="wizardStepNow--" style="display:flex; align-items:center; gap:6px;"><Icon name="lucide:arrow-left" style="font-size:16px;" /> Kembali</button>
+        <button class="btn-primary" @click="goNext" :disabled="isSavingEvent" style="display:flex; align-items:center; gap:6px;">
+          <template v-if="wizardStepNow === 4">
+            <template v-if="isSavingEvent"><Icon name="lucide:loader" style="font-size:16px; animation: spin 1s linear infinite;" /> Menyimpan...</template>
+            <template v-else><Icon name="lucide:rocket" style="font-size:16px;" /> Publikasikan</template>
+          </template>
+          <template v-else>
+            Lanjut <Icon name="lucide:arrow-right" style="font-size:16px;" />
+          </template>
         </button>
       </div>
     </div>
@@ -404,7 +319,7 @@ const updatePreviewFromItems = () => {
               for (let i = 1; i <= count; i++) html += `<span style="background:#e6edf5; padding:2px 6px; border-radius:10px; color:#4a5a6e;">${i}</span>`;
               html += `</div>`;
           } else if (item.type === 'file_upload') {
-              html += `<div style="border:1px dashed #c8d6e8; background:#fafcfe; border-radius:6px; padding:6px; text-align:center; font-size:9px; color:#8a9aa8; height:100%; display:flex; align-items:center; justify-content:center; box-sizing: border-box;">📎 Upload</div>`;
+              html += `<div style="border:1px dashed #c8d6e8; background:#fafcfe; border-radius:6px; padding:6px; text-align:center; font-size:9px; color:#8a9aa8; height:100%; display:flex; align-items:center; justify-content:center; box-sizing: border-box;">Upload File</div>`;
           } else if (item.type === 'terms') {
               html += `<div style="flex:1; display:flex; flex-direction:column; min-height:0; overflow:hidden;">
                           <div style="font-size:7px; color:#8a9aa8; background:#f0f4fa; padding:4px; border-radius:4px; margin-bottom:4px; overflow-y:auto; line-height:1.4; flex:1;">${escapeHtml(item.termsText)}</div>

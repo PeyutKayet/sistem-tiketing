@@ -65,15 +65,15 @@ onMounted(async () => {
   window.addEventListener('offline', setOffline)
   if (!navigator.onLine) setOffline()
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
+  const user = useSupabaseUser()
+  if (!user.value) {
     alert('Sesi telah berakhir. Mengalihkan ke halaman Login...')
     router.push('/login')
     return
   }
   
-  currentUser.value = user
-  userEmail.value = user.email
+  currentUser.value = user.value
+  userEmail.value = user.value.email
   await muatProfilOrganizer()
   await muatDaftarEvent(user.id)
 })

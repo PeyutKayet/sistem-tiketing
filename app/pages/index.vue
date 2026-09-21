@@ -43,10 +43,8 @@
 
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
-import { createClient } from '@supabase/supabase-js'
 
-const config = useRuntimeConfig()
-const supabase = createClient(config.public.supabaseUrl, config.public.supabaseKey)
+const supabase = useSupabaseClient()
 
 const events = ref([])
 const loading = ref(true)
@@ -64,17 +62,14 @@ onMounted(async () => {
   try {
     const { data, error: err } = await supabase
       .from('event')
-      .select('*')
+      .select('id, slug, nama_event, tanggal_mulai, lokasi, poster_url, status')
       .neq('is_archived', true)
+      .neq('status', 'finished')
+      .gte('tanggal_mulai', hariIni.toISOString())
 
     if (err) throw err
 
-    // Filter event aktif (belum lewat hari & bukan finished)
-    events.value = data.filter(ev => {
-      const tgl = new Date(ev.tanggal_mulai)
-      tgl.setHours(0,0,0,0)
-      return tgl >= hariIni && ev.status !== 'finished'
-    })
+    events.value = data || []
   } catch (err) {
     error.value = err.message
   } finally {

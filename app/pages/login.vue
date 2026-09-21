@@ -107,9 +107,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
-import { createClient } from '@supabase/supabase-js'
 
 useHead({
   title: 'EventHub — Login Organizer',
@@ -117,11 +116,8 @@ useHead({
 })
 
 const router = useRouter()
-
-// Init Supabase
-const SUPABASE_URL = 'https://supabase.e-tiket.web.id'
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE'
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+const supabase = useSupabaseClient()
+const user = useSupabaseUser()
 
 // State
 const email = ref('')
@@ -134,11 +130,15 @@ const msgColor = ref('#d43f34')
 const isLookingAway = ref(false)
 const isSuccess = ref(false)
 
-// Cek Sesi saat Mount
-onMounted(async () => {
-  const { data: { user } } = await supabase.auth.getUser()
-  if (user) router.push('/admin')
+// Redirect if already logged in
+watchEffect(() => {
+  if (user.value) {
+    router.push('/admin')
+  }
+})
 
+// Cek Sesi saat Mount
+onMounted(() => {
   // Pasang listener mousemove buat kamera
   document.addEventListener("mousemove", handleMouseMove)
 })

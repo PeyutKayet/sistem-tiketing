@@ -1,13 +1,13 @@
 <template>
   <div ref="builderWrapper" class="ff-shared-builder-ui" style="display:flex; flex-direction:column; gap:16px;">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 20px;">
       <div>
-        <h4 style="margin-bottom:4px;font-weight:600;color:#0a1929;">📋 Form Builder</h4>
-        <p style="font-size:13px;color:#8a9aa8;margin:0;">Tarik elemen ke kanvas untuk membangun form.</p>
+        <h4 style="margin-bottom:4px;font-weight:600;color:#0a1929;display:flex;align-items:center;gap:6px;"><Icon name="lucide:layout-template" style="color:var(--primary);" /> Form Builder</h4>
+        <p class="text-muted" style="margin:0; font-size: 13px;">Rancang formulir data peserta yang akan mengisi tiket ini.</p>
       </div>
-      <div class="ff-add-element-bar" style="display:flex; gap:8px;">
-        <button class="btn-outline btn-sm" @click="resetGrid" style="font-size:12px; padding:6px 12px; font-weight:600;">🔄 Reset</button>
-        <button class="btn-outline danger btn-sm" @click="clearCanvas" style="font-size:12px; padding:6px 12px; font-weight:600;">🗑️ Kosongkan</button>
+      <div class="flex" style="gap:8px;">
+        <button class="btn-outline btn-sm" @click="resetGrid" style="font-size:12px; padding:6px 12px; font-weight:600; display:flex; align-items:center; gap:4px;"><Icon name="lucide:rotate-ccw" style="font-size:14px;" /> Reset</button>
+        <button class="btn-outline danger btn-sm" @click="clearCanvas" style="font-size:12px; padding:6px 12px; font-weight:600; display:flex; align-items:center; gap:4px;"><Icon name="lucide:trash-2" style="font-size:14px;" /> Kosongkan</button>
       </div>
     </div>
 
@@ -227,7 +227,7 @@ onMounted(() => {
     }
     function updateItem(id, updates) {
         const item = items.find(it => it.id === id); if(!item) return
-        Object.assign(item, updates); renderGrid()
+        Object.assign(item, updates); renderGrid(); triggerUpdate()
     }
 
     function openPropertyModal() {
@@ -264,7 +264,7 @@ onMounted(() => {
                 html += `
                     <div style="display:flex; gap:6px; align-items:center;">
                         <input type="text" value="${escapeHtml(opt)}" class="form-control ff-opt-input" data-index="${idx}" style="padding:6px 10px; font-size:12px;" />
-                        <button class="btn-icon danger ff-opt-del" data-index="${idx}" style="font-size:14px; padding:4px 8px;">🗑️</button>
+                        <button class="btn-icon danger ff-opt-del" data-index="${idx}" style="font-size:14px; padding:4px 8px; display:flex; align-items:center; justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>
                     </div>`
             })
             html += `
@@ -290,7 +290,9 @@ onMounted(() => {
         }
 
         html += `
-            ${item.undeletable ? '<div style="font-size:11px; color:#8a9aa8; text-align:center; margin-top:10px;">🔒 Field bawaan sistem tidak bisa dihapus.</div>' : '<button class="btn-outline danger" id="ffBtnDelete" style="width:100%; margin-top:10px;">🗑️ Hapus Field Ini</button>'}
+            ${item.undeletable ? '<div style="font-size:11px; color:#8a9aa8; text-align:center; margin-top:10px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:middle;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Field bawaan sistem tidak bisa dihapus.</div>' : '<button class="btn-outline danger" id="ffBtnDelete" style="width:100%; margin-top:10px; display:flex; justify-content:center; align-items:center; gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Hapus Field Ini</button>'}
+            <hr style="margin:20px 0; border:0; border-top:1px dashed #e6edf5;" />
+            <button class="btn-primary" id="ffBtnSaveProp" style="width:100%; padding:10px; font-weight:600; font-size:14px; display:flex; justify-content:center; align-items:center; gap:6px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Simpan & Tutup</button>
         `
 
         propertyContent.innerHTML = html
@@ -320,6 +322,9 @@ onMounted(() => {
 
         const delBtn = propertyContent.querySelector('#ffBtnDelete')
         if (delBtn) delBtn.addEventListener('click', function() { deleteItem(item.id) })
+
+        const saveBtn = propertyContent.querySelector('#ffBtnSaveProp')
+        if (saveBtn) saveBtn.addEventListener('click', function() { propertyOverlay.classList.remove('open') })
     }
 
     function recalcWaterfall() {
