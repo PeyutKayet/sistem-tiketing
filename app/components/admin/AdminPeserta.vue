@@ -41,7 +41,13 @@
         </thead>
         <tbody>
           <tr v-if="isLoadingPeserta">
-            <td colspan="6" style="text-align: center; padding: 40px; color: #8a9aa8;">Memuat data peserta...</td>
+            <td colspan="6" style="padding: 20px;">
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <div class="skeleton" style="height:40px; width:100%; border-radius:8px;"></div>
+                <div class="skeleton" style="height:40px; width:100%; border-radius:8px;"></div>
+                <div class="skeleton" style="height:40px; width:100%; border-radius:8px;"></div>
+              </div>
+            </td>
           </tr>
           <tr v-else-if="filteredPeserta.length === 0">
             <td colspan="6" style="text-align: center; padding: 30px; color: #8a9aa8;">Tidak ada data peserta yang cocok.</td>

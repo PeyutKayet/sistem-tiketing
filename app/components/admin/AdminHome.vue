@@ -25,27 +25,31 @@
 
       <!-- EVENT AKTIF -->
       <div class="section-header">
-        <h3>🎯 Event Aktif</h3>
+        <h3 style="display:flex; align-items:center; gap:8px;"><Icon name="lucide:target" style="color:var(--primary);" /> Event Aktif</h3>
         <div class="flex" style="gap:10px;">
-          <button class="btn-outline" @click="showArsip = !showArsip">
-            📂 {{ showArsip ? 'Sembunyikan Arsip' : 'Lihat Arsip' }}
+          <button class="btn-outline" @click="showArsip = !showArsip" style="display:flex; align-items:center; gap:6px;">
+            <Icon name="lucide:archive" /> {{ showArsip ? 'Sembunyikan Arsip' : 'Lihat Arsip' }}
           </button>
-          <button class="action" @click="bukaWizard">+ Buat Event Baru</button>
+          <button class="action" @click="bukaWizard" style="display:flex; align-items:center; gap:6px;"><Icon name="lucide:plus" /> Buat Event Baru</button>
         </div>
       </div>
       
       <div v-if="eventAktif.length === 0" style="text-align:center; padding: 40px; color: #8a9aa8; background: #ffffff; border-radius: 12px; border: 1px dashed #c8d6e8; margin-bottom: 24px;">
-        Belum ada event aktif. Klik <b>+ Buat Event Baru</b> untuk memulai.
+        <Icon name="lucide:inbox" style="font-size:32px; color:#c8d6e8; margin-bottom:12px; display:block; margin-inline:auto;" />
+        Belum ada event aktif. Klik <b>Buat Event Baru</b> untuk memulai.
       </div>
       
       <div class="event-grid">
         <div v-for="ev in eventAktif" :key="ev.id" class="event-card" @click="pilihEvent(ev)">
           <div class="thumb" :style="{ backgroundImage: ev.poster_url ? `url('${ev.poster_url}')` : 'none' }">
-            {{ !ev.poster_url ? '🚀' : '' }}
+            <Icon v-if="!ev.poster_url" name="lucide:rocket" style="color:rgba(255,255,255,0.7); font-size:48px;" />
           </div>
           <div class="body">
             <div class="title">{{ ev.nama_event }}</div>
-            <div class="meta">📅 {{ formatDate(ev.tanggal_mulai) }} · 📍 {{ ev.lokasi || 'Online' }}</div>
+            <div class="meta" style="display:flex; align-items:center; gap:12px;">
+              <span style="display:flex; align-items:center; gap:4px;"><Icon name="lucide:calendar" style="font-size:14px;" /> {{ formatDate(ev.tanggal_mulai) }}</span>
+              <span style="display:flex; align-items:center; gap:4px;"><Icon name="lucide:map-pin" style="font-size:14px;" /> {{ ev.lokasi || 'Online' }}</span>
+            </div>
             <span class="status-badge active">● Aktif</span>
           </div>
         </div>
@@ -54,17 +58,20 @@
       <!-- EVENT SELESAI -->
       <div v-if="eventSelesai.length > 0">
         <div class="section-header">
-          <h3>🏁 Event Selesai</h3>
+          <h3 style="display:flex; align-items:center; gap:8px;"><Icon name="lucide:flag" /> Event Selesai</h3>
         </div>
         <div class="event-grid">
           <div v-for="ev in eventSelesai" :key="ev.id" class="event-card finished" @click="pilihEvent(ev)">
             <div class="thumb gray" :style="{ backgroundImage: ev.poster_url ? `url('${ev.poster_url}')` : 'none' }">
-              {{ !ev.poster_url ? '📚' : '' }}
+              <Icon v-if="!ev.poster_url" name="lucide:check-circle" style="color:rgba(255,255,255,0.7); font-size:48px;" />
               <span class="badge-selesai">SELESAI</span>
             </div>
             <div class="body">
               <div class="title">{{ ev.nama_event }}</div>
-              <div class="meta">📅 {{ formatDate(ev.tanggal_mulai) }} · 📍 {{ ev.lokasi || 'Online' }}</div>
+              <div class="meta" style="display:flex; align-items:center; gap:12px;">
+                <span style="display:flex; align-items:center; gap:4px;"><Icon name="lucide:calendar" style="font-size:14px;" /> {{ formatDate(ev.tanggal_mulai) }}</span>
+                <span style="display:flex; align-items:center; gap:4px;"><Icon name="lucide:map-pin" style="font-size:14px;" /> {{ ev.lokasi || 'Online' }}</span>
+              </div>
               <span class="status-badge off">● Selesai</span>
             </div>
           </div>
@@ -74,17 +81,23 @@
       <!-- LACI ARSIP -->
       <div v-if="showArsip" style="margin-top:24px; padding-top:24px; border-top:1px dashed #cbd5e1;">
         <div class="section-header">
-          <h3 style="color:#64748b;">📦 Laci Arsip</h3>
+          <h3 style="color:#64748b; display:flex; align-items:center; gap:8px;"><Icon name="lucide:archive" /> Laci Arsip</h3>
         </div>
         <div v-if="eventArsip.length === 0" style="text-align:center; color:#8a9aa8; padding: 20px;">
+          <Icon name="lucide:inbox" style="font-size:24px; color:#c8d6e8; margin-bottom:8px; display:block; margin-inline:auto;" />
           Tidak ada event diarsipkan.
         </div>
         <div class="event-grid">
           <div v-for="ev in eventArsip" :key="ev.id" class="event-card archived" @click="pilihEvent(ev)">
-            <div class="thumb gray">📁</div>
+            <div class="thumb gray">
+              <Icon name="lucide:folder-closed" style="color:rgba(255,255,255,0.7); font-size:48px;" />
+            </div>
             <div class="body">
               <div class="title">{{ ev.nama_event }}</div>
-              <div class="meta">📅 {{ formatDate(ev.tanggal_mulai) }} · 📍 {{ ev.lokasi || 'Online' }}</div>
+              <div class="meta" style="display:flex; align-items:center; gap:12px;">
+                <span style="display:flex; align-items:center; gap:4px;"><Icon name="lucide:calendar" style="font-size:14px;" /> {{ formatDate(ev.tanggal_mulai) }}</span>
+                <span style="display:flex; align-items:center; gap:4px;"><Icon name="lucide:map-pin" style="font-size:14px;" /> {{ ev.lokasi || 'Online' }}</span>
+              </div>
               <span class="status-badge archived">📦 Diarsipkan</span>
             </div>
           </div>

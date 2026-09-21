@@ -6,16 +6,20 @@
       <AdminTopbar />
 
       <div class="content" id="pageContent" @click="showDropdown = false">
-        <AdminHome v-if="activeTab === 'home'" />
-        <AdminEventDetail v-else-if="activeTab === 'event' && selectedEvent" />
-        <AdminTiket v-else-if="activeTab === 'tiket' && selectedEvent" />
-        <AdminPeserta v-else-if="activeTab === 'peserta' && selectedEvent" />
-        <AdminEditEvent v-else-if="activeTab === 'edit' && selectedEvent" />
-        <AdminSettings v-else-if="activeTab === 'settings'" />
-        <div v-else-if="activeTab !== 'home' && activeTab !== 'event' && activeTab !== 'peserta' && activeTab !== 'edit' && activeTab !== 'settings' && activeTab !== 'tiket'" style="padding: 40px; text-align: center; color: #8a9aa8;">
-          <h2>Halaman {{ activeTab }}</h2>
-          <p>Fitur ini akan ditambahkan di tahap selanjutnya bray! 🚀</p>
-        </div>
+        <Transition name="fade" mode="out-in">
+          <div :key="activeTab">
+            <AdminHome v-if="activeTab === 'home'" />
+            <AdminEventDetail v-else-if="activeTab === 'event' && selectedEvent" />
+            <AdminTiket v-else-if="activeTab === 'tiket' && selectedEvent" />
+            <AdminPeserta v-else-if="activeTab === 'peserta' && selectedEvent" />
+            <AdminEditEvent v-else-if="activeTab === 'edit' && selectedEvent" />
+            <AdminSettings v-else-if="activeTab === 'settings'" />
+            <div v-else-if="activeTab !== 'home' && activeTab !== 'event' && activeTab !== 'peserta' && activeTab !== 'edit' && activeTab !== 'settings' && activeTab !== 'tiket'" style="padding: 40px; text-align: center; color: #8a9aa8;">
+              <h2>Halaman {{ activeTab }}</h2>
+              <p>Fitur ini akan ditambahkan di tahap selanjutnya bray! 🚀</p>
+            </div>
+          </div>
+        </Transition>
       </div>
     </div>
 
@@ -253,5 +257,18 @@ tr:last-child td { border-bottom: none; }
 .page-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
 .page-title { font-size: 22px; font-weight: 600; color: var(--text-main); letter-spacing: -0.3px; }
 .preview-sticky { flex: 0 0 290px; position: sticky; top: 20px; align-self: flex-start; }
+
+/* ── VUE TRANSITIONS ── */
+.fade-enter-active, .fade-leave-active { transition: opacity 0.25s ease, transform 0.25s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(10px); }
+
+/* ── SKELETON LOADER ── */
+.skeleton {
+  background: #f0f4fa;
+  background-image: linear-gradient(90deg, #f0f4fa 0px, #f7faff 40px, #f0f4fa 80px);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
 </style>

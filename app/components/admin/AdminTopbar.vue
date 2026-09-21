@@ -17,10 +17,12 @@
         <div class="name">{{ userName }}</div>
         <div class="email">{{ userEmail }}</div>
         <hr />
-        <button class="btn-outline" style="width:100%; margin-bottom:10px; border-radius:12px; font-weight:600; display:flex; justify-content:center; gap:8px;" @click="activeTab = 'settings'; showDropdown = false">
-          ⚙️ Buka Pengaturan
+        <button class="btn-outline" style="width:100%; margin-bottom:10px; border-radius:12px; font-weight:600; display:flex; justify-content:center; align-items:center; gap:8px;" @click="activeTab = 'settings'; showDropdown = false">
+          <Icon name="lucide:settings" /> Buka Pengaturan
         </button>
-        <button class="btn-logout" style="display:flex; justify-content:center; gap:8px;" @click="handleLogout">🚪 Logout</button>
+        <button class="btn-logout" style="display:flex; justify-content:center; align-items:center; gap:8px;" @click="handleLogout">
+          <Icon name="lucide:log-out" /> Logout
+        </button>
       </div>
     </div>
   </header>

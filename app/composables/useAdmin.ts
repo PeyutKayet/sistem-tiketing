@@ -83,7 +83,7 @@ export const useAdmin = () => {
       if (error) throw error
       allEvents.value = data || []
     } catch (err) {
-      alert('Gagal memuat event: ' + err.message)
+      showToast('Gagal memuat event: ' + err.message, 'error')
     } finally {
       isLoading.value = false
     }
@@ -97,7 +97,7 @@ export const useAdmin = () => {
       if (error) throw error
       daftarPeserta.value = data || []
     } catch (err) {
-      alert('Gagal memuat peserta: ' + err.message)
+      showToast('Gagal memuat peserta: ' + err.message, 'error')
     } finally {
       isLoadingPeserta.value = false
     }

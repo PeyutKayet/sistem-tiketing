@@ -1,6 +1,11 @@
 <template>
   <div class="container" style="display: block; margin: 10px auto;">
     
+    <!-- PUBLIC TOAST -->
+    <div v-if="toastMessage" style="position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:9999; padding:12px 24px; border-radius:30px; font-weight:600; font-size:14px; box-shadow:0 8px 24px rgba(0,0,0,0.15); animation:slideDown 0.3s ease-out; color:#fff;" :style="{ background: toastType === 'success' ? '#1a6a4a' : '#d43f34' }">
+      {{ toastMessage }}
+    </div>
+
     <!-- State Loading -->
     <div v-if="loading" style="padding: 50px; text-align: center; color: var(--text-main);">
       Mempersiapkan ruang yang aman dan nyaman...
@@ -229,6 +234,14 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { createClient } from '@supabase/supabase-js'
 
+const toastMessage = ref('')
+const toastType = ref('')
+const showToastMsg = (msg, type = 'error') => {
+  toastMessage.value = msg
+  toastType.value = type
+  setTimeout(() => { toastMessage.value = '' }, 3000)
+}
+
 const route = useRoute()
 const slug = route.params.slug
 
@@ -308,7 +321,7 @@ const updateKeranjang = (tiketId, change, sisaKuota) => {
     if (window.Swal) {
       window.Swal.fire({ icon: 'warning', title: 'Kuota Terbatas', text: `Sisa tiket hanya ${sisaKuota}.`, confirmButtonColor: '#0C387A' })
     } else {
-      alert(`Sisa tiket hanya ${sisaKuota}.`)
+      showToastMsg(`Sisa tiket hanya ${sisaKuota}.`)
     }
     newQty = sisaKuota
   }
@@ -345,7 +358,7 @@ const lanjutDaftar = () => {
     if (window.Swal) {
       window.Swal.fire({ icon: 'warning', title: 'Pilih Tiket', text: 'Silakan tentukan jumlah tiket yang ingin dibeli terlebih dahulu.', confirmButtonColor: '#0C387A' })
     } else {
-      alert('Silakan pilih tiket terlebih dahulu.')
+      showToastMsg('Silakan pilih tiket terlebih dahulu.')
     }
     return
   }
@@ -363,7 +376,7 @@ const setujuDanLanjut = () => {
     if (window.Swal) {
       window.Swal.fire({ icon: 'warning', title: 'Belum Setuju', text: 'Mohon centang persetujuan terlebih dahulu.', confirmButtonColor: '#E85D5E' })
     } else {
-      alert('Mohon centang persetujuan terlebih dahulu.')
+      showToastMsg('Mohon centang persetujuan terlebih dahulu.')
     }
     return
   }
@@ -383,7 +396,7 @@ const lanjutBayar = () => {
         if (window.Swal) {
           window.Swal.fire({ icon: 'warning', title: 'Data Belum Lengkap', text: `Mohon lengkapi "${field.label}" untuk Peserta Ke-${index + 1}`, confirmButtonColor: '#0C387A' })
         } else {
-          alert(`Mohon lengkapi "${field.label}" untuk Peserta Ke-${index + 1}`)
+          showToastMsg(`Mohon lengkapi "${field.label}" untuk Peserta Ke-${index + 1}`)
         }
         isValid = false
         return
@@ -408,7 +421,7 @@ const handleFileUpload = (event) => {
   
   if (file.size > 5 * 1024 * 1024) {
     if (window.Swal) window.Swal.fire({ icon: 'error', title: 'Ukuran Terlalu Besar', text: 'Maksimal 5 MB. Silakan kompres foto struk Anda.', confirmButtonColor: '#E85D5E' })
-    else alert('Ukuran foto maksimal 5 MB!')
+    else showToastMsg('Ukuran foto maksimal 5 MB!')
     event.target.value = '' 
     return
   }
@@ -431,7 +444,7 @@ const submitData = async () => {
   if (!buktiBayarBase64.value) {
     uploadError.value = true
     if (window.Swal) window.Swal.fire({ icon: 'warning', title: 'Struk Belum Ada', text: 'Harap upload foto struk transfer terlebih dahulu.', confirmButtonColor: '#E85D5E' })
-    else alert('Harap upload foto struk transfer!')
+    else showToastMsg('Harap upload foto struk transfer!')
     return
   }
 
@@ -529,7 +542,7 @@ const submitData = async () => {
   } catch (err) {
     console.error(err)
     if (window.Swal) window.Swal.fire({ icon: 'error', title: 'Pendaftaran Gagal', text: err.message, confirmButtonColor: '#E85D5E' })
-    else alert('Gagal: ' + err.message)
+    else showToastMsg('Gagal: ' + err.message)
   } finally {
     isSubmitting.value = false
   }

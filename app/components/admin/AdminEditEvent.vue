@@ -86,40 +86,44 @@
         </div>
 
         <div class="panel">
-          <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;">🛡️ Anti Calo</h4>
-          <div class="flex" style="flex-wrap:wrap;">
-            <label class="checkbox-item"><input type="checkbox" v-model="formEditEvent.is_anti_calo_email" /> 1 Email = 1 Tiket</label>
-            <label class="checkbox-item"><input type="checkbox" v-model="formEditEvent.is_anti_calo_wa" /> 1 WA = 1 Tiket</label>
-            <label class="checkbox-item"><input type="checkbox" v-model="formEditEvent.is_wa_konfirm" /> Konfirmasi WA</label>
-          </div>
+          <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;display:flex;align-items:center;gap:6px;"><Icon name="lucide:shield-check" style="font-size:16px;color:var(--primary);" /> Anti Calo</h4>
+          <label class="checkbox-item mb-1">
+            <input type="checkbox" v-model="formEditEvent.is_anti_calo_email" /> 1 Email = 1 Tiket 
+            <span class="text-muted" style="font-size:12px;margin-left:4px;">(Peserta tidak bisa daftar berulang dengan email yang sama)</span>
+          </label>
+          <label class="checkbox-item mb-1">
+            <input type="checkbox" v-model="formEditEvent.is_anti_calo_wa" /> 1 WA = 1 Tiket
+          </label>
+          <label class="checkbox-item mb-1">
+            <input type="checkbox" v-model="formEditEvent.is_wa_konfirm" /> Wajib Konfirmasi Nomor WA Aktif (Akan dikirim OTP)
+          </label>
         </div>
 
         <div class="panel">
-          <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;">💖 Fitur Donasi / Infaq</h4>
+          <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;display:flex;align-items:center;gap:6px;"><Icon name="lucide:heart-handshake" style="font-size:16px;color:#d43f34;" /> Fitur Donasi / Infaq</h4>
           <div class="mb-3">
             <label class="checkbox-item">
-              <input type="checkbox" v-model="formEditEvent.is_donasi_active" /> Aktifkan Form Donasi di Pendaftaran
+              <input type="checkbox" v-model="formEditEvent.is_donasi_active" /> Aktifkan Form Donasi Saat Pendaftaran
             </label>
           </div>
+          
           <div v-if="formEditEvent.is_donasi_active" style="padding-top: 10px; border-top: 1px dashed #e6edf5;">
-            <div class="row mb-3">
-              <div class="col">
-                <label class="form-label">Header Donasi (Bisa pakai tag HTML)</label>
-                <input type="text" v-model="formEditEvent.donasi_header" class="form-control" placeholder="Contoh: <b>Infaq Pembangunan Masjid</b>" />
-              </div>
-            </div>
             <div class="row">
               <div class="col">
-                <label class="form-label">Opsi Nominal (Pisahkan dengan koma)</label>
-                <input type="text" v-model="formEditEvent.donasi_options" class="form-control" placeholder="Contoh: 10000, 20000, 50000, custom" />
-                <small class="text-muted" style="font-size: 11px;">Ketik "custom" jika ingin user bisa mengisi nominal bebas.</small>
+                <label class="form-label">Teks Header Donasi</label>
+                <input type="text" v-model="formEditEvent.donasi_header" class="form-control" placeholder="Contoh: Infaq Pembangunan Masjid" />
+              </div>
+              <div class="col">
+                <label class="form-label">Pilihan Nominal (Pisahkan dengan koma)</label>
+                <input type="text" v-model="formEditEvent.donasi_options" class="form-control" placeholder="Contoh: 10000, 50000, 100000, custom" />
+                <span class="text-muted" style="font-size:11px; display:block; margin-top:4px;">Tulis "custom" jika ingin peserta mengisi nominal sendiri.</span>
               </div>
             </div>
           </div>
         </div>
 
         <div class="panel">
-          <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;">💬 Grup Komunikasi</h4>
+          <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;display:flex;align-items:center;gap:6px;"><Icon name="lucide:message-circle" style="font-size:16px;color:#15803d;" /> Grup Komunikasi</h4>
           <div class="mb-3">
             <label class="checkbox-item">
               <input type="checkbox" v-model="formEditEvent.is_grup_wa_active" /> Sediakan Link Grup WhatsApp Peserta
@@ -133,7 +137,7 @@
 
         <div class="panel">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-              <h4 style="margin:0;font-weight:600;color:#0a1929;">📋 Form Pendaftaran (FormForge)</h4>
+              <h4 style="margin:0;font-weight:600;color:#0a1929;display:flex;align-items:center;gap:6px;"><Icon name="lucide:file-cog" style="font-size:16px;color:var(--primary);" /> Form Pendaftaran (FormForge)</h4>
           </div>
           <AdminFormBuilder />
         </div>
@@ -165,6 +169,12 @@
               </div>
               <div style="text-align:center; margin-top:8px; font-size:11px; color:#4a5a6e;">{{ formEditEvent.deskripsi || 'Deskripsi acara...' }}</div>
             </div>
+            
+            <div style="background:#ffffff; border-radius:16px; padding:12px; box-shadow:0 4px 12px rgba(0,0,0,0.03); border:1px solid #e6edf5;">
+              <div style="font-weight:700; font-size:11px; color:#0a1929; margin-bottom:8px; display:flex; align-items:center; gap:4px;"><Icon name="lucide:file-text" style="font-size:12px;" /> Form Pendaftaran</div>
+              <div v-html="hpPreviewHtml"></div>
+              <button style="width:100%; padding:9px; background:#1a3a5c; color:white; border:none; border-radius:40px; font-weight:700; font-size:12px; margin-top:10px; box-shadow:0 4px 12px var(--primary-shadow);">📝 DAFTAR SEKARANG</button>
+            </div>
           </div>
         </div>
       </div>
@@ -173,13 +183,63 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import AdminFormBuilder from '~/components/admin/AdminFormBuilder.vue'
 
 const { selectedEvent, formEditEvent, isSavingEdit, activeTab, supabase, showToast, currentUser, muatDaftarEvent, formForgeItems } = useAdmin()
 
 const posterFile = ref(null)
 const posterPreviewUrl = ref(null)
+const hpPreviewHtml = ref('<div style="color:#8a9aa8;font-size:11px;text-align:center;padding:10px 0;">Memuat preview...</div>')
+
+const escapeHtml = (text) => {
+  if (!text) return ''
+  const div = document.createElement('div'); div.textContent = text; return div.innerHTML 
+}
+
+const updatePreviewFromItems = () => {
+  let html = '<div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-rows: 20px; gap: 4px; width: 100%;">';
+  const sorted = [...formForgeItems.value].sort((a, b) => a.y - b.y || a.x - b.x);
+  
+  if (sorted.length === 0) {
+      html = '<div style="grid-column: 1 / -1; color:#8a9aa8; font-size:10px; text-align:center; padding:10px 0;">Belum ada field tambahan</div>';
+  } else {
+      for (const item of sorted) {
+          html += `<div style="grid-column: ${item.x + 1} / span ${item.width}; grid-row: ${item.y + 1} / span ${item.height}; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: transparent;">`;
+          if (item.type === 'header') {
+              html += `<div style="font-size:11px; font-weight:700; color:#0a1929; margin-top:0; border-bottom:1px solid #e6edf5; padding-bottom:2px; word-wrap:break-word; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex-shrink: 0;">${escapeHtml(item.label)}</div>`;
+          } else {
+              html += `<label style="font-size:8px; font-weight:600; color:#4a5a6e; display:block; margin-bottom:3px; text-transform:uppercase; letter-spacing:0.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex-shrink: 0;">${escapeHtml(item.label)}${item.required ? ' <span style="color:#d43f34">*</span>' : ''}</label>`;
+          }
+          if (item.type === 'header') {} 
+          else if (item.type === 'short_text') html += `<input type="text" placeholder="..." style="width:100%; height:100%; padding:4px 6px; border:1px solid #e6edf5; border-radius:6px; font-size:9px; background:#fafcfe; box-sizing: border-box;" disabled/>`
+          else if (item.type === 'date' || item.type === 'time') html += `<input type="${item.type}" style="width:100%; height:100%; padding:4px 6px; border:1px solid #e6edf5; border-radius:6px; font-size:9px; background:#fafcfe; box-sizing: border-box;" disabled/>`
+          else if (item.type === 'paragraph') html += `<textarea placeholder="..." style="width:100%; height:100%; padding:4px 6px; border:1px solid #e6edf5; border-radius:6px; font-size:9px; background:#fafcfe; resize:none; box-sizing: border-box;" disabled></textarea>`
+          else if (item.type === 'dropdown') {
+              html += `<select style="width:100%; height:100%; padding:4px 6px; border:1px solid #e6edf5; border-radius:6px; font-size:9px; background:#fafcfe; box-sizing: border-box;" disabled><option value="">Pilih...</option></select>`;
+          } else if (item.type === 'multiple_choice' || item.type === 'checkboxes') {
+              html += `<div style="display:flex; flex-direction:column; gap:4px; font-size:9px; color:#4a5a6e; overflow:auto; height:100%; padding-right: 4px;">`;
+              (item.options || ['Opsi 1']).forEach(o => html += `<label style="display:flex; align-items:center; gap:3px;"><input type="radio" disabled style="margin:0; width:10px; height:10px;" /> <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(o)}</span></label>`);
+              html += `</div>`;
+          } else if (item.type === 'file_upload') {
+              html += `<div style="border:1px dashed #c8d6e8; background:#fafcfe; border-radius:6px; padding:6px; text-align:center; font-size:9px; color:#8a9aa8; height:100%; display:flex; align-items:center; justify-content:center; box-sizing: border-box;">📎 Upload</div>`;
+          } else {
+              html += `<input type="text" placeholder="..." disabled style="width:100%; height:100%; padding:4px 6px; border:1px solid #e6edf5; border-radius:6px; font-size:9px; background:#fafcfe; box-sizing: border-box;" />`;
+          }
+          html += `</div>`;
+      }
+  }
+  html += '</div>';
+  hpPreviewHtml.value = html;
+}
+
+onMounted(() => {
+  window.addEventListener('ff-updated', updatePreviewFromItems)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('ff-updated', updatePreviewFromItems)
+})
 
 watch(selectedEvent, (val) => {
   if (val) {
@@ -209,6 +269,7 @@ watch(selectedEvent, (val) => {
     
     // Load FormForge Items
     formForgeItems.value = s.pertanyaan_kustom || []
+    setTimeout(() => updatePreviewFromItems(), 50)
     
     posterPreviewUrl.value = val.poster_url || null
     posterFile.value = null
