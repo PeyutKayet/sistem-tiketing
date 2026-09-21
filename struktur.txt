@@ -34,8 +34,11 @@
 │   ├── favicon.ico
 │   └── robots.txt
 ├── push git.txt
+├── query.sql
 ├── README.md
 ├── struktur.txt
+├── test-schema.mjs
+├── test-supabase.mjs
 └── tsconfig.json
 
-8 directories, 31 files
+8 directories, 34 files

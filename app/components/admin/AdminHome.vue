@@ -41,7 +41,7 @@
       
       <div class="event-grid">
         <div v-for="ev in eventAktif" :key="ev.id" class="event-card" @click="pilihEvent(ev)">
-          <div class="thumb" :style="{ backgroundImage: ev.poster_url ? `url('${ev.poster_url}')` : 'none' }">
+          <div class="thumb" :style="ev.poster_url ? { backgroundImage: `url('${ev.poster_url}')`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : {}">
             <Icon v-if="!ev.poster_url" name="lucide:rocket" style="color:rgba(255,255,255,0.7); font-size:48px;" />
           </div>
           <div class="body">
@@ -62,7 +62,7 @@
         </div>
         <div class="event-grid">
           <div v-for="ev in eventSelesai" :key="ev.id" class="event-card finished" @click="pilihEvent(ev)">
-            <div class="thumb gray" :style="{ backgroundImage: ev.poster_url ? `url('${ev.poster_url}')` : 'none' }">
+            <div class="thumb gray" :style="ev.poster_url ? { backgroundImage: `url('${ev.poster_url}')`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : {}">
               <Icon v-if="!ev.poster_url" name="lucide:check-circle" style="color:rgba(255,255,255,0.7); font-size:48px;" />
               <span class="badge-selesai">SELESAI</span>
             </div>
@@ -119,13 +119,14 @@ const {
 
 // Tarik data otomatis saat halaman dimuat
 onMounted(() => {
-  if (currentUser.value?.id) {
-    muatDaftarEvent(currentUser.value.id)
+  const userId = currentUser.value?.id || currentUser.value?.sub
+  if (userId) {
+    muatDaftarEvent(userId)
   }
 })
 
 // Berjaga-jaga jika ID user sedikit telat dimuat (reaktivitas Nuxt/Supabase)
-watch(() => currentUser.value?.id, (newId) => {
+watch(() => currentUser.value?.id || currentUser.value?.sub, (newId) => {
   if (newId) muatDaftarEvent(newId)
 })
 
@@ -143,3 +144,4 @@ const bukaWizard = () => {
   showWizard.value = true
 }
 </script>
+

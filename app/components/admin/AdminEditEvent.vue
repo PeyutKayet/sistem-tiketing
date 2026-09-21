@@ -160,7 +160,7 @@
             </div>
             <div style="background:#ffffff; border-radius:16px; padding:12px; box-shadow:0 4px 12px rgba(0,0,0,0.03); margin-bottom:12px; border:1px solid #e6edf5;">
               <div style="height:120px; border-radius:10px; margin-bottom:12px; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 28px;" 
-                :style="{ backgroundImage: posterPreviewUrl ? `url('${posterPreviewUrl}')` : 'none', background: posterPreviewUrl ? 'none' : 'linear-gradient(145deg, var(--primary), #3b82f6)' }">
+                :style="posterPreviewUrl ? { backgroundImage: `url('${posterPreviewUrl}')` } : { background: 'linear-gradient(145deg, var(--primary), #3b82f6)' }">
                 {{ posterPreviewUrl ? '' : '🚀' }}
               </div>
               <div style="font-size:16px; font-weight:800; text-align:center; color:#0a1929; letter-spacing:-0.3px;">{{ formEditEvent.nama || 'Event Baru' }}</div>

@@ -12,7 +12,17 @@
     <div v-else-if="error" style="text-align:center; color:#ef4444; padding: 40px;">Gagal memuat event: {{ error }}</div>
     
     <!-- State Kosong -->
-    <div v-else-if="events.length === 0" style="text-align:center; color:var(--text-muted); padding: 40px;">Saat ini belum ada event aktif yang tersedia.</div>
+    <div v-else-if="events.length === 0" style="text-align:center; color:var(--text-muted); padding: 40px;">
+      Saat ini belum ada event aktif yang tersedia.
+      
+      <!-- VIBE CODER DEBUG UI -->
+      <div style="margin-top: 20px; padding: 15px; background: #ffe4e6; color: #9f1239; border-radius: 8px; text-align: left; font-size: 14px;">
+        <strong>🚨 Vibe Coder Debug Box:</strong><br/>
+        Data dari Supabase: <pre>{{ events }}</pre>
+        <br/>
+        Error detail: <pre>{{ error }}</pre>
+      </div>
+    </div>
     
     <!-- Render Grid -->
     <div v-else class="event-cards-wrapper">

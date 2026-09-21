@@ -74,8 +74,13 @@ onMounted(async () => {
     return
   }
   
+  console.log("=> Mulai memuat profil organizer...")
   await muatProfilOrganizer()
+  console.log("=> Profil organizer selesai dimuat.")
+  
+  console.log("=> Memanggil muatDaftarEvent dari admin.vue...")
   await muatDaftarEvent(user.value?.id)
+  console.log("=> muatDaftarEvent selesai dipanggil.")
 })
 
 onUnmounted(() => {

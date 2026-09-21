@@ -82,7 +82,14 @@ export const useAdmin = () => {
     }
     isLoading.value = true
     try {
+      console.log("=== VIBE CODER ADMIN DEBUG ===")
+      console.log("Memuat event untuk organizer_id:", userId)
       const { data, error } = await supabase.from('event').select('*').eq('organizer_id', userId).order('created_at', { ascending: false })
+      
+      console.log("Hasil query data:", data)
+      console.log("Hasil query error:", error)
+      console.log("==============================")
+      
       if (error) throw error
       allEvents.value = data || []
     } catch (err) {

@@ -423,7 +423,7 @@ const goNext = async () => {
     }
 
     const payload = {
-      // organizer_id KITA HAPUS, biarkan database pakai default auth.uid()
+      organizer_id: currentUser.value?.id || currentUser.value?.sub, // Ambil dari 'sub' jika 'id' kosong
       nama_event: formEvent.value.nama || 'Event Tanpa Nama',
       slug: formEvent.value.slug || `event-${Date.now()}`,
       tanggal_mulai: formEvent.value.tanggal || null,
@@ -449,6 +449,12 @@ const goNext = async () => {
       }
     }
 
+    // === PASANG JEBAKAN DETEKTIF DI SINI ===
+    console.log("🕵️ CEK USER AKTIF:", currentUser.value);
+    console.log("🕵️ CEK ID USER:", currentUser.value?.id);
+    console.log("🕵️ CEK PAYLOAD LENGKAP:", payload);
+    // ========================================
+
     const { data: insertData, error: insertErr } = await supabase.from('event').insert([payload]).select()
     if (insertErr) throw insertErr
 
@@ -469,8 +475,8 @@ const goNext = async () => {
 
     showToast('Event dan Tiket berhasil dipublikasikan!', 'success')
     tutupWizard()
-    // Gunakan optional chaining (?.) untuk jaga-jaga kalau currentUser nge-blank sesaat
-    await muatDaftarEvent(currentUser.value?.id)
+    // Ambil dari 'sub' juga karena 'id' ternyata undefined
+    await muatDaftarEvent(currentUser.value?.id || currentUser.value?.sub)
   } catch (error) {
     showToast('Gagal menyimpan event: ' + error.message, 'error')
   } finally {

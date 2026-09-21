@@ -143,7 +143,7 @@ const simpanProfilOrganizer = async () => {
   isSavingProfil.value = true
   try {
     const payload = {
-      id: currentUser.value.id,
+      id: currentUser.value?.id || currentUser.value?.sub,
       ...profil.value,
       updated_at: new Date().toISOString()
     }
