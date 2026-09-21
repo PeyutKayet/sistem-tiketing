@@ -92,8 +92,11 @@ import { ref, computed, watch } from 'vue'
 
 const { userEmail, currentUser, supabase, showToast, organizerProfile, muatProfilOrganizer } = useAdmin()
 
-const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
-const scannerLink = computed(() => `${baseUrl}/scanner?email=${encodeURIComponent(userEmail.value)}`)
+const baseUrl = ref('')
+onMounted(() => {
+  baseUrl.value = window.location.origin
+})
+const scannerLink = computed(() => `${baseUrl.value}/scanner?email=${encodeURIComponent(userEmail.value)}`)
 
 const pass = ref({ old: '', new: '', confirm: '' })
 const isSavingPass = ref(false)

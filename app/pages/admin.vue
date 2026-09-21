@@ -60,22 +60,22 @@ const router = useRouter()
 const setOnline = () => { isOnline.value = true; showToast('Koneksi internet kembali pulih!', 'success') }
 const setOffline = () => { isOnline.value = false; showToast('Anda offline. Sistem tidak bisa menyimpan perubahan saat ini.', 'error') }
 
+const user = useSupabaseUser()
+
 onMounted(async () => {
   window.addEventListener('online', setOnline)
   window.addEventListener('offline', setOffline)
   if (!navigator.onLine) setOffline()
 
-  const user = useSupabaseUser()
+  console.log("DEBUG USER: ", user.value)
   if (!user.value) {
     alert('Sesi telah berakhir. Mengalihkan ke halaman Login...')
     router.push('/login')
     return
   }
   
-  currentUser.value = user.value
-  userEmail.value = user.value.email
   await muatProfilOrganizer()
-  await muatDaftarEvent(user.id)
+  await muatDaftarEvent(user.value?.id)
 })
 
 onUnmounted(() => {

@@ -133,7 +133,10 @@ import { ref, computed, watch } from 'vue'
 
 const { selectedEvent, activeTab, formatDate, totalPeserta, totalLunas, totalPending, totalHadir, persenHadir, showToast, showConfirm, supabase, muatDaftarEvent, currentUser } = useAdmin()
 
-const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+const baseUrl = ref('')
+onMounted(() => {
+  baseUrl.value = window.location.origin
+})
 const isArchived = computed(() => selectedEvent.value && (selectedEvent.value.status === 'archived' || selectedEvent.value.is_archived))
 
 const daftarTiket = ref([])

@@ -277,7 +277,10 @@ const {
 } = useAdmin()
 
 const showAdvancedSettings = ref(false)
-const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+const baseUrl = ref('')
+onMounted(() => {
+  baseUrl.value = window.location.origin
+})
 const hpPreviewHtml = ref('<div style="color:#8a9aa8;font-size:11px;text-align:center;padding:10px 0;">Memuat preview...</div>')
 
 const escapeHtml = (text) => {

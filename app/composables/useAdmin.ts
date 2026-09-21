@@ -1,9 +1,11 @@
 export const useAdmin = () => {
   const supabase = useSupabaseClient()
   const router = useRouter()
+  const user = useSupabaseUser()
 
-  const currentUser = useState('admin_currentUser', () => null)
-  const userEmail = useState('admin_userEmail', () => '')
+  const currentUser = user // just alias it if it's used elsewhere
+  const userEmail = computed(() => user.value?.email || '')
+  
   const showDropdown = useState('admin_showDropdown', () => false)
   const activeTab = useState('admin_activeTab', () => 'home')
   const isLoading = useState('admin_isLoading', () => true)
@@ -74,6 +76,10 @@ export const useAdmin = () => {
   }
 
   const muatDaftarEvent = async (userId) => {
+    if (!userId) {
+      isLoading.value = false
+      return
+    }
     isLoading.value = true
     try {
       const { data, error } = await supabase.from('event').select('*').eq('organizer_id', userId).order('created_at', { ascending: false })
@@ -139,7 +145,7 @@ export const useAdmin = () => {
 
   const muatProfilOrganizer = async () => {
     try {
-      if (!currentUser.value) return
+      if (!currentUser.value?.id) return
       const { data, error } = await supabase.from('organizer_profile').select('*').eq('id', currentUser.value.id).single()
       if (data && !error) {
         organizerProfile.value = data
