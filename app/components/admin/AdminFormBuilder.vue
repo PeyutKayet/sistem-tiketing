@@ -32,23 +32,23 @@
     </div>
 
     <!-- Kanvas Drag & Drop -->
-    <div class="ff-canvas-wrapper" style="background: #fafcfe; border-radius: 16px; border: 2px dashed #c8d6e8; padding: 20px; flex: 1; min-height: 250px; position: relative; overflow: auto; background-image: radial-gradient(circle, #e6edf5 1px, transparent 1px); background-size: 20px 20px; transition: 0.2s;">
+    <div class="ff-canvas-wrapper" style="background: #fafcfe; border-radius: 16px; border: 2px dashed #c8d6e8; padding: 20px; flex: 1; min-height: 250px; position: relative; overflow: auto; background-image: radial-gradient(circle, #d5e0ee 1px, transparent 1px); background-size: 20px 20px; transition: 0.2s;">
       <div class="ff-grid-container" style="position: relative; width: 100%; min-height: 400px; transition: min-height 0.2s ease;">
         <div class="ff-drop-preview" style="position: absolute; border: 2px dashed var(--primary); border-radius: 12px; background: var(--primary-shadow); pointer-events: none; z-index: 50; opacity: 0; visibility: hidden; transition: 0.15s;"></div>
       </div>
     </div>
     
-    <div style="font-size:11px; font-weight:500; color:#8a9aa8; display:flex; gap:16px; justify-content:center;">
-      <span>🤚 Drag to move</span>
-      <span>📐 Resize from corner</span>
-      <span>✏️ Click to edit</span>
+    <div style="font-size:11px; font-weight:500; color:#8a9aa8; display:flex; gap:16px; justify-content:center; margin-top:8px;">
+      <span style="display:flex;align-items:center;gap:4px;"><Icon name="lucide:move" style="font-size:14px;" /> Drag to move</span>
+      <span style="display:flex;align-items:center;gap:4px;"><Icon name="lucide:scaling" style="font-size:14px;" /> Resize from corner</span>
+      <span style="display:flex;align-items:center;gap:4px;"><Icon name="lucide:mouse-pointer-click" style="font-size:14px;" /> Click to edit</span>
     </div>
 
     <!-- ===== FORM BUILDER PROPERTY MODAL ===== -->
     <div class="wizard-overlay ff-property-overlay" style="z-index: 10001;">
       <div class="wizard" style="max-width:540px;padding:28px 32px;height:auto;">
-        <button class="close ff-close-prop">✖</button>
-        <h3 style="margin-bottom:16px;font-weight:600;color:#0a1929;">✏️ Edit Form Field</h3>
+        <button class="close ff-close-prop"><Icon name="lucide:x" /></button>
+        <h3 style="margin-bottom:16px;font-weight:600;color:#0a1929;display:flex;align-items:center;gap:8px;"><Icon name="lucide:settings-2" style="color:var(--primary);" /> Edit Form Field</h3>
         <div class="ff-property-content">
           <!-- Konten dinamis properties akan di-render di sini -->
         </div>

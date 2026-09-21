@@ -238,7 +238,7 @@ tr:last-child td { border-bottom: none; }
 .step-indicator .active .num { background: var(--primary); color: white; }
 .step-indicator .completed .num { background: #e4f0e8; color: #1a6a4a; }
 
-.wiz-grid { display: flex; gap: 32px; flex-wrap: wrap; flex: 1; overflow: hidden; min-height: 0; }
+.wiz-grid { display: flex; gap: 32px; flex-wrap: wrap; flex: 1; overflow: hidden; min-height: 540px; }
 .wiz-grid .left { flex: 1.2; min-width: 280px; overflow-y: auto; padding-right: 12px; height: 100%; }
 .wiz-grid .right { flex: 0 0 290px; }
 .wiz-step { display: none; }

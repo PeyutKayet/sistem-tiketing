@@ -23,29 +23,27 @@
         <div class="wiz-grid">
           <div class="left">
             <div style="padding-bottom: 20px; border-bottom: 1px dashed #cbd5e1; margin-bottom: 20px;">
-              <h4 style="margin-bottom:16px;font-weight:700;color:#0a1929;font-size:16px;">📝 Informasi Dasar (Wajib)</h4>
-              <div class="mb-3">
-                <label class="form-label">🖼️ Upload Poster Event</label>
-                <input type="file" accept="image/*" class="form-file" @change="handlePosterUpload" style="background:#f7faff; padding:10px; border-radius:12px; border:1px dashed #bcc8d8;" />
-              </div>
+              <h4 style="margin-bottom:16px;font-weight:600;color:#0a1929;font-size:15px;display:flex;align-items:center;gap:6px;"><Icon name="lucide:info" style="color:var(--primary);" /> Informasi Dasar</h4>
+              
               <div class="row mb-3">
-                <div class="col">
-                  <label class="form-label">Nama Acara</label>
+                <div class="col" style="flex:2;">
+                  <label class="form-label">Nama Acara <span style="color:#d43f34">*</span></label>
                   <input type="text" v-model="formEvent.nama" placeholder="Contoh: Tech Summit 2026" class="form-control" @input="generateSlug" />
                 </div>
-                <div class="col">
-                  <label class="form-label">Slug URL</label>
-                  <input type="text" v-model="formEvent.slug" placeholder="contoh-tech-summit-2026" class="form-control" @input="formEvent.slug = formEvent.slug.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')" />
+                <div class="col" style="flex:1;">
+                  <label class="form-label">Upload Poster</label>
+                  <input type="file" accept="image/*" class="form-file" @change="handlePosterUpload" style="background:#f7faff; padding:6px; border-radius:8px; border:1px dashed #bcc8d8; font-size:12px;" />
                 </div>
               </div>
+              
               <div class="row mb-3">
+                <div class="col">
+                  <label class="form-label">Slug URL</label>
+                  <input type="text" v-model="formEvent.slug" placeholder="contoh-tech-summit" class="form-control" @input="formEvent.slug = formEvent.slug.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')" />
+                </div>
                 <div class="col">
                   <label class="form-label">Tanggal</label>
                   <input type="date" v-model="formEvent.tanggal" class="form-control" />
-                </div>
-                <div class="col">
-                  <label class="form-label">Lokasi</label>
-                  <input type="text" v-model="formEvent.lokasi" placeholder="Contoh: Jakarta Convention Center" class="form-control" />
                 </div>
               </div>
               <div class="mb-3">
@@ -54,14 +52,18 @@
               </div>
               <div class="row mb-0">
                 <div class="col">
-                  <label class="form-label">Link Maps</label>
+                  <label class="form-label">Lokasi Acara</label>
+                  <input type="text" v-model="formEvent.lokasi" placeholder="Contoh: Jakarta Convention Center" class="form-control" />
+                </div>
+                <div class="col">
+                  <label class="form-label">Link Maps (Opsional)</label>
                   <input type="url" v-model="formEvent.link_maps" placeholder="https://maps.app.goo.gl/..." class="form-control" />
                 </div>
               </div>
             </div>
 
             <div style="padding-bottom: 20px; border-bottom: 1px dashed #cbd5e1; margin-bottom: 20px;">
-              <h4 style="margin-bottom:16px;font-weight:700;color:#0a1929;font-size:16px;">⚙️ Pengaturan Sistem</h4>
+              <h4 style="margin-bottom:16px;font-weight:600;color:#0a1929;font-size:15px;display:flex;align-items:center;gap:6px;"><Icon name="lucide:settings" style="color:#4a5a6e;" /> Pengaturan Sistem</h4>
               <div class="row mb-0" style="gap: 12px;">
                 <div class="col" style="min-width: 120px;">
                   <label class="form-label">Tipe Event</label>
@@ -72,41 +74,42 @@
                   <select v-model="formEvent.sistem_checkin" class="form-control"><option value="scanner">QR Scanner (1x Datang)</option><option value="portal">Portal Absen (Multi-hari)</option></select>
                 </div>
                 <div class="col" style="min-width: 120px;">
-                  <label class="form-label">Target Absen</label>
+                  <label class="form-label">Target Absen (Bila Portal)</label>
                   <input type="number" v-model="formEvent.target_absen" class="form-control" placeholder="Isi 0 jika pakai Scanner" />
                 </div>
               </div>
             </div>
 
             <div>
-              <h4 style="margin-bottom:16px;font-weight:700;color:#0a1929;font-size:16px;">🧩 Fitur Tambahan & Keamanan</h4>
+              <h4 style="margin-bottom:16px;font-weight:600;color:#0a1929;font-size:15px;display:flex;align-items:center;gap:6px;"><Icon name="lucide:puzzle" style="color:#d43f34;" /> Fitur Tambahan & Keamanan</h4>
               <div class="row" style="gap: 16px;">
                 <div class="col">
-                  <h5 style="margin-bottom:8px;font-weight:600;color:#0a1929;font-size:13px;">💖 Donasi / Infaq</h5>
-                  <div class="mb-1">
-                    <label class="checkbox-item" style="font-size: 13px;"><input type="checkbox" v-model="formEvent.is_donasi_active" /> Aktifkan Form Donasi</label>
+                  <div class="mb-3">
+                    <label class="checkbox-item" style="font-weight:600;"><input type="checkbox" v-model="formEvent.is_donasi_active" /> <Icon name="lucide:heart-handshake" class="mr-1" style="font-size:14px;color:#d43f34;" /> Aktifkan Form Donasi / Infaq</label>
+                    <div v-if="formEvent.is_donasi_active" style="padding-top: 8px; margin-left:24px;">
+                      <input type="text" v-model="formEvent.donasi_header" class="form-control mb-1" placeholder="Header: Infaq Masjid" style="padding: 6px 10px; font-size: 12px;" />
+                      <input type="text" v-model="formEvent.donasi_options" class="form-control" placeholder="Nominal: 10000, 50000, custom" style="padding: 6px 10px; font-size: 12px;" />
+                    </div>
                   </div>
-                  <div v-if="formEvent.is_donasi_active" style="padding-top: 8px;">
-                    <input type="text" v-model="formEvent.donasi_header" class="form-control mb-1" placeholder="Header: <b>Infaq Masjid</b>" style="padding: 6px 10px; font-size: 12px;" />
-                    <input type="text" v-model="formEvent.donasi_options" class="form-control" placeholder="Nominal: 10000, 50000, custom" style="padding: 6px 10px; font-size: 12px;" />
-                  </div>
-                  <h5 style="margin-bottom:8px;margin-top:16px;font-weight:600;color:#0a1929;font-size:13px;">💬 Grup Komunikasi</h5>
-                  <div class="mb-1">
-                    <label class="checkbox-item" style="font-size: 13px;"><input type="checkbox" v-model="formEvent.is_grup_wa_active" /> Link Grup WhatsApp</label>
-                  </div>
-                  <div v-if="formEvent.is_grup_wa_active" style="padding-top: 8px;">
-                    <input type="url" v-model="formEvent.link_grup_wa" class="form-control" placeholder="https://chat.whatsapp.com/..." style="padding: 6px 10px; font-size: 12px;" />
+                  <div>
+                    <label class="checkbox-item" style="font-weight:600;"><input type="checkbox" v-model="formEvent.is_grup_wa_active" /> <Icon name="lucide:message-circle" class="mr-1" style="font-size:14px;color:#15803d;" /> Link Grup WhatsApp</label>
+                    <div v-if="formEvent.is_grup_wa_active" style="padding-top: 8px; margin-left:24px;">
+                      <input type="url" v-model="formEvent.link_grup_wa" class="form-control" placeholder="https://chat.whatsapp.com/..." style="padding: 6px 10px; font-size: 12px;" />
+                    </div>
                   </div>
                 </div>
                 <div class="col">
-                  <h5 style="margin-bottom:8px;font-weight:600;color:#0a1929;font-size:13px;">📜 Syarat & Ketentuan</h5>
-                  <label class="checkbox-item mb-1" style="font-size: 13px;"><input type="checkbox" v-model="formEvent.is_snk_active" /> Gunakan S&K Pendaftaran</label>
-                  <textarea v-if="formEvent.is_snk_active" v-model="formEvent.snk_text" rows="4" class="form-control" placeholder="Ketik syarat dan ketentuan di sini..." style="margin-top: 8px; margin-bottom: 16px; padding: 6px 10px; font-size: 12px; resize: none;"></textarea>
-                  <h5 style="margin-bottom:8px;font-weight:600;color:#0a1929;font-size:13px;">🛡️ Anti Calo</h5>
-                  <div class="flex" style="flex-wrap:wrap; gap:8px;">
-                    <label class="checkbox-item" style="font-size: 12px;"><input type="checkbox" v-model="formEvent.is_anti_calo_email" /> 1 Email = 1 Tiket</label>
-                    <label class="checkbox-item" style="font-size: 12px;"><input type="checkbox" v-model="formEvent.is_anti_calo_wa" /> 1 WA = 1 Tiket</label>
-                    <label class="checkbox-item" style="font-size: 12px;"><input type="checkbox" v-model="formEvent.is_wa_konfirm" /> Konfirmasi WA</label>
+                  <div class="mb-3">
+                    <label class="checkbox-item mb-1" style="font-weight:600;"><input type="checkbox" v-model="formEvent.is_snk_active" /> <Icon name="lucide:file-text" class="mr-1" style="font-size:14px;color:#8a9aa8;" /> Syarat & Ketentuan Pendaftaran</label>
+                    <textarea v-if="formEvent.is_snk_active" v-model="formEvent.snk_text" rows="2" class="form-control" placeholder="Ketik syarat dan ketentuan..." style="margin-left: 24px; width:calc(100% - 24px); padding: 6px 10px; font-size: 12px; resize: none;"></textarea>
+                  </div>
+                  <div>
+                    <label style="font-weight:600; font-size:13px; color:#0a1929; display:flex; align-items:center; gap:4px; margin-bottom:8px;"><Icon name="lucide:shield-check" style="font-size:14px;color:var(--primary);" /> Anti Calo & Validasi</label>
+                    <div class="flex" style="flex-wrap:wrap; gap:8px; margin-left:24px;">
+                      <label class="checkbox-item" style="font-size: 12px;"><input type="checkbox" v-model="formEvent.is_anti_calo_email" /> 1 Email = 1 Tiket</label>
+                      <label class="checkbox-item" style="font-size: 12px;"><input type="checkbox" v-model="formEvent.is_anti_calo_wa" /> 1 WA = 1 Tiket</label>
+                      <label class="checkbox-item" style="font-size: 12px;"><input type="checkbox" v-model="formEvent.is_wa_konfirm" /> Konfirmasi WA</label>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -143,11 +146,11 @@
       <div class="wiz-step" :class="{ active: wizardStepNow === 2 }">
         <div class="wiz-grid">
           <div class="left">
-            <h4 style="margin-bottom:12px;font-weight:600;color:#0a1929;">🎟️ Tiket & Harga</h4>
+            <h4 style="margin-bottom:16px;font-weight:600;color:#0a1929;font-size:15px;display:flex;align-items:center;gap:6px;"><Icon name="lucide:ticket" style="color:var(--primary);" /> Tiket & Harga</h4>
             <div class="row mb-3">
               <div class="col">
                 <label class="form-label">Nama Tiket</label>
-                <input type="text" v-model="formTiketBaru.nama" placeholder="VIP" class="form-control" />
+                <input type="text" v-model="formTiketBaru.nama" placeholder="Contoh: VIP" class="form-control" />
               </div>
               <div class="col">
                 <label class="form-label">Harga</label>
@@ -162,20 +165,21 @@
               </div>
             </div>
             <div class="row mb-3">
-              <div class="col"><label class="form-label">Buka</label><input type="datetime-local" v-model="formTiketBaru.buka" class="form-control" /></div>
-              <div class="col"><label class="form-label">Tutup</label><input type="datetime-local" v-model="formTiketBaru.tutup" class="form-control" /></div>
+              <div class="col"><label class="form-label">Waktu Buka</label><input type="datetime-local" v-model="formTiketBaru.buka" class="form-control" /></div>
+              <div class="col"><label class="form-label">Waktu Tutup</label><input type="datetime-local" v-model="formTiketBaru.tutup" class="form-control" /></div>
             </div>
-            <div class="flex">
-              <button class="btn-primary" style="padding:6px 20px;" @click="tambahTiketSimulasi">💾 Tambahkan</button>
-              <button class="btn-outline" @click="resetFormTiket">🔄 Reset</button>
+            <div class="flex" style="gap:10px;">
+              <button class="btn-primary" style="padding:8px 20px; font-weight:600; display:flex; align-items:center; gap:6px;" @click="tambahTiketSimulasi"><Icon name="lucide:plus-circle" style="font-size:16px;" /> Tambah Tiket</button>
+              <button class="btn-outline" style="padding:8px 20px; display:flex; align-items:center; gap:6px;" @click="resetFormTiket"><Icon name="lucide:rotate-ccw" style="font-size:16px;" /> Reset</button>
             </div>
             
-            <div style="background: #f7faff; border-radius: 14px; padding: 12px 16px; margin-top: 12px; border: 1px solid #e6edf5;">
-              <div v-if="wizardTiketList.length === 0" style="color:#8a9aa8; font-style:italic; text-align:center;">Belum ada tiket yang ditambahkan.</div>
-              <div v-for="(t, i) in wizardTiketList" :key="i" style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #e6edf5; font-size: 13px;">
-                <span>{{ t.nama }}</span>
-                <span>{{ formatRupiah(t.harga) }} · Kuota {{ t.kuota }}</span>
-                <span style="font-size:14px; cursor:pointer;" @click="hapusTiketSimulasi(i)">🗑️</span>
+            <div style="background: #f7faff; border-radius: 12px; padding: 16px; margin-top: 24px; border: 1px solid #e6edf5;">
+              <h5 style="margin-bottom:12px;font-weight:600;color:#4a5a6e;font-size:13px;">Daftar Tiket:</h5>
+              <div v-if="wizardTiketList.length === 0" style="color:#8a9aa8; font-style:italic; text-align:center; padding:10px 0;">Belum ada tiket yang ditambahkan.</div>
+              <div v-for="(t, i) in wizardTiketList" :key="i" style="display: flex; justify-content: space-between; align-items:center; padding: 8px 0; border-bottom: 1px solid #e6edf5; font-size: 13px;">
+                <span style="font-weight:600; color:#0a1929;">{{ t.nama }}</span>
+                <span>{{ formatRupiah(t.harga) }} · <span style="color:#8a9aa8;">Kuota {{ t.kuota }}</span></span>
+                <span style="color:#d43f34; cursor:pointer; display:flex; align-items:center; padding:4px;" @click="hapusTiketSimulasi(i)"><Icon name="lucide:trash-2" style="font-size:16px;" /></span>
               </div>
             </div>
           </div>
@@ -251,44 +255,45 @@
       <div class="wiz-step" :class="{ active: wizardStepNow === 4 }">
         <div class="wiz-grid">
           <div class="left">
-            <h4 style="margin-bottom:20px;font-weight:700;color:#0a1929;font-size:18px;">✅ Ringkasan Event</h4>
+            <h4 style="margin-bottom:20px;font-weight:600;color:#0a1929;font-size:16px;display:flex;align-items:center;gap:6px;"><Icon name="lucide:check-circle" style="color:#15803d;" /> Ringkasan Event</h4>
             
             <div style="background: linear-gradient(to right, #ffffff, #f7faff); border-radius:16px; padding:20px; border:1px solid #e6edf5; margin-bottom:16px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-              <div style="font-size:18px; font-weight:700; color:#0a1929; margin-bottom:8px; letter-spacing:-0.3px;">🎯 {{ formEvent.nama || 'Event Baru' }}</div>
-              <div class="text-muted" style="font-size:13px; display:flex; gap:16px; flex-wrap:wrap;">
-                <span>📅 <span style="font-weight:500; color:#4a5a6e;">{{ formEvent.tanggal || 'Tgl' }}</span></span>
-                <span>📍 <span style="font-weight:500; color:#4a5a6e;">{{ formEvent.lokasi || 'Lokasi' }}</span></span>
+              <div style="font-size:18px; font-weight:700; color:#0a1929; margin-bottom:10px; letter-spacing:-0.3px;">{{ formEvent.nama || 'Event Baru' }}</div>
+              <div class="text-muted" style="font-size:13px; display:flex; gap:16px; flex-wrap:wrap; font-weight:500;">
+                <span style="display:flex;align-items:center;gap:4px;"><Icon name="lucide:calendar" style="font-size:14px;color:#8a9aa8;" /> <span style="color:#4a5a6e;">{{ formEvent.tanggal || 'Tanggal Belum Diatur' }}</span></span>
+                <span style="display:flex;align-items:center;gap:4px;"><Icon name="lucide:map-pin" style="font-size:14px;color:#8a9aa8;" /> <span style="color:#4a5a6e;">{{ formEvent.lokasi || 'Lokasi Belum Diatur' }}</span></span>
               </div>
             </div>
 
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
               <div style="background:#ffffff; border-radius:14px; padding:16px; border:1px solid #e6edf5; box-shadow: 0 1px 4px rgba(0,0,0,0.01);">
-                <div style="font-size:12px; font-weight:600; color:#8a9aa8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;">🎟️ Kategori Tiket</div>
+                <div style="font-size:12px; font-weight:600; color:#8a9aa8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; display:flex; align-items:center; gap:4px;"><Icon name="lucide:ticket" style="font-size:14px;" /> Kategori Tiket</div>
                 <div class="text-muted" style="font-size:13px; line-height:1.7;">
                   <div v-if="wizardTiketList.length === 0">Belum ada tiket</div>
                   <div v-for="t in wizardTiketList" :key="t.nama">• {{ t.nama }} ({{ formatRupiah(t.harga) }})</div>
                 </div>
               </div>
               <div style="background:#ffffff; border-radius:14px; padding:16px; border:1px solid #e6edf5; box-shadow: 0 1px 4px rgba(0,0,0,0.01);">
-                <div style="font-size:12px; font-weight:600; color:#8a9aa8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;">📋 Pertanyaan Kustom</div>
+                <div style="font-size:12px; font-weight:600; color:#8a9aa8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; display:flex; align-items:center; gap:4px;"><Icon name="lucide:file-text" style="font-size:14px;" /> Pertanyaan Kustom</div>
                 <div class="text-muted" style="font-size:13px; line-height:1.7;">
                   <div v-if="formForgeItems.length === 0">Belum ada pertanyaan</div>
-                  <div v-for="q in formForgeItems" :key="q.id">• {{ q.label }} ({{ q.type }})</div>
+                  <div v-for="q in formForgeItems" :key="q.id">• {{ q.label }}</div>
                 </div>
               </div>
             </div>
 
             <div style="background:#ffffff; border-radius:14px; padding:16px; border:1px solid #e6edf5; box-shadow: 0 1px 4px rgba(0,0,0,0.01);">
-              <div style="font-size:12px; font-weight:600; color:#8a9aa8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;">⚙️ Fitur Aktif</div>
-              <div class="text-muted" style="font-size:13px; font-weight:500; color:#0a1929;">
-                ☑️ {{ formEvent.tipe_event }} · ☑️ {{ formEvent.sistem_checkin }}
+              <div style="font-size:12px; font-weight:600; color:#8a9aa8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; display:flex; align-items:center; gap:4px;"><Icon name="lucide:settings-2" style="font-size:14px;" /> Fitur Aktif</div>
+              <div class="text-muted" style="font-size:13px; font-weight:500; color:#0a1929; display:flex; gap:12px; flex-wrap:wrap;">
+                <span><Icon name="lucide:check-circle-2" style="font-size:14px;color:var(--primary);margin-right:2px;vertical-align:text-bottom;" /> {{ formEvent.tipe_event }}</span>
+                <span><Icon name="lucide:check-circle-2" style="font-size:14px;color:var(--primary);margin-right:2px;vertical-align:text-bottom;" /> {{ formEvent.sistem_checkin }}</span>
               </div>
             </div>
             
             <div style="margin-top:24px;">
-              <label style="font-size:12px; font-weight:600; color:#8a9aa8; text-transform:uppercase; margin-bottom:8px; display:block;">🔗 Link Publikasi URL</label>
-              <div style="background:#e4edf8; padding:12px 18px; border-radius:12px; font-size:13px; font-family:monospace; color:#1a4a7a; border:1px dashed #b8c8d8; display:flex; justify-content:space-between; align-items:center;">
-                <span>{{ baseUrl }}/<strong style="color:#0a1929;">{{ formEvent.slug || 'slug-event' }}</strong></span>
+              <label style="font-size:12px; font-weight:600; color:#8a9aa8; text-transform:uppercase; margin-bottom:8px; display:flex; align-items:center; gap:4px;"><Icon name="lucide:link" style="font-size:14px;" /> Link Publikasi</label>
+              <div style="background:#e4edf8; padding:12px 18px; border-radius:12px; font-size:13px; font-family:monospace; color:#1a4a7a; border:1px dashed #b8c8d8;">
+                {{ baseUrl }}/<strong style="color:#0a1929;">{{ formEvent.slug || 'slug-event' }}</strong>
               </div>
             </div>
           </div>
