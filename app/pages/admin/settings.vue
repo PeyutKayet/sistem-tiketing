@@ -1,9 +1,9 @@
 <template>
   <div id="page-settings">
-    <h2 class="page-title" style="margin-bottom:18px;">⚙️ Settings</h2>
+    <h2 class="page-title" style="margin-bottom:18px;"><Icon name="lucide:settings" style="margin-right:4px;" /> Settings</h2>
 
     <div class="panel">
-      <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;">🔐 Akun Admin</h4>
+      <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;"><Icon name="lucide:user-cog" style="margin-right:6px; color: var(--primary);" /> Akun Admin</h4>
       <div style="margin-bottom:14px;"><label class="form-label">Email</label><div style="font-weight:500;font-size:15px;">{{ userEmail }}</div></div>
       
       <div style="display:flex; flex-direction:column; gap:12px; max-width:320px;">
@@ -22,12 +22,12 @@
       </div>
 
       <button class="btn-primary" style="margin-top:16px;" @click="ubahPassword" :disabled="isSavingPass">
-        {{ isSavingPass ? '⏳ Menyimpan...' : '💾 Simpan Password' }}
+        <template v-if="isSavingPass"><Icon name="lucide:loader-2" class="spin" style="margin-right:4px;" /> Menyimpan...</template><template v-else><Icon name="lucide:save" style="margin-right:4px;" /> Simpan Password</template>
       </button>
     </div>
 
     <div class="panel">
-      <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;">🏢 Profil Organizer (Publik)</h4>
+      <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;"><Icon name="lucide:building" style="margin-right:6px; color: var(--primary);" /> Profil Organizer (Publik)</h4>
       <p style="font-size:13px; color:#8a9aa8; margin-bottom:14px;">Informasi ini akan tampil di halaman pendaftaran event sebagai kontak penyelenggara.</p>
       <div class="row mb-3">
         <div class="col">
@@ -50,38 +50,38 @@
         </div>
       </div>
       <button class="btn-primary" @click="simpanProfilOrganizer" :disabled="isSavingProfil">
-        {{ isSavingProfil ? '⏳ Menyimpan...' : '💾 Simpan Profil' }}
+        <template v-if="isSavingProfil"><Icon name="lucide:loader-2" class="spin" style="margin-right:4px;" /> Menyimpan...</template><template v-else><Icon name="lucide:save" style="margin-right:4px;" /> Simpan Profil</template>
       </button>
     </div>
 
     <div class="panel">
-      <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;">🔑 Akses Crew (Scanner QR)</h4>
+      <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;"><Icon name="lucide:key" style="margin-right:6px; color: var(--primary);" /> Akses Crew (Scanner QR)</h4>
       <div class="flex" style="flex-wrap:wrap;align-items:center;">
         <label style="font-weight:500;font-size:14px;">PIN Global:</label>
         <input :type="showPin ? 'text' : 'password'" v-model="profil.pin_scanner" class="filter-control" style="width:140px;" />
-        <button class="btn-outline" @click="showPin = !showPin">👁️</button>
-        <button class="btn-primary" @click="simpanProfilOrganizer" :disabled="isSavingProfil">💾 Simpan</button>
+        <button class="btn-outline" @click="showPin = !showPin"><Icon name="lucide:eye" /></button>
+        <button class="btn-primary" @click="simpanProfilOrganizer" :disabled="isSavingProfil"><Icon name="lucide:save" style="margin-right:4px;" /> Simpan</button>
       </div>
       <div style="margin-top:10px;">
-        <label class="form-label">📲 Link Scanner</label>
+        <label class="form-label"><Icon name="lucide:smartphone" style="margin-right:4px;" /> Link Scanner</label>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
           <code style="background:#f0f4fa;padding:10px 18px;border-radius:40px;font-size:12px;word-break:break-all;font-family:Inter;">{{ scannerLink }}</code>
-          <button class="btn-outline" @click="copyText(scannerLink, 'Link Scanner')">📋 Salin</button>
+          <button class="btn-outline" @click="copyText(scannerLink, 'Link Scanner')"><Icon name="lucide:clipboard-list" style="margin-right:4px;" /> Salin</button>
         </div>
       </div>
     </div>
 
     <div class="panel">
-      <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;">🎨 Preferensi</h4>
+      <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;"><Icon name="lucide:palette" style="margin-right:6px; color: var(--primary);" /> Preferensi</h4>
       <div class="flex" style="flex-wrap:wrap;align-items:center;">
         <label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:14px;">
-          <input type="checkbox" style="width:18px;height:18px;" /> ☾ Mode Gelap
+          <input type="checkbox" style="width:18px;height:18px;" /> <Icon name="lucide:moon" style="margin-right:4px;" /> Mode Gelap
         </label>
         <label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:14px;">
-          🌐 Bahasa 
+          <Icon name="lucide:globe" style="margin-right:4px;" /> Bahasa 
           <select class="filter-control"><option>Indonesia</option><option>English</option></select>
         </label>
-        <button class="btn-primary">💾 Simpan</button>
+        <button class="btn-primary"><Icon name="lucide:save" style="margin-right:4px;" /> Simpan</button>
       </div>
     </div>
   </div>
@@ -167,3 +167,9 @@ const copyText = async (text, label) => {
   }
 }
 </script>
+
+<style scoped>
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
+

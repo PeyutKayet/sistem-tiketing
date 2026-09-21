@@ -3,7 +3,7 @@
     <div class="left">
       <div class="greeting">
         Halo, <span>{{ userName }}</span>
-        <small>· {{ activeTab === 'home' ? 'belum pilih event' : (selectedEvent ? selectedEvent.nama_event : 'belum pilih event') }}</small>
+        <small>· {{ route.path === '/admin' ? 'Beranda' : (selectedEvent ? selectedEvent.nama_event : (route.path.includes('settings') ? 'Pengaturan' : 'Loading...')) }}</small>
       </div>
     </div>
     <div class="right">
@@ -11,13 +11,13 @@
         <span id="networkDot" style="display:inline-block; width:8px; height:8px; border-radius:50%; transition:0.3s;" :style="{ background: isOnline ? '#1a6a4a' : '#d43f34', boxShadow: isOnline ? '0 0 6px rgba(26, 106, 74, 0.4)' : '0 0 6px rgba(212, 63, 52, 0.4)' }"></span>
         <span>{{ isOnline ? 'Online' : 'Offline' }}</span>
       </div>
-      <div class="avatar" @click="showDropdown = !showDropdown">{{ userInitials }}</div>
+      <div class="avatar" @click.stop="showDropdown = !showDropdown">{{ userInitials }}</div>
       <!-- DROPDOWN -->
       <div class="user-dropdown" :class="{ show: showDropdown }">
         <div class="name">{{ userName }}</div>
         <div class="email">{{ userEmail }}</div>
         <hr />
-        <button class="btn-outline" style="width:100%; margin-bottom:10px; border-radius:12px; font-weight:600; display:flex; justify-content:center; align-items:center; gap:8px;" @click="activeTab = 'settings'; showDropdown = false">
+        <button class="btn-outline" style="width:100%; margin-bottom:10px; border-radius:12px; font-weight:600; display:flex; justify-content:center; align-items:center; gap:8px;" @click="router.push('/admin/settings'); showDropdown = false">
           <Icon name="lucide:settings" /> Buka Pengaturan
         </button>
         <button class="btn-logout" style="display:flex; justify-content:center; align-items:center; gap:8px;" @click="handleLogout">
@@ -30,6 +30,8 @@
 
 <script setup>
 const { userName, userInitials, userEmail, selectedEvent, showDropdown, activeTab, prosesLogout, isOnline, showConfirm } = useAdmin()
+const route = useRoute()
+const router = useRouter()
 
 const handleLogout = () => {
   showDropdown.value = false

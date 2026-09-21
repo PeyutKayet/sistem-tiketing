@@ -14,14 +14,6 @@
     <!-- State Kosong -->
     <div v-else-if="events.length === 0" style="text-align:center; color:var(--text-muted); padding: 40px;">
       Saat ini belum ada event aktif yang tersedia.
-      
-      <!-- VIBE CODER DEBUG UI -->
-      <div style="margin-top: 20px; padding: 15px; background: #ffe4e6; color: #9f1239; border-radius: 8px; text-align: left; font-size: 14px;">
-        <strong>🚨 Vibe Coder Debug Box:</strong><br/>
-        Data dari Supabase: <pre>{{ events }}</pre>
-        <br/>
-        Error detail: <pre>{{ error }}</pre>
-      </div>
     </div>
     
     <!-- Render Grid -->
@@ -73,15 +65,10 @@ onMounted(async () => {
     const { data, error: err } = await supabase
       .from('event')
       .select('id, slug, nama_event, tanggal_mulai, lokasi, poster_url, status')
-      // [Vibe Coder Debug] Kita matikan sementara filternya
-      // .neq('is_archived', true)
-      // .neq('status', 'finished')
-      // .gte('tanggal_mulai', hariIni.toISOString())
-
-    console.log("=== VIBE CODER DEBUG ===")
-    console.log("Data dari Supabase:", data)
-    console.log("Error dari Supabase:", err)
-    console.log("========================")
+      .neq('is_archived', true)
+      .neq('status', 'finished')
+      .gte('tanggal_mulai', hariIni.toISOString())
+      .limit(20)
 
     if (err) throw err
 
@@ -106,8 +93,8 @@ onMounted(async () => {
 .event-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--accent-main); }
 .event-card-img { width: 100%; height: 180px; object-fit: cover; background: var(--bg-light); border-bottom: 1px solid var(--border-soft); }
 .event-card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-.event-card-title { font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin: 0 0 12px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
+.event-card-title { font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin: 0 0 12px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
 .event-card-meta-wrap { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
 .event-card-meta { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
-.truncate-lokasi { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
+.truncate-lokasi { display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
 </style>

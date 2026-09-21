@@ -1,25 +1,19 @@
 <template>
   <div class="admin-layout">
-    <AdminSidebar v-show="activeTab !== 'home'" />
+    <AdminSidebar v-show="route.path !== '/admin'" />
     
     <div class="main">
       <AdminTopbar />
 
       <div class="content" id="pageContent" @click="showDropdown = false">
-        <Transition name="fade" mode="out-in">
-          <div :key="activeTab">
-            <AdminHome v-if="activeTab === 'home'" />
-            <AdminEventDetail v-else-if="activeTab === 'event' && selectedEvent" />
-            <AdminTiket v-else-if="activeTab === 'tiket' && selectedEvent" />
-            <AdminPeserta v-else-if="activeTab === 'peserta' && selectedEvent" />
-            <AdminEditEvent v-else-if="activeTab === 'edit' && selectedEvent" />
-            <AdminSettings v-else-if="activeTab === 'settings'" />
-            <div v-else-if="activeTab !== 'home' && activeTab !== 'event' && activeTab !== 'peserta' && activeTab !== 'edit' && activeTab !== 'settings' && activeTab !== 'tiket'" style="padding: 40px; text-align: center; color: #8a9aa8;">
-              <h2>Halaman {{ activeTab }}</h2>
-              <p>Fitur ini akan ditambahkan di tahap selanjutnya bray! 🚀</p>
+        <ClientOnly>
+          <NuxtPage />
+          <template #fallback>
+            <div class="loader-container" style="height:100%; display:flex; align-items:center; justify-content:center;">
+              <div class="spinner"></div>
             </div>
-          </div>
-        </Transition>
+          </template>
+        </ClientOnly>
       </div>
     </div>
 
@@ -34,12 +28,6 @@
 import { onMounted, onUnmounted } from 'vue'
 import AdminSidebar from '~/components/admin/AdminSidebar.vue'
 import AdminTopbar from '~/components/admin/AdminTopbar.vue'
-import AdminHome from '~/components/admin/AdminHome.vue'
-import AdminEventDetail from '~/components/admin/AdminEventDetail.vue'
-import AdminTiket from '~/components/admin/AdminTiket.vue'
-import AdminPeserta from '~/components/admin/AdminPeserta.vue'
-import AdminEditEvent from '~/components/admin/AdminEditEvent.vue'
-import AdminSettings from '~/components/admin/AdminSettings.vue'
 import AdminWizard from '~/components/admin/AdminWizard.vue'
 import AdminOnboarding from '~/components/admin/AdminOnboarding.vue'
 import AdminConfirm from '~/components/admin/AdminConfirm.vue'
@@ -54,33 +42,31 @@ useHead({
   bodyAttrs: { style: 'margin: 0; background: #f8fafc; overflow: hidden; font-family: Inter, sans-serif;' }
 })
 
-const { activeTab, selectedEvent, currentUser, userEmail, muatDaftarEvent, supabase, showDropdown, isOnline, showToast, muatProfilOrganizer } = useAdmin()
+const user = useSupabaseUser()
+const { currentUser, muatDaftarEvent, showDropdown, isOnline, showToast, muatProfilOrganizer, allEvents, isLoading } = useAdmin()
 const router = useRouter()
+const route = useRoute()
 
 const setOnline = () => { isOnline.value = true; showToast('Koneksi internet kembali pulih!', 'success') }
 const setOffline = () => { isOnline.value = false; showToast('Anda offline. Sistem tidak bisa menyimpan perubahan saat ini.', 'error') }
-
-const user = useSupabaseUser()
 
 onMounted(async () => {
   window.addEventListener('online', setOnline)
   window.addEventListener('offline', setOffline)
   if (!navigator.onLine) setOffline()
 
-  console.log("DEBUG USER: ", user.value)
-  if (!user.value) {
-    alert('Sesi telah berakhir. Mengalihkan ke halaman Login...')
-    router.push('/login')
-    return
-  }
-  
-  console.log("=> Mulai memuat profil organizer...")
-  await muatProfilOrganizer()
-  console.log("=> Profil organizer selesai dimuat.")
-  
-  console.log("=> Memanggil muatDaftarEvent dari admin.vue...")
-  await muatDaftarEvent(user.value?.id)
-  console.log("=> muatDaftarEvent selesai dipanggil.")
+  watch(user, async (u) => {
+    if (u) {
+      await muatProfilOrganizer()
+      if (allEvents.value.length === 0) {
+        await muatDaftarEvent(u.id || u.sub)
+      } else {
+        isLoading.value = false
+      }
+    } else {
+      router.push('/login')
+    }
+  }, { immediate: true })
 })
 
 onUnmounted(() => {
@@ -122,8 +108,8 @@ body { letter-spacing: -0.01em; }
 .sidebar nav .menu-label { font-size: 11px; font-weight: 600; color: #8a9aa8; text-transform: uppercase; letter-spacing: 0.6px; padding: 4px 6px 8px 6px; }
 .sidebar nav a { display: flex; align-items: center; gap: 14px; padding: 10px 14px; margin: 2px 0; border-radius: 12px; font-size: 14px; font-weight: 500; color: #4a5a6e; text-decoration: none; transition: all 0.2s ease; cursor: pointer; }
 .sidebar nav a:hover { background: #f0f4fa; color: #0a1929; }
-.sidebar nav a.active { background: var(--primary); color: white; box-shadow: 0 4px 14px -4px var(--primary-shadow); }
-.sidebar nav a.active .icon { filter: brightness(10); }
+.sidebar nav a.router-link-active { background: var(--primary); color: white; box-shadow: 0 4px 14px -4px var(--primary-shadow); }
+.sidebar nav a.router-link-active .icon { filter: brightness(10); }
 .sidebar nav a.disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
 .sidebar .bottom { padding: 16px 6px 0 6px; border-top: 1px solid #e6edf5; margin-top: 8px; }
 .sidebar .bottom a { display: flex; align-items: center; gap: 14px; padding: 8px 0; font-size: 14px; font-weight: 500; color: #4a5a6e; cursor: pointer; transition: 0.2s; }
@@ -265,8 +251,8 @@ tr:last-child td { border-bottom: none; }
 .preview-sticky { flex: 0 0 290px; position: sticky; top: 20px; align-self: flex-start; }
 
 /* ── VUE TRANSITIONS ── */
-.fade-enter-active, .fade-leave-active { transition: opacity 0.25s ease, transform 0.25s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(10px); }
+.page-enter-active, .page-leave-active { transition: opacity 0.25s ease, transform 0.25s ease; }
+.page-enter-from, .page-leave-to { opacity: 0; transform: translateY(10px); }
 
 /* ── SKELETON LOADER ── */
 .skeleton {
@@ -276,5 +262,4 @@ tr:last-child td { border-bottom: none; }
   animation: shimmer 1.5s infinite;
 }
 @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
 </style>

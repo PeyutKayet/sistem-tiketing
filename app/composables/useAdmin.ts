@@ -10,20 +10,35 @@ export const useAdmin = () => {
   const activeTab = useState('admin_activeTab', () => 'home')
   const isLoading = useState('admin_isLoading', () => true)
   
-  const allEvents = useState('admin_allEvents', () => [])
-  const selectedEvent = useState('admin_selectedEvent', () => null)
+  const allEvents = useState<any[]>('admin_allEvents', () => [])
+  
+  const route = useRoute()
+  const lastActiveEventSlug = useState<string | null>('admin_lastActiveEventSlug', () => null)
+  
+  watch(() => route.params.slug, (newSlug) => {
+    if (newSlug && typeof newSlug === 'string') {
+      lastActiveEventSlug.value = newSlug
+    }
+  }, { immediate: true })
+
+  const selectedEvent = computed(() => {
+    const slug = route.params.slug || lastActiveEventSlug.value
+    if (!slug) return null
+    return allEvents.value.find(e => e.slug === slug) || null
+  })
+  
   const showArsip = useState('admin_showArsip', () => false)
 
-  const daftarPeserta = useState('admin_daftarPeserta', () => [])
+  const daftarPeserta = useState<any[]>('admin_daftarPeserta', () => [])
   const isLoadingPeserta = useState('admin_isLoadingPeserta', () => false)
   
-  const formEditEvent = useState('admin_formEditEvent', () => ({ nama: '', slug: '', tanggal: '', lokasi: '', deskripsi: '', status: 'published' }))
+  const formEditEvent = useState<any>('admin_formEditEvent', () => ({ nama: '', slug: '', tanggal: '', lokasi: '', deskripsi: '', status: 'published' }))
   const isSavingEdit = useState('admin_isSavingEdit', () => false)
 
   const showWizard = useState('admin_showWizard', () => false)
   const wizardStepNow = useState('admin_wizardStepNow', () => 1)
   
-  const formEvent = useState('admin_formEvent', () => ({ 
+  const formEvent = useState<any>('admin_formEvent', () => ({ 
     nama: '', slug: '', tanggal: '', lokasi: '', deskripsi: '', link_maps: '',
     tipe_event: 'offline', sistem_checkin: 'scanner', target_absen: 0, link_online: '',
     is_snk_active: true, snk_text: 'Syarat dan ketentuan berlaku mengikuti aturan panitia EventHub.',
@@ -32,9 +47,9 @@ export const useAdmin = () => {
     is_grup_wa_active: false, link_grup_wa: '',
     poster_file: null, poster_preview: null 
   }))
-  const formTiketBaru = useState('admin_formTiketBaru', () => ({ nama: '', harga: '', kuota: '', buka: '', tutup: '' }))
-  const wizardTiketList = useState('admin_wizardTiketList', () => [])
-  const formForgeItems = useState('admin_formForgeItems', () => [])
+  const formTiketBaru = useState<any>('admin_formTiketBaru', () => ({ nama: '', harga: '', kuota: '', buka: '', tutup: '' }))
+  const wizardTiketList = useState<any[]>('admin_wizardTiketList', () => [])
+  const formForgeItems = useState<any[]>('admin_formForgeItems', () => [])
   const isSavingEvent = useState('admin_isSavingEvent', () => false)
   
   const totalPeserta = computed(() => daftarPeserta.value.length)
@@ -44,7 +59,7 @@ export const useAdmin = () => {
   const persenHadir = computed(() => totalLunas.value === 0 ? 0 : Math.round((totalHadir.value / totalLunas.value) * 100))
 
   const userName = computed(() => userEmail.value ? userEmail.value.split('@')[0] : 'Admin')
-  const userInitials = computed(() => userName.value.substring(0, 2).toUpperCase())
+  const userInitials = computed(() => userName.value?.substring(0, 2)?.toUpperCase() || 'AD')
   
   const eventAktif = computed(() => {
     const today = new Date()
@@ -70,30 +85,24 @@ export const useAdmin = () => {
   
   const eventArsip = computed(() => allEvents.value.filter(ev => ev.status === 'archived' || ev.is_archived === true))
 
-  const formatDate = (dateStr) => {
+  const formatDate = (dateStr: string) => {
     if (!dateStr) return 'Tgl blm diset'
     return new Date(dateStr).toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'})
   }
 
-  const muatDaftarEvent = async (userId) => {
+  const muatDaftarEvent = async (userId: string) => {
     if (!userId) {
       isLoading.value = false
       return
     }
     isLoading.value = true
     try {
-      console.log("=== VIBE CODER ADMIN DEBUG ===")
-      console.log("Memuat event untuk organizer_id:", userId)
       const { data, error } = await supabase.from('event').select('*').eq('organizer_id', userId).order('created_at', { ascending: false })
-      
-      console.log("Hasil query data:", data)
-      console.log("Hasil query error:", error)
-      console.log("==============================")
       
       if (error) throw error
       allEvents.value = data || []
     } catch (err) {
-      showToast('Gagal memuat event: ' + err.message, 'error')
+      showToast('Gagal memuat event: ' + (err as any).message, 'error')
     } finally {
       isLoading.value = false
     }
@@ -107,11 +116,15 @@ export const useAdmin = () => {
       if (error) throw error
       daftarPeserta.value = data || []
     } catch (err) {
-      showToast('Gagal memuat peserta: ' + err.message, 'error')
+      showToast('Gagal memuat peserta: ' + (err as any).message, 'error')
     } finally {
       isLoadingPeserta.value = false
     }
   }
+
+  watch(selectedEvent, () => {
+    if (selectedEvent.value) muatDaftarPeserta()
+  }, { immediate: true })
 
   const prosesLogout = async () => {
     if (confirm('Yakin ingin mengakhiri sesi dan keluar dari aplikasi?')) {
@@ -121,8 +134,8 @@ export const useAdmin = () => {
   }
 
   // --- NEW UI STATES ---
-  const toastList = useState('admin_toastList', () => [])
-  const showToast = (message, type = 'success') => {
+  const toastList = useState<any[]>('admin_toastList', () => [])
+  const showToast = (message: string, type = 'success') => {
     const id = Date.now()
     toastList.value.push({ id, message, type, show: false })
     setTimeout(() => {
@@ -138,8 +151,8 @@ export const useAdmin = () => {
     }, 3000)
   }
 
-  const confirmData = useState('admin_confirm', () => ({ show: false, title: '', message: '', actionText: '', type: 'success', callback: null }))
-  const showConfirm = (title, message, actionText, type, callback) => {
+  const confirmData = useState<any>('admin_confirm', () => ({ show: false, title: '', message: '', actionText: '', type: 'success', callback: null }))
+  const showConfirm = (title: string, message: string, actionText: string, type: string, callback: any) => {
     confirmData.value = { show: true, title, message, actionText, type, callback }
   }
   const closeConfirm = () => {
@@ -148,7 +161,7 @@ export const useAdmin = () => {
 
   const isOnline = useState('admin_isOnline', () => true)
   const showOnboarding = useState('admin_showOnboarding', () => false)
-  const organizerProfile = useState('admin_organizerProfile', () => null)
+  const organizerProfile = useState<any>('admin_organizerProfile', () => null)
 
   const muatProfilOrganizer = async () => {
     try {
@@ -156,7 +169,7 @@ export const useAdmin = () => {
       const { data, error } = await supabase.from('organizer_profile').select('*').eq('id', currentUser.value.id).single()
       if (data && !error) {
         organizerProfile.value = data
-        if (!data.nama_organizer) showOnboarding.value = true
+        if (!(data as any).nama_organizer) showOnboarding.value = true
       } else {
         showOnboarding.value = true
       }

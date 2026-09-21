@@ -21,7 +21,7 @@
       </div>
 
       <button class="btn-primary" @click="simpan" :disabled="loading" style="width:100%; padding:14px; font-size:15px; margin-top:16px;">
-        {{ loading ? '⏳ Menyimpan...' : '🚀 Simpan & Mulai' }}
+        {{ loading ? '<Icon name="lucide:hourglass" style="margin-right:4px;" /> Menyimpan...' : '<Icon name="lucide:send" style="margin-right:4px;" /> Simpan & Mulai' }}
       </button>
       <button class="btn-outline" @click="showOnboarding = false" style="width:100%; border:none; margin-top:8px;">Nanti Saja (Lewati)</button>
     </div>

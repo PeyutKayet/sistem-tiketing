@@ -1,8 +1,9 @@
 <template>
+<div>
   <div id="page-edit" v-if="selectedEvent">
     <div class="page-header">
-      <h2 class="page-title">✏️ Edit <span>{{ selectedEvent.nama_event }}</span></h2>
-      <button class="btn-outline" @click="activeTab = 'event'">🔙 Kembali</button>
+      <h2 class="page-title"><Icon name="lucide:edit" style="margin-right:4px;" /> Edit <span>{{ selectedEvent.nama_event }}</span></h2>
+      <button class="btn-outline" @click="useRouter().push('/admin/event/' + selectedEvent.slug)"><Icon name="lucide:arrow-left" style="margin-right:4px;" /> Kembali</button>
     </div>
 
     <div style="display:flex;gap:28px;flex-wrap:wrap;">
@@ -10,7 +11,7 @@
       <div style="flex:1.2;min-width:280px;">
         <div class="panel">
           <div class="mb-3">
-            <label class="form-label">🖼️ Upload Poster Event</label>
+            <label class="form-label"><Icon name="lucide:image" style="margin-right:4px;" /> Upload Poster Event</label>
             <input type="file" accept="image/*" class="form-file" @change="handlePosterUpload" style="background:#f7faff; padding:10px; border-radius:12px; border:1px dashed #bcc8d8;" />
           </div>
 
@@ -77,7 +78,7 @@
           </div>
           
           <div style="padding-top: 14px; border-top: 1px dashed #e6edf5;">
-            <label class="form-label" style="color: #0a1929;">📜 Syarat & Ketentuan (S&K)</label>
+            <label class="form-label" style="color: #0a1929;"><Icon name="lucide:file-text" style="margin-right:4px;" /> Syarat & Ketentuan (S&K)</label>
             <label class="checkbox-item mb-1">
               <input type="checkbox" v-model="formEditEvent.is_snk_active" /> Gunakan S&K Pendaftaran
             </label>
@@ -143,29 +144,29 @@
         </div>
 
         <button class="btn-primary" @click="simpanEdit" :disabled="isSavingEdit" style="margin-top:14px;width:100%;padding:14px;font-size:15px;">
-          {{ isSavingEdit ? '⏳ Menyimpan...' : '💾 Simpan Perubahan' }}
+          {{ isSavingEdit ? '<Icon name="lucide:hourglass" style="margin-right:4px;" /> Menyimpan...' : '💾 Simpan Perubahan' }}
         </button>
       </div>
 
       <!-- PREVIEW KANAN -->
       <div class="preview-sticky">
-        <div style="font-weight:600;font-size:14px;color:#4a5a6e;margin-bottom:10px;letter-spacing:0.2px;">👀 Live Preview E-Tiket</div>
+        <div style="font-weight:600;font-size:14px;color:#4a5a6e;margin-bottom:10px;letter-spacing:0.2px;"><Icon name="lucide:eye" style="margin-right:4px;" /> Live Preview E-Tiket</div>
         <div style="background: #0a1929; border-radius: 32px; padding: 14px 12px; box-shadow: 0 24px 56px -16px rgba(0, 0, 0, 0.4); height: 580px; display: flex; flex-direction: column;">
           <div style="background: #f8fafc; border-radius: 20px; overflow-y: auto; padding: 14px 16px 18px 16px; flex: 1; font-size: 12px;">
             <div style="display: flex; justify-content: space-between; font-size: 10px; color: #8a9aa8; padding-bottom: 4px; border-bottom: 1px solid #f0f4fa; margin-bottom: 6px;">
               <span>🔋 📶</span><span>12:30</span>
             </div>
             <div style="display:flex; justify-content:center; margin-bottom:12px;">
-              <span style="background:#eef3f9; color:var(--primary); padding:4px 12px; border-radius:20px; font-size:9px; font-weight:700; letter-spacing:0.5px;">🎟️ EVENTHUB TICKET</span>
+              <span style="background:#eef3f9; color:var(--primary); padding:4px 12px; border-radius:20px; font-size:9px; font-weight:700; letter-spacing:0.5px;"><Icon name="lucide:ticket" style="margin-right:4px;" /> EVENTHUB TICKET</span>
             </div>
             <div style="background:#ffffff; border-radius:16px; padding:12px; box-shadow:0 4px 12px rgba(0,0,0,0.03); margin-bottom:12px; border:1px solid #e6edf5;">
               <div style="height:120px; border-radius:10px; margin-bottom:12px; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 28px;" 
                 :style="posterPreviewUrl ? { backgroundImage: `url('${posterPreviewUrl}')` } : { background: 'linear-gradient(145deg, var(--primary), #3b82f6)' }">
-                {{ posterPreviewUrl ? '' : '🚀' }}
+                {{ posterPreviewUrl ? '' : '<Icon name="lucide:rocket" />' }}
               </div>
               <div style="font-size:16px; font-weight:800; text-align:center; color:#0a1929; letter-spacing:-0.3px;">{{ formEditEvent.nama || 'Event Baru' }}</div>
               <div style="font-size:10px; color:#1a6a4a; background:#e4f0e8; padding:4px 8px; border-radius:6px; text-align:center; font-weight:600; margin:8px auto 0 auto; width:fit-content;">
-                📅 {{ formEditEvent.tanggal || 'Tgl' }} · 📍 {{ formEditEvent.lokasi || 'Lokasi' }}
+                <Icon name="lucide:calendar" style="margin-right:4px;" /> {{ formEditEvent.tanggal || 'Tgl' }} · <Icon name="lucide:map-pin" style="margin-right:4px;" /> {{ formEditEvent.lokasi || 'Lokasi' }}
               </div>
               <div style="text-align:center; margin-top:8px; font-size:11px; color:#4a5a6e;">{{ formEditEvent.deskripsi || 'Deskripsi acara...' }}</div>
             </div>
@@ -173,20 +174,34 @@
             <div style="background:#ffffff; border-radius:16px; padding:12px; box-shadow:0 4px 12px rgba(0,0,0,0.03); border:1px solid #e6edf5;">
               <div style="font-weight:700; font-size:11px; color:#0a1929; margin-bottom:8px; display:flex; align-items:center; gap:4px;"><Icon name="lucide:file-text" style="font-size:12px;" /> Form Pendaftaran</div>
               <div v-html="hpPreviewHtml"></div>
-              <button style="width:100%; padding:9px; background:#1a3a5c; color:white; border:none; border-radius:40px; font-weight:700; font-size:12px; margin-top:10px; box-shadow:0 4px 12px var(--primary-shadow);">📝 DAFTAR SEKARANG</button>
+              <button style="width:100%; padding:9px; background:#1a3a5c; color:white; border:none; border-radius:40px; font-weight:700; font-size:12px; margin-top:10px; box-shadow:0 4px 12px var(--primary-shadow);"><Icon name="lucide:edit-3" style="margin-right:4px;" /> DAFTAR SEKARANG</button>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <div v-else-if="isLoading" class="loader-container" style="height: 100%; display: flex; align-items: center; justify-content: center;">
+    <div style="text-align: center;">
+      <div class="spinner" style="margin: 0 auto 12px auto;"></div>
+      <div style="font-weight:500; font-size:13px; color:#8a9aa8;">Memuat data event...</div>
+    </div>
+  </div>
+  <div v-else style="padding: 60px 20px; text-align: center; color: #8a9aa8;">
+    <Icon name="lucide:file-question" style="font-size:48px; color:#c8d6e8; margin-bottom:12px; display:block; margin-inline:auto;" />
+    <div style="font-size:16px; font-weight:600; color:#0a1929; margin-bottom:8px;">Event Tidak Ditemukan</div>
+    Event yang Anda cari mungkin sudah dihapus atau URL tidak valid.<br/><br/>
+    <button class="btn-primary" @click="useRouter().push('/admin')">Kembali ke Beranda</button>
+  </div>
+</div>
 </template>
 
 <script setup>
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import AdminFormBuilder from '~/components/admin/AdminFormBuilder.vue'
 
-const { selectedEvent, formEditEvent, isSavingEdit, activeTab, supabase, showToast, currentUser, muatDaftarEvent, formForgeItems } = useAdmin()
+const { isLoading, selectedEvent, formEditEvent, isSavingEdit, activeTab, supabase, showToast, currentUser, muatDaftarEvent, formForgeItems } = useAdmin()
 
 const posterFile = ref(null)
 const posterPreviewUrl = ref(null)
@@ -337,7 +352,7 @@ const simpanEdit = async () => {
 
     showToast('Perubahan berhasil disimpan!', 'success')
     await muatDaftarEvent(currentUser.value.id)
-    selectedEvent.value = { ...selectedEvent.value, ...payload }
+    // auto-updated via muatDaftarEvent
   } catch (err) {
     showToast('Gagal menyimpan perubahan: ' + err.message, 'error')
   } finally {

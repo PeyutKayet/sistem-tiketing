@@ -98,7 +98,7 @@
                 <span style="display:flex; align-items:center; gap:4px;"><Icon name="lucide:calendar" style="font-size:14px;" /> {{ formatDate(ev.tanggal_mulai) }}</span>
                 <span style="display:flex; align-items:center; gap:4px;"><Icon name="lucide:map-pin" style="font-size:14px;" /> {{ ev.lokasi || 'Online' }}</span>
               </div>
-              <span class="status-badge archived">📦 Diarsipkan</span>
+              <span class="status-badge archived"><Icon name="lucide:archive" style="margin-right:4px;" /> Diarsipkan</span>
             </div>
           </div>
         </div>
@@ -117,23 +117,11 @@ const {
   muatDaftarEvent, currentUser // Kita keluarkan muatDaftarEvent & currentUser dari state
 } = useAdmin()
 
-// Tarik data otomatis saat halaman dimuat
-onMounted(() => {
-  const userId = currentUser.value?.id || currentUser.value?.sub
-  if (userId) {
-    muatDaftarEvent(userId)
-  }
-})
+// Data dimuat oleh layout utama (admin.vue)
 
-// Berjaga-jaga jika ID user sedikit telat dimuat (reaktivitas Nuxt/Supabase)
-watch(() => currentUser.value?.id || currentUser.value?.sub, (newId) => {
-  if (newId) muatDaftarEvent(newId)
-})
-
-const pilihEvent = async (ev) => {
-  selectedEvent.value = ev
-  await muatDaftarPeserta()
-  activeTab.value = 'event'
+const router = useRouter()
+const pilihEvent = (ev) => {
+  router.push('/admin/event/' + ev.slug)
 }
 
 const bukaWizard = () => {

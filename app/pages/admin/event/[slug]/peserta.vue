@@ -1,8 +1,9 @@
 <template>
+<div>
   <div id="page-peserta" v-if="selectedEvent">
     <div class="page-header">
-      <h2 class="page-title">👥 Peserta <span>{{ selectedEvent.nama_event }}</span></h2>
-      <button class="btn-outline" @click="activeTab = 'event'">🔙 Kembali ke Event</button>
+      <h2 class="page-title"><Icon name="lucide:users" style="margin-right:4px;" /> Peserta <span>{{ selectedEvent.nama_event }}</span></h2>
+      <button class="btn-outline" @click="useRouter().push('/admin/event/' + selectedEvent.slug)"><Icon name="lucide:arrow-left" style="margin-right:4px;" /> Kembali ke Event</button>
     </div>
 
     <div class="stats-grid" style="margin:0 0 18px 0;">
@@ -24,7 +25,7 @@
         <option value="hadir">Hadir</option>
         <option value="belum">Belum</option>
       </select>
-      <button class="btn-success" @click="downloadCSVPeserta">📥 Download CSV</button>
+      <button class="btn-success" @click="downloadCSVPeserta"><Icon name="lucide:download" style="margin-right:4px;" /> Download CSV</button>
     </div>
 
     <div class="table-wrap">
@@ -65,9 +66,9 @@
               <span v-else>-</span>
             </td>
             <td style="padding: 14px 20px; display: flex; gap: 8px;">
-              <button v-if="p.status_bayar === 'pending'" @click="setLunas(p.id)" class="btn-primary btn-sm" style="padding: 6px 12px; font-size: 12px;">✅ Set Lunas</button>
-              <button v-if="p.status_bayar === 'lunas' && !p.status_hadir" @click="setHadir(p.id)" class="btn-success btn-sm" style="padding: 6px 12px; font-size: 12px;">📍 Check-in</button>
-              <span v-if="p.status_hadir" style="color: #1a6a4a; font-weight: bold; font-size: 12px;">Hadir ✔️</span>
+              <button v-if="p.status_bayar === 'pending'" @click="setLunas(p.id)" class="btn-primary btn-sm" style="padding: 6px 12px; font-size: 12px;"><Icon name="lucide:check-circle" style="margin-right:4px;" /> Set Lunas</button>
+              <button v-if="p.status_bayar === 'lunas' && !p.status_hadir" @click="setHadir(p.id)" class="btn-success btn-sm" style="padding: 6px 12px; font-size: 12px;"><Icon name="lucide:map-pin" style="margin-right:4px;" /> Check-in</button>
+              <span v-if="p.status_hadir" style="color: #1a6a4a; font-weight: bold; font-size: 12px;">Hadir <Icon name="lucide:check" /></span>
             </td>
           </tr>
         </tbody>
@@ -77,12 +78,26 @@
       <span class="text-muted">Menampilkan {{ filteredPeserta.length }} peserta</span>
     </div>
   </div>
+
+  <div v-else-if="isLoading" class="loader-container" style="height: 100%; display: flex; align-items: center; justify-content: center;">
+    <div style="text-align: center;">
+      <div class="spinner" style="margin: 0 auto 12px auto;"></div>
+      <div style="font-weight:500; font-size:13px; color:#8a9aa8;">Memuat data event...</div>
+    </div>
+  </div>
+  <div v-else style="padding: 60px 20px; text-align: center; color: #8a9aa8;">
+    <Icon name="lucide:file-question" style="font-size:48px; color:#c8d6e8; margin-bottom:12px; display:block; margin-inline:auto;" />
+    <div style="font-size:16px; font-weight:600; color:#0a1929; margin-bottom:8px;">Event Tidak Ditemukan</div>
+    Event yang Anda cari mungkin sudah dihapus atau URL tidak valid.<br/><br/>
+    <button class="btn-primary" @click="useRouter().push('/admin')">Kembali ke Beranda</button>
+  </div>
+</div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
 
-const { 
+const { isLoading, 
   selectedEvent, activeTab, totalPeserta, totalLunas, totalPending, totalHadir, persenHadir, 
   isLoadingPeserta, daftarPeserta, supabase, muatDaftarPeserta, showConfirm, showToast
 } = useAdmin()

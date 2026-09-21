@@ -1,12 +1,13 @@
 <template>
+<div>
   <div id="page-tiket" v-if="selectedEvent">
     <div class="page-header">
-      <h2 class="page-title">🎟️ Tiket <span>{{ selectedEvent.nama_event }}</span></h2>
-      <button class="btn-outline" @click="activeTab = 'event'">🔙 Kembali</button>
+      <h2 class="page-title"><Icon name="lucide:ticket" style="margin-right:4px;" /> Tiket <span>{{ selectedEvent.nama_event }}</span></h2>
+      <button class="btn-outline" @click="useRouter().push('/admin/event/' + selectedEvent.slug)"><Icon name="lucide:arrow-left" style="margin-right:4px;" /> Kembali</button>
     </div>
 
     <div class="panel">
-      <h4 style="margin-bottom:12px;font-weight:600;color:#0a1929;">📝 Tambah Tiket Baru</h4>
+      <h4 style="margin-bottom:12px;font-weight:600;color:#0a1929;"><Icon name="lucide:edit-3" style="margin-right:4px;" /> Tambah Tiket Baru</h4>
       <div class="row mb-3">
         <div class="col"><label class="form-label">Nama Tiket</label><input type="text" v-model="formBaru.nama" placeholder="VIP" class="form-control" /></div>
         <div class="col">
@@ -29,12 +30,12 @@
     </div>
 
     <div class="panel">
-      <h4 style="margin-bottom:10px;font-weight:600;color:#0a1929;">📋 Daftar Tiket</h4>
+      <h4 style="margin-bottom:10px;font-weight:600;color:#0a1929;"><Icon name="lucide:clipboard-list" style="margin-right:4px;" /> Daftar Tiket</h4>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Nama</th><th>Harga</th><th>Kuota</th><th>Sisa</th><th>Terjual</th><th>Aksi</th></tr></thead>
           <tbody>
-            <tr v-if="isLoading"><td colspan="6" style="text-align:center; color:#8a9aa8;">⏳ Memuat data tiket...</td></tr>
+            <tr v-if="isLoadingTiket"><td colspan="6" style="text-align:center; color:#8a9aa8;"><Icon name="lucide:hourglass" style="margin-right:4px;" /> Memuat data tiket...</td></tr>
             <tr v-else-if="daftarTiket.length === 0"><td colspan="6" style="text-align:center; color:#8a9aa8;">Belum ada tiket.</td></tr>
             <tr v-for="t in daftarTiket" :key="t.id">
               <td>{{ t.nama_kategori }}</td>
@@ -43,7 +44,7 @@
               <td>{{ t.kuota_maksimal - t.terjual }}</td>
               <td>{{ t.terjual }}</td>
               <td>
-                <button class="btn-icon" @click="bukaEditTiket(t)" title="Edit">✏️</button>
+                <button class="btn-icon" @click="bukaEditTiket(t)" title="Edit"><Icon name="lucide:edit" style="margin-right:4px;" /></button>
                 <button class="btn-icon danger" @click="hapusTiket(t.id)" title="Hapus">🗑️</button>
               </td>
             </tr>
@@ -65,7 +66,7 @@
     <div class="wizard-overlay" :class="{ open: showEditPopup }">
       <div class="wizard" style="max-width:540px;padding:28px 32px;height:auto;">
         <button class="close" @click="showEditPopup = false">✖</button>
-        <h3 style="margin-bottom:16px;font-weight:600;color:#0a1929;">✏️ Edit Tiket</h3>
+        <h3 style="margin-bottom:16px;font-weight:600;color:#0a1929;"><Icon name="lucide:edit" style="margin-right:4px;" /> Edit Tiket</h3>
         <label class="form-label">Nama Tiket</label><input type="text" v-model="formEdit.nama" class="form-control" style="margin-bottom:10px;" />
         <label class="form-label">Harga</label>
         <div style="position:relative; display:flex; align-items:center; margin-bottom:10px;">
@@ -84,15 +85,29 @@
       </div>
     </div>
   </div>
+
+  <div v-else-if="isLoading" class="loader-container" style="height: 100%; display: flex; align-items: center; justify-content: center;">
+    <div style="text-align: center;">
+      <div class="spinner" style="margin: 0 auto 12px auto;"></div>
+      <div style="font-weight:500; font-size:13px; color:#8a9aa8;">Memuat data event...</div>
+    </div>
+  </div>
+  <div v-else style="padding: 60px 20px; text-align: center; color: #8a9aa8;">
+    <Icon name="lucide:file-question" style="font-size:48px; color:#c8d6e8; margin-bottom:12px; display:block; margin-inline:auto;" />
+    <div style="font-size:16px; font-weight:600; color:#0a1929; margin-bottom:8px;">Event Tidak Ditemukan</div>
+    Event yang Anda cari mungkin sudah dihapus atau URL tidak valid.<br/><br/>
+    <button class="btn-primary" @click="useRouter().push('/admin')">Kembali ke Beranda</button>
+  </div>
+</div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 
-const { selectedEvent, activeTab, supabase, showToast, showConfirm } = useAdmin()
+const { isLoading, selectedEvent, activeTab, supabase, showToast, showConfirm } = useAdmin()
 
 const daftarTiket = ref([])
-const isLoading = ref(false)
+const isLoadingTiket = ref(false)
 const isSaving = ref(false)
 const isSavingEdit = ref(false)
 const showEditPopup = ref(false)
@@ -127,7 +142,7 @@ const resetFormBaru = () => { formBaru.value = { nama: '', harga: '', kuota: '',
 
 const muatDaftarTiket = async () => {
   if (!selectedEvent.value) return
-  isLoading.value = true
+  isLoadingTiket.value = true
   try {
     const { data: tiketData, error } = await supabase.from('kategori_tiket').select('*').eq('event_id', selectedEvent.value.id).order('created_at', { ascending: true })
     if (error) throw error
@@ -141,7 +156,7 @@ const muatDaftarTiket = async () => {
   } catch (err) {
     showToast('Gagal memuat tiket: ' + err.message, 'error')
   } finally {
-    isLoading.value = false
+    isLoadingTiket.value = false
   }
 }
 
