@@ -7,10 +7,14 @@
 │   │       ├── AdminConfirm.vue
 │   │       ├── AdminEditEvent.vue
 │   │       ├── AdminEventDetail.vue
+│   │       ├── AdminFormBuilder.vue
 │   │       ├── AdminHome.vue
+│   │       ├── AdminMobilePreview.vue
 │   │       ├── AdminOnboarding.vue
 │   │       ├── AdminPeserta.vue
+│   │       ├── AdminSettings.vue
 │   │       ├── AdminSidebar.vue
+│   │       ├── AdminTiket.vue
 │   │       ├── AdminToast.vue
 │   │       ├── AdminTopbar.vue
 │   │       └── AdminWizard.vue
@@ -34,4 +38,4 @@
 ├── struktur.txt
 └── tsconfig.json
 
-8 directories, 27 files
+8 directories, 31 files

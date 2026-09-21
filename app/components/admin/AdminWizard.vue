@@ -423,7 +423,7 @@ const goNext = async () => {
     }
 
     const payload = {
-      organizer_id: currentUser.value.id,
+      // organizer_id KITA HAPUS, biarkan database pakai default auth.uid()
       nama_event: formEvent.value.nama || 'Event Tanpa Nama',
       slug: formEvent.value.slug || `event-${Date.now()}`,
       tanggal_mulai: formEvent.value.tanggal || null,
@@ -460,8 +460,8 @@ const goNext = async () => {
         nama_kategori: t.nama,
         harga: t.harga,
         kuota_maksimal: t.kuota,
-        tanggal_mulai_penjualan: t.buka,
-        tanggal_selesai_penjualan: t.tutup
+        tanggal_mulai_penjualan: t.buka || null, // Pastikan tidak kirim string kosong
+        tanggal_selesai_penjualan: t.tutup || null // Pastikan tidak kirim string kosong
       }))
       const { error: tiketErr } = await supabase.from('kategori_tiket').insert(payloadTiket)
       if (tiketErr) throw tiketErr
@@ -469,7 +469,8 @@ const goNext = async () => {
 
     showToast('Event dan Tiket berhasil dipublikasikan!', 'success')
     tutupWizard()
-    await muatDaftarEvent(currentUser.value.id)
+    // Gunakan optional chaining (?.) untuk jaga-jaga kalau currentUser nge-blank sesaat
+    await muatDaftarEvent(currentUser.value?.id)
   } catch (error) {
     showToast('Gagal menyimpan event: ' + error.message, 'error')
   } finally {

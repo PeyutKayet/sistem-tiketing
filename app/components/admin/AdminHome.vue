@@ -108,11 +108,26 @@
 </template>
 
 <script setup>
+import { onMounted, watch } from 'vue' // Tambahkan import Vue hooks
+
 const {
   isLoading, eventAktif, eventSelesai, eventArsip,
   showArsip, formatDate, selectedEvent, activeTab,
-  showWizard, wizardStepNow, formEvent, wizardTiketList, muatDaftarPeserta
+  showWizard, wizardStepNow, formEvent, wizardTiketList, muatDaftarPeserta,
+  muatDaftarEvent, currentUser // Kita keluarkan muatDaftarEvent & currentUser dari state
 } = useAdmin()
+
+// Tarik data otomatis saat halaman dimuat
+onMounted(() => {
+  if (currentUser.value?.id) {
+    muatDaftarEvent(currentUser.value.id)
+  }
+})
+
+// Berjaga-jaga jika ID user sedikit telat dimuat (reaktivitas Nuxt/Supabase)
+watch(() => currentUser.value?.id, (newId) => {
+  if (newId) muatDaftarEvent(newId)
+})
 
 const pilihEvent = async (ev) => {
   selectedEvent.value = ev

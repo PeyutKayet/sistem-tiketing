@@ -63,9 +63,15 @@ onMounted(async () => {
     const { data, error: err } = await supabase
       .from('event')
       .select('id, slug, nama_event, tanggal_mulai, lokasi, poster_url, status')
-      .neq('is_archived', true)
-      .neq('status', 'finished')
-      .gte('tanggal_mulai', hariIni.toISOString())
+      // [Vibe Coder Debug] Kita matikan sementara filternya
+      // .neq('is_archived', true)
+      // .neq('status', 'finished')
+      // .gte('tanggal_mulai', hariIni.toISOString())
+
+    console.log("=== VIBE CODER DEBUG ===")
+    console.log("Data dari Supabase:", data)
+    console.log("Error dari Supabase:", err)
+    console.log("========================")
 
     if (err) throw err
 
