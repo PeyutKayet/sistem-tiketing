@@ -62,53 +62,60 @@
               </div>
             </div>
 
-            <div style="padding-bottom: 20px; border-bottom: 1px dashed #cbd5e1; margin-bottom: 20px;">
-              <h4 style="margin-bottom:16px;font-weight:600;color:#0a1929;font-size:15px;display:flex;align-items:center;gap:6px;"><Icon name="lucide:settings" style="color:#4a5a6e;" /> Pengaturan Sistem</h4>
-              <div class="row mb-0" style="gap: 12px;">
-                <div class="col" style="min-width: 120px;">
-                  <label class="form-label">Tipe Event</label>
-                  <select v-model="formEvent.tipe_event" class="form-control"><option value="offline">Offline</option><option value="online">Online</option></select>
-                </div>
-                <div class="col" style="min-width: 120px;">
-                  <label class="form-label">Sistem Check-in</label>
-                  <select v-model="formEvent.sistem_checkin" class="form-control"><option value="scanner">QR Scanner (1x Datang)</option><option value="portal">Portal Absen (Multi-hari)</option></select>
-                </div>
-                <div class="col" style="min-width: 120px;">
-                  <label class="form-label">Target Absen (Bila Portal)</label>
-                  <input type="number" v-model="formEvent.target_absen" class="form-control" placeholder="Isi 0 jika pakai Scanner" />
+            <button @click="showAdvancedSettings = !showAdvancedSettings" style="width: 100%; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; color: #4a5a6e; font-weight: 600; font-size: 13px; cursor: pointer; margin-bottom: 20px; transition: 0.2s;">
+              <span style="display:flex; align-items:center; gap:8px;"><Icon name="lucide:settings-2" style="font-size:16px; color:var(--primary);" /> Pengaturan Lanjutan (Opsional)</span>
+              <Icon :name="showAdvancedSettings ? 'lucide:chevron-up' : 'lucide:chevron-down'" style="font-size:18px;" />
+            </button>
+
+            <div v-show="showAdvancedSettings" style="animation: slideDown 0.3s ease; padding: 16px; background: #f8fafc; border-radius: 16px; border: 1px solid #e6edf5;">
+              <div style="padding-bottom: 20px; border-bottom: 1px dashed #cbd5e1; margin-bottom: 20px;">
+                <h4 style="margin-bottom:16px;font-weight:600;color:#0a1929;font-size:14px;display:flex;align-items:center;gap:6px;"><Icon name="lucide:sliders-horizontal" style="color:#4a5a6e; font-size:14px;" /> Pengaturan Sistem</h4>
+                <div class="row mb-0" style="gap: 12px;">
+                  <div class="col" style="min-width: 120px;">
+                    <label class="form-label" style="font-size:11px;">Tipe Event</label>
+                    <select v-model="formEvent.tipe_event" class="form-control" style="font-size:12px; padding:6px 10px;"><option value="offline">Offline</option><option value="online">Online</option></select>
+                  </div>
+                  <div class="col" style="min-width: 120px;">
+                    <label class="form-label" style="font-size:11px;">Sistem Check-in</label>
+                    <select v-model="formEvent.sistem_checkin" class="form-control" style="font-size:12px; padding:6px 10px;"><option value="scanner">QR Scanner (1x Datang)</option><option value="portal">Portal Absen (Multi-hari)</option></select>
+                  </div>
+                  <div class="col" style="min-width: 120px;">
+                    <label class="form-label" style="font-size:11px;">Target Absen (Bila Portal)</label>
+                    <input type="number" v-model="formEvent.target_absen" class="form-control" placeholder="Isi 0 jika Scanner" style="font-size:12px; padding:6px 10px;" />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div>
-              <h4 style="margin-bottom:16px;font-weight:600;color:#0a1929;font-size:15px;display:flex;align-items:center;gap:6px;"><Icon name="lucide:puzzle" style="color:#d43f34;" /> Fitur Tambahan & Keamanan</h4>
-              <div class="row" style="gap: 16px;">
-                <div class="col">
-                  <div class="mb-3">
-                    <label class="checkbox-item" style="font-weight:600;"><input type="checkbox" v-model="formEvent.is_donasi_active" /> <Icon name="lucide:heart-handshake" class="mr-1" style="font-size:14px;color:#d43f34;" /> Aktifkan Form Donasi / Infaq</label>
-                    <div v-if="formEvent.is_donasi_active" style="padding-top: 8px; margin-left:24px;">
-                      <input type="text" v-model="formEvent.donasi_header" class="form-control mb-1" placeholder="Header: Infaq Masjid" style="padding: 6px 10px; font-size: 12px;" />
-                      <input type="text" v-model="formEvent.donasi_options" class="form-control" placeholder="Nominal: 10000, 50000, custom" style="padding: 6px 10px; font-size: 12px;" />
+              <div>
+                <h4 style="margin-bottom:16px;font-weight:600;color:#0a1929;font-size:14px;display:flex;align-items:center;gap:6px;"><Icon name="lucide:puzzle" style="color:#d43f34; font-size:14px;" /> Fitur Tambahan & Keamanan</h4>
+                <div class="row" style="gap: 16px;">
+                  <div class="col">
+                    <div class="mb-3">
+                      <label class="checkbox-item" style="font-weight:600; font-size:12px;"><input type="checkbox" v-model="formEvent.is_donasi_active" /> <Icon name="lucide:heart-handshake" class="mr-1" style="font-size:14px;color:#d43f34;" /> Donasi / Infaq</label>
+                      <div v-if="formEvent.is_donasi_active" style="padding-top: 8px; margin-left:24px;">
+                        <input type="text" v-model="formEvent.donasi_header" class="form-control mb-1" placeholder="Header: Infaq Masjid" style="padding: 6px 10px; font-size: 11px;" />
+                        <input type="text" v-model="formEvent.donasi_options" class="form-control" placeholder="Nominal: 10000, 50000, custom" style="padding: 6px 10px; font-size: 11px;" />
+                      </div>
+                    </div>
+                    <div>
+                      <label class="checkbox-item" style="font-weight:600; font-size:12px;"><input type="checkbox" v-model="formEvent.is_grup_wa_active" /> <Icon name="lucide:message-circle" class="mr-1" style="font-size:14px;color:#15803d;" /> Grup WhatsApp</label>
+                      <div v-if="formEvent.is_grup_wa_active" style="padding-top: 8px; margin-left:24px;">
+                        <input type="url" v-model="formEvent.link_grup_wa" class="form-control" placeholder="https://chat.whatsapp.com/..." style="padding: 6px 10px; font-size: 11px;" />
+                      </div>
                     </div>
                   </div>
-                  <div>
-                    <label class="checkbox-item" style="font-weight:600;"><input type="checkbox" v-model="formEvent.is_grup_wa_active" /> <Icon name="lucide:message-circle" class="mr-1" style="font-size:14px;color:#15803d;" /> Link Grup WhatsApp</label>
-                    <div v-if="formEvent.is_grup_wa_active" style="padding-top: 8px; margin-left:24px;">
-                      <input type="url" v-model="formEvent.link_grup_wa" class="form-control" placeholder="https://chat.whatsapp.com/..." style="padding: 6px 10px; font-size: 12px;" />
+                  <div class="col">
+                    <div class="mb-3">
+                      <label class="checkbox-item mb-1" style="font-weight:600; font-size:12px;"><input type="checkbox" v-model="formEvent.is_snk_active" /> <Icon name="lucide:file-text" class="mr-1" style="font-size:14px;color:#8a9aa8;" /> Syarat & Ketentuan</label>
+                      <textarea v-if="formEvent.is_snk_active" v-model="formEvent.snk_text" rows="2" class="form-control" placeholder="Ketik syarat dan ketentuan..." style="margin-left: 24px; width:calc(100% - 24px); padding: 6px 10px; font-size: 11px; resize: none;"></textarea>
                     </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="mb-3">
-                    <label class="checkbox-item mb-1" style="font-weight:600;"><input type="checkbox" v-model="formEvent.is_snk_active" /> <Icon name="lucide:file-text" class="mr-1" style="font-size:14px;color:#8a9aa8;" /> Syarat & Ketentuan Pendaftaran</label>
-                    <textarea v-if="formEvent.is_snk_active" v-model="formEvent.snk_text" rows="2" class="form-control" placeholder="Ketik syarat dan ketentuan..." style="margin-left: 24px; width:calc(100% - 24px); padding: 6px 10px; font-size: 12px; resize: none;"></textarea>
-                  </div>
-                  <div>
-                    <label style="font-weight:600; font-size:13px; color:#0a1929; display:flex; align-items:center; gap:4px; margin-bottom:8px;"><Icon name="lucide:shield-check" style="font-size:14px;color:var(--primary);" /> Anti Calo & Validasi</label>
-                    <div class="flex" style="flex-wrap:wrap; gap:8px; margin-left:24px;">
-                      <label class="checkbox-item" style="font-size: 12px;"><input type="checkbox" v-model="formEvent.is_anti_calo_email" /> 1 Email = 1 Tiket</label>
-                      <label class="checkbox-item" style="font-size: 12px;"><input type="checkbox" v-model="formEvent.is_anti_calo_wa" /> 1 WA = 1 Tiket</label>
-                      <label class="checkbox-item" style="font-size: 12px;"><input type="checkbox" v-model="formEvent.is_wa_konfirm" /> Konfirmasi WA</label>
+                    <div>
+                      <label style="font-weight:600; font-size:12px; color:#0a1929; display:flex; align-items:center; gap:4px; margin-bottom:8px;"><Icon name="lucide:shield-check" style="font-size:14px;color:var(--primary);" /> Anti Calo</label>
+                      <div class="flex" style="flex-wrap:wrap; gap:8px; margin-left:24px;">
+                        <label class="checkbox-item" style="font-size: 11px;"><input type="checkbox" v-model="formEvent.is_anti_calo_email" /> 1 Email = 1 Tiket</label>
+                        <label class="checkbox-item" style="font-size: 11px;"><input type="checkbox" v-model="formEvent.is_anti_calo_wa" /> 1 WA = 1 Tiket</label>
+                        <label class="checkbox-item" style="font-size: 11px;"><input type="checkbox" v-model="formEvent.is_wa_konfirm" /> OTP WA</label>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -354,6 +361,7 @@ const {
   isSavingEvent, currentUser, supabase, muatDaftarEvent, showToast, formForgeItems 
 } = useAdmin()
 
+const showAdvancedSettings = ref(false)
 const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
 const hpPreviewHtml = ref('<div style="color:#8a9aa8;font-size:11px;text-align:center;padding:10px 0;">Memuat preview...</div>')
 

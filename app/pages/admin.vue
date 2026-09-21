@@ -228,7 +228,7 @@ tr:last-child td { border-bottom: none; }
 /* ── WIZARD OVERLAY ── */
 .wizard-overlay { display: none; position: fixed; inset: 0; background: rgba(10, 25, 41, 0.5); backdrop-filter: blur(6px); z-index: 999; justify-content: center; align-items: center; padding: 24px; }
 .wizard-overlay.open { display: flex; }
-.wizard { background: #ffffff; border-radius: 28px; max-width: 1220px; width: 100%; max-height: 92vh; overflow: hidden; padding: 32px 38px; box-shadow: 0 48px 96px -24px rgba(0, 0, 0, 0.3); position: relative; display: flex; flex-direction: column; }
+.wizard { background: #ffffff; border-radius: 28px; max-width: 1220px; width: 100%; height: 85vh; max-height: 760px; min-height: 600px; overflow: hidden; padding: 32px 38px; box-shadow: 0 48px 96px -24px rgba(0, 0, 0, 0.3); position: relative; display: flex; flex-direction: column; }
 .wizard .close { position: absolute; top: 20px; right: 28px; font-size: 24px; cursor: pointer; color: #8a9aa8; background: none; border: none; transition: 0.2s; }
 .wizard .close:hover { color: #0a1929; }
 .step-indicator { display: flex; gap: 20px; margin-bottom: 28px; font-size: 14px; font-weight: 500; color: #8a9aa8; }
@@ -238,12 +238,13 @@ tr:last-child td { border-bottom: none; }
 .step-indicator .active .num { background: var(--primary); color: white; }
 .step-indicator .completed .num { background: #e4f0e8; color: #1a6a4a; }
 
-.wiz-grid { display: flex; gap: 32px; flex-wrap: wrap; flex: 1; overflow: hidden; min-height: 540px; }
+.wiz-grid { display: flex; gap: 32px; flex-wrap: wrap; flex: 1; overflow: hidden; }
 .wiz-grid .left { flex: 1.2; min-width: 280px; overflow-y: auto; padding-right: 12px; height: 100%; }
 .wiz-grid .right { flex: 0 0 290px; }
 .wiz-step { display: none; }
 .wiz-step.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; animation: stepFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 @keyframes stepFadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 .nav-buttons { display: flex; justify-content: space-between; margin-top: auto; padding-top: 18px; border-top: 1px solid #e6edf5; }
 
 /* ── UTILS ── */
