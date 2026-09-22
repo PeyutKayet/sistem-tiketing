@@ -22,7 +22,7 @@
         
         <!-- Poster & Judul -->
         <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 0.75rem;">
-          <img :src="eventData.poster_url || 'https://placehold.co/400x100/F8FAFC/64748B?text=POSTER+EVENT'" alt="Poster Event" style="width: 100%; height: 100px; object-fit: cover; border-radius: 10px; margin-bottom: 0.5rem; border: 1px solid var(--border-soft); box-shadow: var(--shadow-sm);">
+          <img :src="fixPosterUrl(eventData.poster_url) || 'https://placehold.co/400x100/F8FAFC/64748B?text=POSTER+EVENT'" alt="Poster Event" style="width: 100%; height: 100px; object-fit: cover; border-radius: 10px; margin-bottom: 0.5rem; border: 1px solid var(--border-soft); box-shadow: var(--shadow-sm);">
           <p style="font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em; color: var(--accent-main); text-transform: uppercase; margin-bottom: 0.1rem;">
             {{ organizerProfile.nama_organizer || 'EventHub Organizer' }}
           </p>
@@ -253,6 +253,12 @@ const error = ref(null)
 const eventData = ref(null)
 const organizerProfile = ref({})
 const tickets = ref([])
+
+// Fungsi untuk me-replace IP lokal ke URL https baru
+const fixPosterUrl = (url) => {
+  if (!url) return ''
+  return url.replace('http://192.168.1.7:8000', 'https://supabase.e-tiket.web.id')
+}
 
 // --- STATE KERANJANG TIKET & UI ---
 const keranjang = ref({})

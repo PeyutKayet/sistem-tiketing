@@ -203,6 +203,12 @@ import AdminFormBuilder from '~/components/admin/AdminFormBuilder.vue'
 
 const { isLoading, selectedEvent, formEditEvent, isSavingEdit, activeTab, supabase, showToast, currentUser, muatDaftarEvent, formForgeItems } = useAdmin()
 
+// Fungsi untuk me-replace IP lokal ke URL https baru
+const fixPosterUrl = (url) => {
+  if (!url) return ''
+  return url.replace('http://192.168.1.7:8000', 'https://supabase.e-tiket.web.id')
+}
+
 const posterFile = ref(null)
 const posterPreviewUrl = ref(null)
 const hpPreviewHtml = ref('<div style="color:#8a9aa8;font-size:11px;text-align:center;padding:10px 0;">Memuat preview...</div>')
@@ -286,7 +292,7 @@ watch(selectedEvent, (val) => {
     formForgeItems.value = s.pertanyaan_kustom || []
     setTimeout(() => updatePreviewFromItems(), 50)
     
-    posterPreviewUrl.value = val.poster_url || null
+    posterPreviewUrl.value = fixPosterUrl(val.poster_url) || null
     posterFile.value = null
   }
 }, { immediate: true })

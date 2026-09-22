@@ -13,7 +13,9 @@
       </div>
       <div class="row">
         <div class="col" style="flex:0 0 150px;">
-          <div class="poster-lg" :style="{ backgroundImage: selectedEvent.poster_url ? `url('${selectedEvent.poster_url}')` : 'none' }">{{ selectedEvent.poster_url ? '' : '<Icon name="lucide:rocket" />' }}</div>
+          <div class="poster-lg" :style="selectedEvent.poster_url ? { backgroundImage: `url('${fixPosterUrl(selectedEvent.poster_url)}')`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', height: '150px', borderRadius: '12px' } : { display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', height: '150px', borderRadius: '12px', border: '1px dashed #cbd5e1' }">
+            <Icon v-if="!selectedEvent.poster_url" name="lucide:rocket" style="font-size: 48px; color: #cbd5e1;" />
+          </div>
           <div style="margin-top:10px;">
             <span class="status-badge active" style="display:flex; align-items:center;" v-if="selectedEvent.status !== 'archived' && !selectedEvent.is_archived && selectedEvent.status !== 'finished'">
               <span style="display:inline-block; width:8px; height:8px; background:#1a6a4a; border-radius:50%; margin-right:6px; animation: pulseGlow 1.5s infinite alternate;"></span> Aktif
@@ -152,6 +154,12 @@
 import { ref, computed, watch } from 'vue'
 
 const { isLoading, selectedEvent, activeTab, formatDate, totalPeserta, totalLunas, totalPending, totalHadir, persenHadir, showToast, showConfirm, supabase, muatDaftarEvent, currentUser } = useAdmin()
+
+// Fungsi untuk me-replace IP lokal ke URL https baru
+const fixPosterUrl = (url) => {
+  if (!url) return ''
+  return url.replace('http://192.168.1.7:8000', 'https://supabase.e-tiket.web.id')
+}
 
 const baseUrl = ref('')
 onMounted(() => {

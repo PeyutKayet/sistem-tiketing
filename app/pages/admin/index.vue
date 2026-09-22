@@ -41,7 +41,7 @@
       
       <div class="event-grid">
         <div v-for="ev in eventAktif" :key="ev.id" class="event-card" @click="pilihEvent(ev)">
-          <div class="thumb" :style="ev.poster_url ? { backgroundImage: `url('${ev.poster_url}')`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : {}">
+          <div class="thumb" :style="ev.poster_url ? { backgroundImage: `url('${fixPosterUrl(ev.poster_url)}')`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : {}">
             <Icon v-if="!ev.poster_url" name="lucide:rocket" style="color:rgba(255,255,255,0.7); font-size:48px;" />
           </div>
           <div class="body">
@@ -62,7 +62,7 @@
         </div>
         <div class="event-grid">
           <div v-for="ev in eventSelesai" :key="ev.id" class="event-card finished" @click="pilihEvent(ev)">
-            <div class="thumb gray" :style="ev.poster_url ? { backgroundImage: `url('${ev.poster_url}')`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : {}">
+            <div class="thumb gray" :style="ev.poster_url ? { backgroundImage: `url('${fixPosterUrl(ev.poster_url)}')`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : {}">
               <Icon v-if="!ev.poster_url" name="lucide:check-circle" style="color:rgba(255,255,255,0.7); font-size:48px;" />
               <span class="badge-selesai">SELESAI</span>
             </div>
@@ -116,6 +116,12 @@ const {
   showWizard, wizardStepNow, formEvent, wizardTiketList, muatDaftarPeserta,
   muatDaftarEvent, currentUser // Kita keluarkan muatDaftarEvent & currentUser dari state
 } = useAdmin()
+
+// Fungsi untuk me-replace IP lokal ke URL https baru
+const fixPosterUrl = (url) => {
+  if (!url) return ''
+  return url.replace('http://192.168.1.7:8000', 'https://supabase.e-tiket.web.id')
+}
 
 // Data dimuat oleh layout utama (admin.vue)
 

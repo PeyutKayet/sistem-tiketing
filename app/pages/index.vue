@@ -24,7 +24,7 @@
         :to="`/${ev.slug}`" 
         class="event-card"
       >
-        <img :src="ev.poster_url || 'https://placehold.co/400x200/F8FAFC/64748B?text=POSTER+EVENT'" class="event-card-img" :alt="ev.nama_event">
+        <img :src="fixPosterUrl(ev.poster_url)" class="event-card-img" :alt="ev.nama_event">
         <div class="event-card-body">
           <h3 class="event-card-title">{{ ev.nama_event }}</h3>
           <div class="event-card-meta-wrap">
@@ -51,6 +51,12 @@ const supabase = useSupabaseClient()
 const events = ref([])
 const loading = ref(true)
 const error = ref(null)
+
+// Fungsi untuk me-replace IP lokal ke URL https baru
+const fixPosterUrl = (url) => {
+  if (!url) return 'https://placehold.co/400x200/F8FAFC/64748B?text=POSTER+EVENT'
+  return url.replace('http://192.168.1.7:8000', 'https://supabase.e-tiket.web.id')
+}
 
 const formatDate = (dateStr) => {
   if (!dateStr) return 'Tanggal Menyusul'

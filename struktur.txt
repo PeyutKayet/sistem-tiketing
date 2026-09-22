@@ -5,16 +5,10 @@
 │   ├── components
 │   │   └── admin
 │   │       ├── AdminConfirm.vue
-│   │       ├── AdminEditEvent.vue
-│   │       ├── AdminEventDetail.vue
 │   │       ├── AdminFormBuilder.vue
-│   │       ├── AdminHome.vue
 │   │       ├── AdminMobilePreview.vue
 │   │       ├── AdminOnboarding.vue
-│   │       ├── AdminPeserta.vue
-│   │       ├── AdminSettings.vue
 │   │       ├── AdminSidebar.vue
-│   │       ├── AdminTiket.vue
 │   │       ├── AdminToast.vue
 │   │       ├── AdminTopbar.vue
 │   │       └── AdminWizard.vue
@@ -23,10 +17,20 @@
 │   ├── middleware
 │   │   └── auth.ts
 │   └── pages
+│       ├── admin
+│       │   ├── event
+│       │   │   └── [slug]
+│       │   │       ├── edit.vue
+│       │   │       ├── index.vue
+│       │   │       ├── peserta.vue
+│       │   │       └── tiket.vue
+│       │   ├── index.vue
+│       │   └── settings.vue
 │       ├── admin.vue
 │       ├── index.vue
 │       ├── login.vue
 │       └── [slug].vue
+├── dist -> /home/work-space/0Project/sistem_tiketing/.output/public
 ├── nuxt.config.ts
 ├── package.json
 ├── package-lock.json
@@ -41,4 +45,4 @@
 ├── test-supabase.mjs
 └── tsconfig.json
 
-8 directories, 34 files
+12 directories, 34 files
