@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.135",
-    "@nuxt/icon": "^2.5.1"
+    "@nuxt/icon": "^2.5.1",
+    "@nuxt/image": "^2.1.0"
   }
 }

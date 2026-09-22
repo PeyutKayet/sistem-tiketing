@@ -31,6 +31,8 @@ export const useAdmin = () => {
 
   const daftarPeserta = useState<any[]>('admin_daftarPeserta', () => [])
   const isLoadingPeserta = useState('admin_isLoadingPeserta', () => false)
+  const pesertaPage = useState('admin_pesertaPage', () => 1)
+  const pesertaTotalData = useState('admin_pesertaTotalData', () => 0)
   
   const formEditEvent = useState<any>('admin_formEditEvent', () => ({ nama: '', slug: '', tanggal: '', lokasi: '', deskripsi: '', status: 'published' }))
   const isSavingEdit = useState('admin_isSavingEdit', () => false)
@@ -52,10 +54,10 @@ export const useAdmin = () => {
   const formForgeItems = useState<any[]>('admin_formForgeItems', () => [])
   const isSavingEvent = useState('admin_isSavingEvent', () => false)
   
-  const totalPeserta = computed(() => daftarPeserta.value.length)
-  const totalLunas = computed(() => daftarPeserta.value.filter(p => p.status_bayar === 'lunas').length)
-  const totalPending = computed(() => daftarPeserta.value.filter(p => p.status_bayar === 'pending').length)
-  const totalHadir = computed(() => daftarPeserta.value.filter(p => p.status_hadir).length)
+  const totalPeserta = useState('admin_totalPeserta', () => 0)
+  const totalLunas = useState('admin_totalLunas', () => 0)
+  const totalPending = useState('admin_totalPending', () => 0)
+  const totalHadir = useState('admin_totalHadir', () => 0)
   const persenHadir = computed(() => totalLunas.value === 0 ? 0 : Math.round((totalHadir.value / totalLunas.value) * 100))
 
   const userName = computed(() => userEmail.value ? userEmail.value.split('@')[0] : 'Admin')
@@ -108,13 +110,50 @@ export const useAdmin = () => {
     }
   }
 
-  const muatDaftarPeserta = async () => {
+  const muatStatistikPeserta = async () => {
+    if (!selectedEvent.value) return
+    try {
+      const { data, error } = await supabase.from('peserta').select('status_bayar, status_hadir').eq('event_id', selectedEvent.value.id)
+      if (error) throw error
+      if (data) {
+        totalPeserta.value = data.length
+        totalLunas.value = data.filter((p: any) => p.status_bayar === 'lunas').length
+        totalPending.value = data.filter((p: any) => p.status_bayar === 'pending').length
+        totalHadir.value = data.filter((p: any) => p.status_hadir).length
+      }
+    } catch (err) {
+      console.error('Gagal memuat statistik:', err)
+    }
+  }
+
+  const muatDaftarPeserta = async (query = '', status = 'semua', hadir = 'semua', limit = 50) => {
     if (!selectedEvent.value) return
     isLoadingPeserta.value = true
     try {
-      const { data, error } = await supabase.from('peserta').select('*').eq('event_id', selectedEvent.value.id).order('created_at', { ascending: false })
+      const from = (pesertaPage.value - 1) * limit
+      const to = from + limit - 1
+
+      let req = supabase.from('peserta').select('id, nama_lengkap, email, no_wa, nama_tiket, status_bayar, status_hadir, bukti_bayar_url, created_at', { count: 'exact' }).eq('event_id', selectedEvent.value.id)
+
+      if (query) {
+        req = req.or(`nama_lengkap.ilike.%${query}%,email.ilike.%${query}%,no_wa.ilike.%${query}%`)
+      }
+      if (status !== 'semua') {
+        req = req.eq('status_bayar', status)
+      }
+      if (hadir === 'hadir') {
+        req = req.eq('status_hadir', true)
+      } else if (hadir === 'belum') {
+        req = req.eq('status_hadir', false)
+      }
+
+      const { data, error, count } = await req.order('created_at', { ascending: false }).range(from, to)
+      
       if (error) throw error
       daftarPeserta.value = data || []
+      pesertaTotalData.value = count || 0
+      
+      muatStatistikPeserta()
     } catch (err) {
       showToast('Gagal memuat peserta: ' + (err as any).message, 'error')
     } finally {
@@ -182,7 +221,7 @@ export const useAdmin = () => {
     supabase,
     currentUser, userEmail, showDropdown, activeTab, isLoading,
     allEvents, selectedEvent, showArsip,
-    daftarPeserta, isLoadingPeserta, formEditEvent, isSavingEdit,
+    daftarPeserta, isLoadingPeserta, formEditEvent, isSavingEdit, pesertaPage, pesertaTotalData,
     showWizard, wizardStepNow, formEvent, formTiketBaru, wizardTiketList, isSavingEvent, formForgeItems,
     totalPeserta, totalLunas, totalPending, totalHadir, persenHadir,
     userName, userInitials, eventAktif, eventSelesai, eventArsip,

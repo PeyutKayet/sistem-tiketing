@@ -2,8 +2,11 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  modules: ['@nuxt/icon', '@nuxtjs/supabase'],
+  modules: ['@nuxt/icon', '@nuxtjs/supabase', '@nuxt/image'],
   supabase: {
     redirect: false
+  },
+  image: {
+    domains: ['placehold.co', 'supabase.e-tiket.web.id']
   }
 })

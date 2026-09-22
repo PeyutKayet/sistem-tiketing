@@ -152,23 +152,59 @@
       <div class="preview-sticky">
         <div style="font-weight:600;font-size:14px;color:#4a5a6e;margin-bottom:10px;letter-spacing:0.2px;"><Icon name="lucide:eye" style="margin-right:4px;" /> Live Preview E-Tiket</div>
         <div style="background: #0a1929; border-radius: 32px; padding: 14px 12px; box-shadow: 0 24px 56px -16px rgba(0, 0, 0, 0.4); height: 580px; display: flex; flex-direction: column;">
-          <div style="background: #f8fafc; border-radius: 20px; overflow-y: auto; padding: 14px 16px 18px 16px; flex: 1; font-size: 12px;">
-            <div style="display: flex; justify-content: space-between; font-size: 10px; color: #8a9aa8; padding-bottom: 4px; border-bottom: 1px solid #f0f4fa; margin-bottom: 6px;">
-              <span>🔋 📶</span><span>12:30</span>
+          <div class="hide-scrollbar" style="background: #f8fafc; border-radius: 20px; overflow-y: auto; padding: 14px 16px 18px 16px; flex: 1; font-size: 12px; scrollbar-width: none; -ms-overflow-style: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: #8a9aa8; padding-bottom: 4px; border-bottom: 1px solid #f0f4fa; margin-bottom: 6px;">
+              <span style="font-weight: 600;">12:30</span>
+              <span style="display: flex; gap: 4px; align-items: center;">
+                <Icon name="lucide:signal" style="font-size: 12px;" />
+                <Icon name="lucide:wifi" style="font-size: 12px;" />
+                <Icon name="lucide:battery-medium" style="font-size: 14px;" />
+              </span>
             </div>
             <div style="display:flex; justify-content:center; margin-bottom:12px;">
               <span style="background:#eef3f9; color:var(--primary); padding:4px 12px; border-radius:20px; font-size:9px; font-weight:700; letter-spacing:0.5px;"><Icon name="lucide:ticket" style="margin-right:4px;" /> EVENTHUB TICKET</span>
             </div>
             <div style="background:#ffffff; border-radius:16px; padding:12px; box-shadow:0 4px 12px rgba(0,0,0,0.03); margin-bottom:12px; border:1px solid #e6edf5;">
-              <div style="height:120px; border-radius:10px; margin-bottom:12px; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 28px;" 
-                :style="posterPreviewUrl ? { backgroundImage: `url('${posterPreviewUrl}')` } : { background: 'linear-gradient(145deg, var(--primary), #3b82f6)' }">
-                {{ posterPreviewUrl ? '' : '<Icon name="lucide:rocket" />' }}
+              <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 12px;">
+                <div style="width: 100%; height: 100px; border-radius: 10px; margin-bottom: 8px; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 28px; color: rgba(255,255,255,0.7); border: 1px solid #e2e8f0;" 
+                  :style="posterPreviewUrl ? { backgroundImage: `url('${posterPreviewUrl}')` } : { background: 'linear-gradient(145deg, var(--primary), #3b82f6)' }">
+                  <Icon v-if="!posterPreviewUrl" name="lucide:rocket" />
+                </div>
+                <p style="font-size: 9px; font-weight: 700; letter-spacing: 0.05em; color: var(--accent-main); text-transform: uppercase; margin-bottom: 2px;">
+                  Organizer Name
+                </p>
+                <h1 style="font-size: 16px; font-weight: 800; color: #0a1929; line-height: 1.2; margin: 0; letter-spacing: -0.5px; text-align: center;">
+                  {{ formEditEvent.nama || 'Event Baru' }}
+                </h1>
               </div>
-              <div style="font-size:16px; font-weight:800; text-align:center; color:#0a1929; letter-spacing:-0.3px;">{{ formEditEvent.nama || 'Event Baru' }}</div>
-              <div style="font-size:10px; color:#1a6a4a; background:#e4f0e8; padding:4px 8px; border-radius:6px; text-align:center; font-weight:600; margin:8px auto 0 auto; width:fit-content;">
-                <Icon name="lucide:calendar" style="margin-right:4px;" /> {{ formEditEvent.tanggal || 'Tgl' }} · <Icon name="lucide:map-pin" style="margin-right:4px;" /> {{ formEditEvent.lokasi || 'Lokasi' }}
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px;">
+                <div style="background: #f8fafc; padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: 1px solid #e2e8f0;">
+                  <span style="font-size: 10px; font-weight: 600; color: #0a1929; text-align: center;">{{ formEditEvent.tanggal || 'Tgl Menyusul' }}</span>
+                </div>
+                <div style="background: #f8fafc; padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: 1px solid #e2e8f0;">
+                  <span style="font-size: 10px; font-weight: 600; color: #0a1929; text-align: center;">{{ formEditEvent.lokasi || 'Lokasi Menyusul' }}</span>
+                </div>
               </div>
-              <div style="text-align:center; margin-top:8px; font-size:11px; color:#4a5a6e;">{{ formEditEvent.deskripsi || 'Deskripsi acara...' }}</div>
+
+              <div style="padding: 10px; margin-bottom: 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; text-align: left;">
+                <span style="font-size: 9px; font-weight: 700; color: #8a9aa8; letter-spacing: 1px;">DESKRIPSI EVENT</span>
+                <p style="font-size: 10px; color: #0a1929; line-height: 1.3; margin-top: 4px; white-space: pre-wrap;">
+                  {{ formEditEvent.deskripsi || 'Deskripsi tidak tersedia.' }}
+                </p>
+                <div style="margin: 8px 0; height: 1px; background: #e2e8f0;"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <span style="font-size: 9px; font-weight: 700; color: #0a1929;">SISA KUOTA</span>
+                  <span style="font-size:9px; font-weight:600; color:#8a9aa8;"><b style="color:#0a1929; font-size:11px; font-weight:800;">100</b> / 100</span>
+                </div>
+                <div style="width: 100%; height: 5px; background: #e2e8f0; border-radius: 10px; overflow: hidden;">
+                  <div style="width: 10%; height: 100%; background: var(--accent-main);"></div>
+                </div>
+              </div>
+              
+              <button style="width: 100%; padding: 10px; border-radius: 10px; font-size: 11px; font-weight: 600; background: var(--primary); color: white; border: none;">
+                DAFTAR SEKARANG ➔
+              </button>
             </div>
             
             <div style="background:#ffffff; border-radius:16px; padding:12px; box-shadow:0 4px 12px rgba(0,0,0,0.03); border:1px solid #e6edf5;">
@@ -219,37 +255,62 @@ const escapeHtml = (text) => {
 }
 
 const updatePreviewFromItems = () => {
-  let html = '<div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-rows: 20px; gap: 4px; width: 100%;">';
+  // Selalu tambahkan default fields di awal
+  let html = `
+    <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+      <span style="font-size: 9px; color: #8a9aa8; font-weight: 700;">🎟️ TIKET:</span>
+      <span style="font-size: 10px; font-weight: 800; color: var(--accent-main); background: #eff6ff; padding: 4px 8px; border-radius: 6px;">VIP / Reguler</span>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 8px; width: 100%;">
+      
+      <div style="grid-column: span 12; display: flex; flex-direction: column;">
+        <label style="font-size:9px; font-weight:600; color:#4a5a6e; display:block; margin-bottom:3px; text-transform:uppercase; letter-spacing:0.2px;">Nama Lengkap <span style="color:#d43f34">*</span></label>
+        <input type="text" placeholder="Budi Santoso" style="width:100%; padding:6px; border:1px solid #e6edf5; border-radius:6px; font-size:10px; background:#fafcfe; box-sizing: border-box;" disabled/>
+      </div>
+      
+      <div style="grid-column: span 6; display: flex; flex-direction: column;">
+        <label style="font-size:9px; font-weight:600; color:#4a5a6e; display:block; margin-bottom:3px; text-transform:uppercase; letter-spacing:0.2px;">Email <span style="color:#d43f34">*</span></label>
+        <input type="text" placeholder="budi@email.com" style="width:100%; padding:6px; border:1px solid #e6edf5; border-radius:6px; font-size:10px; background:#fafcfe; box-sizing: border-box;" disabled/>
+      </div>
+      
+      <div style="grid-column: span 6; display: flex; flex-direction: column;">
+        <label style="font-size:9px; font-weight:600; color:#4a5a6e; display:block; margin-bottom:3px; text-transform:uppercase; letter-spacing:0.2px;">No. WhatsApp <span style="color:#d43f34">*</span></label>
+        <input type="text" placeholder="08123456789" style="width:100%; padding:6px; border:1px solid #e6edf5; border-radius:6px; font-size:10px; background:#fafcfe; box-sizing: border-box;" disabled/>
+      </div>
+  `;
+  
   const sorted = [...formForgeItems.value].sort((a, b) => a.y - b.y || a.x - b.x);
   
-  if (sorted.length === 0) {
-      html = '<div style="grid-column: 1 / -1; color:#8a9aa8; font-size:10px; text-align:center; padding:10px 0;">Belum ada field tambahan</div>';
-  } else {
-      for (const item of sorted) {
-          html += `<div style="grid-column: ${item.x + 1} / span ${item.width}; grid-row: ${item.y + 1} / span ${item.height}; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: transparent;">`;
-          if (item.type === 'header') {
-              html += `<div style="font-size:11px; font-weight:700; color:#0a1929; margin-top:0; border-bottom:1px solid #e6edf5; padding-bottom:2px; word-wrap:break-word; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex-shrink: 0;">${escapeHtml(item.label)}</div>`;
-          } else {
-              html += `<label style="font-size:8px; font-weight:600; color:#4a5a6e; display:block; margin-bottom:3px; text-transform:uppercase; letter-spacing:0.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex-shrink: 0;">${escapeHtml(item.label)}${item.required ? ' <span style="color:#d43f34">*</span>' : ''}</label>`;
-          }
-          if (item.type === 'header') {} 
-          else if (item.type === 'short_text') html += `<input type="text" placeholder="..." style="width:100%; height:100%; padding:4px 6px; border:1px solid #e6edf5; border-radius:6px; font-size:9px; background:#fafcfe; box-sizing: border-box;" disabled/>`
-          else if (item.type === 'date' || item.type === 'time') html += `<input type="${item.type}" style="width:100%; height:100%; padding:4px 6px; border:1px solid #e6edf5; border-radius:6px; font-size:9px; background:#fafcfe; box-sizing: border-box;" disabled/>`
-          else if (item.type === 'paragraph') html += `<textarea placeholder="..." style="width:100%; height:100%; padding:4px 6px; border:1px solid #e6edf5; border-radius:6px; font-size:9px; background:#fafcfe; resize:none; box-sizing: border-box;" disabled></textarea>`
-          else if (item.type === 'dropdown') {
-              html += `<select style="width:100%; height:100%; padding:4px 6px; border:1px solid #e6edf5; border-radius:6px; font-size:9px; background:#fafcfe; box-sizing: border-box;" disabled><option value="">Pilih...</option></select>`;
-          } else if (item.type === 'multiple_choice' || item.type === 'checkboxes') {
-              html += `<div style="display:flex; flex-direction:column; gap:4px; font-size:9px; color:#4a5a6e; overflow:auto; height:100%; padding-right: 4px;">`;
-              (item.options || ['Opsi 1']).forEach(o => html += `<label style="display:flex; align-items:center; gap:3px;"><input type="radio" disabled style="margin:0; width:10px; height:10px;" /> <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(o)}</span></label>`);
-              html += `</div>`;
-          } else if (item.type === 'file_upload') {
-              html += `<div style="border:1px dashed #c8d6e8; background:#fafcfe; border-radius:6px; padding:6px; text-align:center; font-size:9px; color:#8a9aa8; height:100%; display:flex; align-items:center; justify-content:center; box-sizing: border-box;">📎 Upload</div>`;
-          } else {
-              html += `<input type="text" placeholder="..." disabled style="width:100%; height:100%; padding:4px 6px; border:1px solid #e6edf5; border-radius:6px; font-size:9px; background:#fafcfe; box-sizing: border-box;" />`;
-          }
-          html += `</div>`;
+  for (const item of sorted) {
+      // Mengonversi grid FormForge (y/x/height/width) ke grid statis biasa
+      // Kita abaikan y/x absolute, gunakan item.width saja
+      html += `<div style="grid-column: span ${item.width}; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: transparent;">`;
+      
+      if (item.type === 'header') {
+          html += `<div style="font-size:11px; font-weight:700; color:#0a1929; margin-top:4px; border-bottom:1px solid #e6edf5; padding-bottom:2px; word-wrap:break-word; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex-shrink: 0;">${escapeHtml(item.label)}</div>`;
+      } else {
+          html += `<label style="font-size:9px; font-weight:600; color:#4a5a6e; display:block; margin-bottom:3px; text-transform:uppercase; letter-spacing:0.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex-shrink: 0;">${escapeHtml(item.label)}${item.required ? ' <span style="color:#d43f34">*</span>' : ''}</label>`;
       }
+      
+      if (item.type === 'header') {} 
+      else if (item.type === 'short_text') html += `<input type="text" placeholder="Jawaban singkat..." style="width:100%; padding:6px; border:1px solid #e6edf5; border-radius:6px; font-size:10px; background:#fafcfe; box-sizing: border-box;" disabled/>`
+      else if (item.type === 'date' || item.type === 'time') html += `<input type="${item.type}" style="width:100%; padding:6px; border:1px solid #e6edf5; border-radius:6px; font-size:10px; background:#fafcfe; box-sizing: border-box;" disabled/>`
+      else if (item.type === 'paragraph') html += `<textarea placeholder="Jawaban panjang..." style="width:100%; padding:6px; border:1px solid #e6edf5; border-radius:6px; font-size:10px; background:#fafcfe; resize:none; box-sizing: border-box; min-height: 40px;" disabled></textarea>`
+      else if (item.type === 'dropdown') {
+          html += `<select style="width:100%; padding:6px; border:1px solid #e6edf5; border-radius:6px; font-size:10px; background:#fafcfe; box-sizing: border-box;" disabled><option value="">Pilih Opsi ▼</option></select>`;
+      } else if (item.type === 'multiple_choice' || item.type === 'checkboxes') {
+          html += `<div style="display:flex; flex-direction:column; gap:6px; font-size:10px; color:#4a5a6e; padding: 4px 0;">`;
+          const isCheckbox = item.type === 'checkboxes';
+          (item.options || ['Opsi 1']).forEach(o => html += `<label style="display:flex; align-items:center; gap:6px; cursor:default;"><input type="${isCheckbox ? 'checkbox' : 'radio'}" disabled style="margin:0; width:12px; height:12px; accent-color:var(--primary);" /> <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(o)}</span></label>`);
+          html += `</div>`;
+      } else if (item.type === 'file_upload') {
+          html += `<div style="border:1px dashed #c8d6e8; background:#fafcfe; border-radius:6px; padding:12px; text-align:center; font-size:10px; color:#8a9aa8; display:flex; align-items:center; justify-content:center; box-sizing: border-box;">📎 Klik untuk Upload</div>`;
+      } else {
+          html += `<input type="text" placeholder="Jawaban..." disabled style="width:100%; padding:6px; border:1px solid #e6edf5; border-radius:6px; font-size:10px; background:#fafcfe; box-sizing: border-box;" />`;
+      }
+      html += `</div>`;
   }
+  
   html += '</div>';
   hpPreviewHtml.value = html;
 }
@@ -366,3 +427,6 @@ const simpanEdit = async () => {
   }
 }
 </script>
+<style scoped>
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+</style>

@@ -50,10 +50,10 @@
               </div>
             </td>
           </tr>
-          <tr v-else-if="filteredPeserta.length === 0">
+          <tr v-else-if="daftarPeserta.length === 0">
             <td colspan="6" style="text-align: center; padding: 30px; color: #8a9aa8;">Tidak ada data peserta yang cocok.</td>
           </tr>
-          <tr v-for="p in filteredPeserta" :key="p.id" style="border-bottom: 1px solid #f0f4fa;">
+          <tr v-for="p in daftarPeserta" :key="p.id" style="border-bottom: 1px solid #f0f4fa;">
             <td style="padding: 14px 20px; font-weight: 500;">{{ p.nama_lengkap }}</td>
             <td style="padding: 14px 20px;">{{ p.email }}<br><small style="color: #8a9aa8;">{{ p.no_wa }}</small></td>
             <td style="padding: 14px 20px;">{{ p.nama_tiket }}</td>
@@ -74,8 +74,15 @@
         </tbody>
       </table>
     </div>
-    <div id="infoDataPeserta" class="flex" style="justify-content:space-between;margin-top:14px;flex-wrap:wrap;">
-      <span class="text-muted">Menampilkan {{ filteredPeserta.length }} peserta</span>
+    
+    <!-- PAGINATION CONTROLS -->
+    <div id="infoDataPeserta" class="flex" style="justify-content:space-between; align-items:center; margin-top:14px; flex-wrap:wrap; gap: 10px;">
+      <span class="text-muted" style="font-size: 14px;">Total Ditemukan: {{ pesertaTotalData }} peserta</span>
+      <div style="display:flex; gap: 8px; align-items: center;">
+        <button class="btn-outline btn-sm" :disabled="pesertaPage <= 1" @click="pesertaPage--"><Icon name="lucide:arrow-left" /></button>
+        <span style="font-size: 14px; font-weight: 500;">Halaman {{ pesertaPage }} dari {{ totalPages }}</span>
+        <button class="btn-outline btn-sm" :disabled="pesertaPage >= totalPages" @click="pesertaPage++"><Icon name="lucide:arrow-right" /></button>
+      </div>
     </div>
   </div>
 
@@ -99,56 +106,70 @@ import { ref, computed } from 'vue'
 
 const { isLoading, 
   selectedEvent, activeTab, totalPeserta, totalLunas, totalPending, totalHadir, persenHadir, 
-  isLoadingPeserta, daftarPeserta, supabase, muatDaftarPeserta, showConfirm, showToast
+  isLoadingPeserta, daftarPeserta, supabase, muatDaftarPeserta, showConfirm, showToast,
+  pesertaPage, pesertaTotalData
 } = useAdmin()
 
 const searchQuery = ref('')
 const filterStatus = ref('semua')
 const filterHadir = ref('semua')
 
-const filteredPeserta = computed(() => {
-  return daftarPeserta.value.filter(p => {
-    let lolosSearch = true
-    if (searchQuery.value) {
-      const q = searchQuery.value.toLowerCase()
-      const str = `${p.nama_lengkap || ''} ${p.email || ''} ${p.no_wa || ''}`.toLowerCase()
-      lolosSearch = str.includes(q)
-    }
-    
-    let lolosStatus = true
-    if (filterStatus.value !== 'semua') lolosStatus = p.status_bayar === filterStatus.value
+const totalPages = computed(() => Math.ceil(pesertaTotalData.value / 50) || 1)
 
-    let lolosHadir = true
-    if (filterHadir.value === 'hadir') lolosHadir = p.status_hadir === true
-    else if (filterHadir.value === 'belum') lolosHadir = !p.status_hadir
+const reloadData = () => {
+  muatDaftarPeserta(searchQuery.value, filterStatus.value, filterHadir.value, 50)
+}
 
-    return lolosSearch && lolosStatus && lolosHadir
-  })
+let timeoutSearch = null
+watch([pesertaPage, searchQuery, filterStatus, filterHadir], () => {
+  if (pesertaPage.value > totalPages.value) pesertaPage.value = 1
+  
+  clearTimeout(timeoutSearch)
+  timeoutSearch = setTimeout(() => {
+    reloadData()
+  }, 500)
 })
 
-const downloadCSVPeserta = () => {
-  if (daftarPeserta.value.length === 0) {
+const downloadCSVPeserta = async () => {
+  if (pesertaTotalData.value === 0) {
     showToast('Tidak ada data peserta untuk diunduh.', 'warning')
     return
   }
-  let csvContent = "data:text/csv;charset=utf-8,Nama Lengkap,Email,WhatsApp,Tiket,Status Bayar,Status Hadir\n"
-  daftarPeserta.value.forEach(p => {
-    const nama = (p.nama_lengkap || '').replace(/,/g, ' ')
-    const email = (p.email || '').replace(/,/g, ' ')
-    const wa = (p.no_wa || '').replace(/,/g, ' ')
-    const tiket = (p.nama_tiket || 'Tiket').replace(/,/g, ' ')
-    const statusBayar = p.status_bayar || 'pending'
-    const hadir = p.status_hadir ? 'Hadir' : 'Belum'
-    csvContent += `${nama},${email},${wa},${tiket},${statusBayar},${hadir}\n`
-  })
-  const encodedUri = encodeURI(csvContent)
-  const link = document.createElement("a")
-  link.setAttribute("href", encodedUri)
-  link.setAttribute("download", `Data_Peserta_${selectedEvent.value.nama_event.replace(/ /g, '_')}.csv`)
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  showToast('File CSV berhasil diunduh!', 'success')
+  showToast('Menyiapkan file CSV...', 'success')
+  
+  try {
+    let req = supabase.from('peserta').select('nama_lengkap, email, no_wa, nama_tiket, status_bayar, status_hadir').eq('event_id', selectedEvent.value.id)
+    if (searchQuery.value) {
+      req = req.or(`nama_lengkap.ilike.%${searchQuery.value}%,email.ilike.%${searchQuery.value}%,no_wa.ilike.%${searchQuery.value}%`)
+    }
+    if (filterStatus.value !== 'semua') req = req.eq('status_bayar', filterStatus.value)
+    if (filterHadir.value === 'hadir') req = req.eq('status_hadir', true)
+    else if (filterHadir.value === 'belum') req = req.eq('status_hadir', false)
+
+    const { data: semuaData, error } = await req.order('created_at', { ascending: false })
+    if (error) throw error
+
+    let csvContent = "data:text/csv;charset=utf-8,Nama Lengkap,Email,WhatsApp,Tiket,Status Bayar,Status Hadir\n"
+    semuaData.forEach(p => {
+      const nama = (p.nama_lengkap || '').replace(/,/g, ' ')
+      const email = (p.email || '').replace(/,/g, ' ')
+      const wa = (p.no_wa || '').replace(/,/g, ' ')
+      const tiket = (p.nama_tiket || 'Tiket').replace(/,/g, ' ')
+      const statusBayar = p.status_bayar || 'pending'
+      const hadir = p.status_hadir ? 'Hadir' : 'Belum'
+      csvContent += `${nama},${email},${wa},${tiket},${statusBayar},${hadir}\n`
+    })
+    const encodedUri = encodeURI(csvContent)
+    const link = document.createElement("a")
+    link.setAttribute("href", encodedUri)
+    link.setAttribute("download", `Data_Peserta_${selectedEvent.value.nama_event.replace(/ /g, '_')}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    showToast('File CSV berhasil diunduh!', 'success')
+  } catch (err) {
+    showToast('Gagal menyiapkan CSV: ' + err.message, 'error')
+  }
 }
 
 const setLunas = (id) => {

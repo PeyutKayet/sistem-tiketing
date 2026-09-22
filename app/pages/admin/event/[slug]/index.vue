@@ -209,7 +209,7 @@ const copyText = async (text, label) => {
 }
 
 const kirimWaVolunteer = (linkText) => {
-  const message = `Halo Volunteer! <Icon name="lucide:rocket" />\n\nBerikut adalah link akses untuk tugas event kita:\n${linkText}\n\nMohon dijaga kerahasiaan link ini ya. Semangat!`
+  const message = `Halo Volunteer! 🚀\n\nBerikut adalah link akses untuk tugas event kita:\n${linkText}\n\nMohon dijaga kerahasiaan link ini ya. Semangat!`
   window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank')
   showToast('Membuka WhatsApp...', 'success')
 }
