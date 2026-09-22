@@ -41,13 +41,11 @@
         :to="`/${ev.slug}`" 
         class="event-card"
       >
-        <NuxtImg 
+        <img 
           :src="fixPosterUrl(ev.poster_url)" 
           class="event-card-img" 
           :alt="ev.nama_event"
           loading="lazy"
-          format="webp"
-          fit="cover"
         />
         <div class="event-card-body">
           <h3 class="event-card-title">{{ ev.nama_event }}</h3>

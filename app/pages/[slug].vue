@@ -22,7 +22,7 @@
         
         <!-- Poster & Judul -->
         <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 0.75rem;">
-          <NuxtImg :src="fixPosterUrl(eventData.poster_url) || 'https://placehold.co/400x100/F8FAFC/64748B?text=POSTER+EVENT'" alt="Poster Event" style="width: 100%; height: 100px; object-fit: cover; border-radius: 10px; margin-bottom: 0.5rem; border: 1px solid var(--border-soft); box-shadow: var(--shadow-sm);" />
+          <img loading="lazy" :src="fixPosterUrl(eventData.poster_url) || 'https://placehold.co/400x100/F8FAFC/64748B?text=POSTER+EVENT'" alt="Poster Event" style="width: 100%; height: 100px; object-fit: cover; border-radius: 10px; margin-bottom: 0.5rem; border: 1px solid var(--border-soft); box-shadow: var(--shadow-sm);" />
           <p style="font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em; color: var(--accent-main); text-transform: uppercase; margin-bottom: 0.1rem;">
             {{ organizerProfile.nama_organizer || 'EventHub Organizer' }}
           </p>
@@ -242,7 +242,7 @@
         <p style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); margin: 0 0 10px; letter-spacing: 0.5px;">SCAN QRIS UNTUK MEMBAYAR</p>
         
         <!-- Gambar QRIS sementara pakai placeholder internet -->
-        <NuxtImg src="https://placehold.co/180x180/F8FAFC/1E293B?text=QRIS+BELUM+ADA" alt="QRIS Pembayaran" style="width: 100%; max-width: 180px; border-radius: 12px; border: 1px solid var(--border-soft); margin-bottom: 10px; box-shadow: var(--shadow-sm);" />
+        <img loading="lazy" src="https://placehold.co/180x180/F8FAFC/1E293B?text=QRIS+BELUM+ADA" alt="QRIS Pembayaran" style="width: 100%; max-width: 180px; border-radius: 12px; border: 1px solid var(--border-soft); margin-bottom: 10px; box-shadow: var(--shadow-sm);" />
         
         <div style="background: #FFFBEB; border: 1px dashed #FCD34D; padding: 12px; border-radius: 8px; display: inline-block;">
           <p style="font-size: 0.75rem; color: #D97706; margin: 0; font-weight: 800;">⚠️ PENTING!</p>
