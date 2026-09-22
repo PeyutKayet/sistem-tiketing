@@ -44,45 +44,83 @@
             <label class="form-label">Deskripsi</label>
             <textarea rows="2" v-model="formEditEvent.deskripsi" class="form-control"></textarea>
           </div>
+        </div>
 
-          <div class="row mb-0">
-            <div class="col">
-              <label class="form-label">Link Maps</label>
-              <input type="url" v-model="formEditEvent.link_maps" placeholder="https://maps.app.goo.gl/..." class="form-control" />
-            </div>
+        <!-- METODE PELAKSANAAN & CHECK-IN -->
+        <div class="panel">
+          <h4 style="margin-bottom:12px;font-weight:600;color:#0a1929;display:flex;align-items:center;gap:6px;">
+            <Icon name="lucide:map-pin" style="font-size:16px;color:var(--primary);" /> Format Acara & Absensi
+          </h4>
+          
+          <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <label :style="{ flex: 1, border: '1px solid', borderColor: formEditEvent.tipe_event === 'offline' ? 'var(--primary)' : '#e2e8f0', background: formEditEvent.tipe_event === 'offline' ? '#eff6ff' : 'white', borderRadius: '8px', padding: '12px', cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s' }">
+              <input type="radio" v-model="formEditEvent.tipe_event" value="offline" style="display:none;" />
+              <Icon name="lucide:building" :style="{ fontSize: '24px', color: formEditEvent.tipe_event === 'offline' ? 'var(--primary)' : '#94a3b8', marginBottom: '4px' }" />
+              <div :style="{ fontSize: '0.8rem', fontWeight: 700, color: formEditEvent.tipe_event === 'offline' ? 'var(--primary)' : '#475569' }">Di Lokasi (Offline)</div>
+            </label>
+            <label :style="{ flex: 1, border: '1px solid', borderColor: formEditEvent.tipe_event === 'online' ? 'var(--primary)' : '#e2e8f0', background: formEditEvent.tipe_event === 'online' ? '#eff6ff' : 'white', borderRadius: '8px', padding: '12px', cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s' }">
+              <input type="radio" v-model="formEditEvent.tipe_event" value="online" style="display:none;" />
+              <Icon name="lucide:monitor-play" :style="{ fontSize: '24px', color: formEditEvent.tipe_event === 'online' ? 'var(--primary)' : '#94a3b8', marginBottom: '4px' }" />
+              <div :style="{ fontSize: '0.8rem', fontWeight: 700, color: formEditEvent.tipe_event === 'online' ? 'var(--primary)' : '#475569' }">Virtual (Online)</div>
+            </label>
+            <label :style="{ flex: 1, border: '1px solid', borderColor: formEditEvent.tipe_event === 'hybrid' ? 'var(--primary)' : '#e2e8f0', background: formEditEvent.tipe_event === 'hybrid' ? '#eff6ff' : 'white', borderRadius: '8px', padding: '12px', cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s' }">
+              <input type="radio" v-model="formEditEvent.tipe_event" value="hybrid" style="display:none;" />
+              <Icon name="lucide:refresh-cw" :style="{ fontSize: '24px', color: formEditEvent.tipe_event === 'hybrid' ? 'var(--primary)' : '#94a3b8', marginBottom: '4px' }" />
+              <div :style="{ fontSize: '0.8rem', fontWeight: 700, color: formEditEvent.tipe_event === 'hybrid' ? 'var(--primary)' : '#475569' }">Hybrid</div>
+            </label>
+          </div>
+
+          <!-- PENGATURAN OFFLINE -->
+          <div v-if="formEditEvent.tipe_event === 'offline' || formEditEvent.tipe_event === 'hybrid'" style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 10px;">
+             <label class="checkbox-item mb-0" style="font-weight: 600;">
+               <input type="checkbox" v-model="formEditEvent.is_qr_active" /> <span style="font-size: 0.85rem;">Wajibkan Scan QR Code (Bagi Peserta Di Lokasi)</span>
+             </label>
+             <div v-if="formEditEvent.is_qr_active" style="margin-left: 24px; margin-top: 10px;">
+               <label class="form-label" style="font-size: 0.75rem;">Frekuensi Scan</label>
+               <div style="display: flex; gap: 8px;">
+                 <select v-model="formEditEvent.sistem_checkin" class="form-control" style="font-size: 0.8rem; padding: 8px;">
+                   <option value="scanner">1x Scan Langsung Hangus (Event Biasa)</option>
+                   <option value="none">Bebas Scan Berkali-kali (Akses Keluar-Masuk / Bazar)</option>
+                   <option value="portal">Scan Dibatasi Kuota Hari (Training / Bootcamp)</option>
+                 </select>
+                 <input v-if="formEditEvent.sistem_checkin === 'portal'" type="number" v-model="formEditEvent.target_absen" class="form-control" placeholder="Jml hari: 3" style="font-size: 0.8rem; padding: 8px; width: 120px;" />
+               </div>
+             </div>
+          </div>
+
+          <!-- PENGATURAN ONLINE -->
+          <div v-if="formEditEvent.tipe_event === 'online' || formEditEvent.tipe_event === 'hybrid'" style="background: #eff6ff; padding: 12px; border-radius: 8px; border: 1px dashed #93c5fd;">
+             <label class="checkbox-item mb-0" style="font-weight: 600;">
+               <input type="checkbox" v-model="formEditEvent.is_online_absen_active" /> <span style="font-size: 0.85rem; color: #1e40af;">Catat Kehadiran via Portal Absensi (Untuk Peserta Virtual)</span>
+             </label>
+             <div v-if="formEditEvent.is_online_absen_active" style="margin-left: 24px; margin-top: 10px;">
+               <label class="form-label" style="font-size: 0.75rem; color: #1e40af;">Bagikan link ini saat acara berlangsung:</label>
+               <input type="text" readonly :value="'https://e-tiket.web.id/absen/' + formEditEvent.slug" class="form-control" style="background: white; font-size: 0.8rem; padding: 8px; color: #1d4ed8; font-weight: 600;" />
+               <small style="font-size: 10px; color: #3b82f6; margin-top: 4px; display: block;">Peserta klik link ini > masukkan Email/WA > Absen sukses!</small>
+             </div>
           </div>
         </div>
 
+        <!-- FITUR TAMBAHAN PASCADAFTAR -->
         <div class="panel">
-          <div class="row mb-3">
-            <div class="col">
-              <label class="form-label">Tipe Event</label>
-              <select v-model="formEditEvent.tipe_event" class="form-control">
-                <option value="offline">Offline</option><option value="online">Online</option>
-              </select>
-            </div>
-            <div class="col">
-              <label class="form-label">Sistem Check-in</label>
-              <select v-model="formEditEvent.sistem_checkin" class="form-control">
-                <option value="scanner">QR Scanner (1x Datang)</option><option value="portal">Portal Absen (Multi-hari)</option>
-              </select>
-            </div>
-            <div class="col">
-              <label class="form-label">Target Absen</label>
-              <input type="number" v-model="formEditEvent.target_absen" class="form-control" placeholder="0 untuk Scanner" />
-            </div>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Link Online</label>
-            <input type="url" v-model="formEditEvent.link_online" class="form-control" />
-          </div>
+          <h4 style="margin-bottom:12px;font-weight:600;color:#0a1929;display:flex;align-items:center;gap:6px;">
+            <Icon name="lucide:plug" style="font-size:16px;color:var(--primary);" /> Fitur Tambahan Pendaftaran
+          </h4>
           
-          <div style="padding-top: 14px; border-top: 1px dashed #e6edf5;">
-            <label class="form-label" style="color: #0a1929;"><Icon name="lucide:file-text" style="margin-right:4px;" /> Syarat & Ketentuan (S&K)</label>
-            <label class="checkbox-item mb-1">
-              <input type="checkbox" v-model="formEditEvent.is_snk_active" /> Gunakan S&K Pendaftaran
+          <label class="checkbox-item mb-0" style="font-weight: 600;">
+            <input type="checkbox" v-model="formEditEvent.is_grup_wa_active" /> <span style="font-size: 0.85rem;">Arahkan Peserta ke Grup Komunitas (WA/Telegram)</span>
+          </label>
+          <div v-if="formEditEvent.is_grup_wa_active" style="margin-left: 24px; margin-top: 8px; margin-bottom: 12px;">
+            <input type="url" v-model="formEditEvent.link_grup_wa" placeholder="Masukkan Link Grup (https://chat.whatsapp...)" class="form-control" style="font-size: 0.85rem;" />
+          </div>
+
+          <div style="margin-top: 12px; border-top: 1px dashed #e2e8f0; padding-top: 12px;">
+            <label class="checkbox-item mb-0" style="font-weight: 600;">
+              <input type="checkbox" v-model="formEditEvent.is_snk_active" /> <span style="font-size: 0.85rem;">Wajibkan Persetujuan Syarat & Ketentuan (S&K)</span>
             </label>
-            <textarea v-if="formEditEvent.is_snk_active" v-model="formEditEvent.snk_text" rows="3" class="form-control" placeholder="Ketik syarat dan ketentuan di sini..." style="margin-top: 8px;"></textarea>
+            <div v-if="formEditEvent.is_snk_active" style="margin-left: 24px; margin-top: 8px;">
+              <textarea v-model="formEditEvent.snk_text" rows="2" class="form-control" placeholder="Ketik S&K di sini..." style="font-size: 0.85rem;"></textarea>
+            </div>
           </div>
         </div>
 
@@ -294,12 +332,18 @@ const updatePreviewFromItems = () => {
           html += `</div>`;
       }
       else if (item.type === 'linear_scale') {
-          html += `<div style="display:flex; gap:8px; font-size:10px; color:#4a5a6e; padding: 4px 0; align-items: center; justify-content: space-between;">`;
           const maxScale = item.scaleCount || 5;
+          html += `<div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:12px 8px;">
+                     <div style="display:flex; justify-content:space-between; align-items:center; font-size:10px; font-weight:bold; color:#64748b;">
+                       <span>1</span>
+                       <div style="display:flex; flex:1; justify-content:space-between; padding:0 8px;">`;
           for(let i=1; i<=maxScale; i++) {
-              html += `<label style="display:flex; flex-direction:column; align-items:center; gap:4px; cursor:default;"><input type="radio" disabled style="margin:0; width:12px; height:12px; accent-color:var(--primary);" /> <span>${i}</span></label>`;
+              html += `<input type="radio" disabled style="margin:0; width:12px; height:12px; accent-color:var(--primary);" />`;
           }
-          html += `</div>`;
+          html += `    </div>
+                       <span>${maxScale}</span>
+                     </div>
+                   </div>`;
       }
       else if (item.type === 'terms') {
           const termsText = item.termsText || 'Saya menyetujui semua syarat dan ketentuan yang berlaku.';
@@ -339,11 +383,11 @@ watch(selectedEvent, (val) => {
       tanggal: val.tanggal_mulai ? val.tanggal_mulai.substring(0, 10) : '',
       lokasi: val.lokasi,
       deskripsi: val.deskripsi,
-      link_maps: s.link_maps || '',
       tipe_event: s.tipe_event || 'offline',
+      is_qr_active: s.is_qr_active !== false,
+      is_online_absen_active: s.is_online_absen_active || false,
       sistem_checkin: val.sistem_checkin || 'scanner',
       target_absen: val.target_absen || 0,
-      link_online: val.link_meeting || '',
       is_snk_active: s.is_snk_active !== false,
       snk_text: s.snk_text || 'Syarat dan ketentuan berlaku mengikuti aturan panitia EventHub.',
       is_anti_calo_email: s.is_anti_calo_email || false,
@@ -357,8 +401,18 @@ watch(selectedEvent, (val) => {
     }
     
     // Load FormForge Items
-    formForgeItems.value = s.pertanyaan_kustom || []
-    setTimeout(() => updatePreviewFromItems(), 50)
+    if (s.pertanyaan_kustom && Array.isArray(s.pertanyaan_kustom)) {
+      formForgeItems.value = s.pertanyaan_kustom
+    } else {
+      formForgeItems.value = getDefaultItems()
+    }
+    setTimeout(() => {
+      if (typeof window !== 'undefined' && window.renderGrid) {
+        window.items = formForgeItems.value
+        window.renderGrid()
+      }
+      updatePreviewFromItems()
+    }, 500)
     
     posterPreviewUrl.value = fixPosterUrl(val.poster_url) || null
     posterFile.value = null
@@ -395,6 +449,8 @@ const simpanEdit = async () => {
     const newSettings = {
       ...oldSettings,
       tipe_event: formEditEvent.value.tipe_event,
+      is_qr_active: formEditEvent.value.is_qr_active,
+      is_online_absen_active: formEditEvent.value.is_online_absen_active,
       pertanyaan_kustom: formForgeItems.value,
       is_anti_calo_email: formEditEvent.value.is_anti_calo_email,
       is_anti_calo_wa: formEditEvent.value.is_anti_calo_wa,
@@ -403,7 +459,6 @@ const simpanEdit = async () => {
       donasi_header: formEditEvent.value.donasi_header,
       donasi_options: formEditEvent.value.donasi_options,
       link_grup_wa: formEditEvent.value.is_grup_wa_active ? formEditEvent.value.link_grup_wa : '',
-      link_maps: formEditEvent.value.link_maps,
       is_snk_active: formEditEvent.value.is_snk_active,
       snk_text: formEditEvent.value.snk_text
     }
@@ -414,9 +469,8 @@ const simpanEdit = async () => {
       tanggal_mulai: formEditEvent.value.tanggal || null,
       lokasi: formEditEvent.value.lokasi,
       deskripsi: formEditEvent.value.deskripsi,
-      sistem_checkin: formEditEvent.value.sistem_checkin,
-      target_absen: parseInt(formEditEvent.value.target_absen) || 0,
-      link_meeting: formEditEvent.value.link_online,
+      sistem_checkin: formEditEvent.value.is_qr_active ? formEditEvent.value.sistem_checkin : 'none',
+      target_absen: formEditEvent.value.is_qr_active && formEditEvent.value.sistem_checkin === 'portal' ? (parseInt(formEditEvent.value.target_absen) || 0) : 0,
       poster_url: finalPosterUrl,
       settings: newSettings
     }

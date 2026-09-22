@@ -142,10 +142,82 @@
         <!-- Render Custom Fields -->
         <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 10px;">
           <div v-for="field in customFields" :key="field.field_key" :style="{ gridColumn: `span ${field.width || 12}` }">
-            <label style="display: block; margin-bottom: 4px; font-size: 0.75rem; font-weight: 600; color: var(--text-muted);">
-              {{ field.label }} <span v-if="field.required" style="color: #ef4444;">*</span>
-            </label>
-            <input type="text" v-model="peserta.jawaban[field.field_key]" style="width: 100%; padding: 8px 12px; background: var(--bg-light); border: 1px solid var(--border-soft); border-radius: 8px; font-family: inherit; font-size: 0.85rem; outline: none; color: var(--text-main);" :placeholder="field.label">
+            
+            <!-- Header Type -->
+            <div v-if="field.type === 'header'" style="border-bottom: 2px solid var(--border-soft); padding-bottom: 6px; margin: 12px 0 6px;">
+              <h3 style="margin: 0; color: var(--text-main); font-size: 1.1rem;">{{ field.label }}</h3>
+            </div>
+
+            <!-- Other Input Types -->
+            <div v-else>
+              <label style="display: block; margin-bottom: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-muted);">
+                {{ field.label }} <span v-if="field.required" style="color: #ef4444;">*</span>
+              </label>
+
+              <!-- Phone Type (phone_wa) -->
+              <div v-if="field.type === 'phone_wa'" style="display: flex; gap: 8px;">
+                <input type="text" v-model="peserta['_cc_' + field.field_key]" placeholder="62" style="width: 55px; min-width: 0; padding: 10px; box-sizing: border-box; text-align: center; background: var(--bg-light); border: 1px solid var(--border-soft); border-radius: 8px; font-size: 0.85rem; font-weight: 600;" />
+                <input type="tel" v-model="peserta.jawaban[field.field_key]" @input="handlePhoneInput(peserta, field.field_key)" placeholder="81234567890" style="flex: 1; min-width: 0; padding: 10px 12px; box-sizing: border-box; background: var(--bg-light); border: 1px solid var(--border-soft); border-radius: 8px; font-size: 0.85rem;" />
+              </div>
+
+              <!-- Paragraph (long_text) -->
+              <textarea v-else-if="field.type === 'paragraph'" v-model="peserta.jawaban[field.field_key]" rows="3" style="width: 100%; padding: 10px 12px; box-sizing: border-box; background: var(--bg-light); border: 1px solid var(--border-soft); border-radius: 8px; font-family: inherit; font-size: 0.85rem; outline: none;" :placeholder="field.label"></textarea>
+
+              <!-- Dropdown -->
+              <select v-else-if="field.type === 'dropdown'" v-model="peserta.jawaban[field.field_key]" style="width: 100%; padding: 10px 12px; box-sizing: border-box; background: var(--bg-light); border: 1px solid var(--border-soft); border-radius: 8px; font-size: 0.85rem; appearance: none;">
+                <option value="">Pilih Opsi...</option>
+                <option v-for="(opt, i) in field.options" :key="i" :value="opt">{{ opt }}</option>
+              </select>
+
+              <!-- Multiple Choice (radio) -->
+              <div v-else-if="field.type === 'multiple_choice'" style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+                <label v-for="(opt, i) in field.options" :key="i" style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; cursor: pointer;">
+                  <input type="radio" :value="opt" v-model="peserta.jawaban[field.field_key]" style="width: 16px; height: 16px; flex-shrink: 0; accent-color: var(--primary);" /> {{ opt }}
+                </label>
+              </div>
+
+              <!-- Checkboxes -->
+              <div v-else-if="field.type === 'checkboxes'" style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+                <label v-for="(opt, i) in field.options" :key="i" style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; cursor: pointer;">
+                  <input type="checkbox" :value="opt" v-model="peserta.jawaban[field.field_key]" style="width: 16px; height: 16px; flex-shrink: 0; accent-color: var(--primary);" /> {{ opt }}
+                </label>
+              </div>
+
+              <!-- Linear Scale -->
+              <div v-else-if="field.type === 'linear_scale'" style="margin-top: 10px; margin-bottom: 5px; padding: 15px 12px; background: var(--bg-light); border-radius: 8px; border: 1px solid var(--border-soft);">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                  <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">1</span>
+                  
+                  <div style="display: flex; flex: 1; justify-content: space-between; align-items: center;">
+                    <label v-for="n in field.scaleCount || 5" :key="n" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; position: relative; padding: 2px;">
+                      <!-- Tooltip Angka Terpilih -->
+                      <span v-if="peserta.jawaban[field.field_key] === n" style="position: absolute; top: -18px; font-size: 0.75rem; font-weight: 800; color: var(--primary);">{{ n }}</span>
+                      
+                      <input type="radio" :value="n" v-model="peserta.jawaban[field.field_key]" style="margin: 0; width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer;" />
+                    </label>
+                  </div>
+                  
+                  <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">{{ field.scaleCount || 5 }}</span>
+                </div>
+              </div>
+
+              <!-- File Upload -->
+              <div v-else-if="field.type === 'file_upload'">
+                <!-- Saat ini hanya placeholder text input, bisa dikembangkan integrasi Storage jika butuh -->
+                <input type="file" @change="e => handleCustomUpload(e, peserta, field.field_key)" style="width: 100%; box-sizing: border-box; padding: 8px; background: var(--bg-light); border: 1px dashed var(--border-soft); border-radius: 8px; font-size: 0.8rem;" />
+                <small v-if="peserta.jawaban[field.field_key]" style="color: #10b981; font-size: 0.7rem; display: block; margin-top: 4px;">✓ File dipilih</small>
+              </div>
+
+              <!-- Terms / Persetujuan -->
+              <label v-else-if="field.type === 'terms'" style="display: flex; gap: 10px; font-size: 0.75rem; align-items: flex-start; padding: 12px; box-sizing: border-box; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer;">
+                <input type="checkbox" v-model="peserta.jawaban[field.field_key]" style="margin-top: 3px; width: 16px; height: 16px; accent-color: var(--primary); flex-shrink: 0;" />
+                <span style="line-height: 1.5; color: var(--text-muted);">{{ field.termsText || field.label }}</span>
+              </label>
+              
+              <!-- Default / Short Text / Date / Time -->
+              <input v-else :type="field.type === 'date' ? 'date' : (field.type === 'time' ? 'time' : 'text')" v-model="peserta.jawaban[field.field_key]" style="width: 100%; padding: 10px 12px; box-sizing: border-box; background: var(--bg-light); border: 1px solid var(--border-soft); border-radius: 8px; font-family: inherit; font-size: 0.85rem; outline: none; color: var(--text-main);" :placeholder="field.label">
+            </div>
+
           </div>
         </div>
       </div>
@@ -232,7 +304,6 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { createClient } from '@supabase/supabase-js'
 
 const toastMessage = ref('')
 const toastType = ref('')
@@ -245,14 +316,36 @@ const showToastMsg = (msg, type = 'error') => {
 const route = useRoute()
 const slug = route.params.slug
 
-const config = useRuntimeConfig()
-const supabase = createClient(config.public.supabaseUrl, config.public.supabaseKey)
+const supabase = useSupabaseClient()
 
 const loading = ref(true)
 const error = ref(null)
 const eventData = ref(null)
 const organizerProfile = ref({})
 const tickets = ref([])
+
+const handlePhoneInput = (peserta, fieldKey) => {
+  let val = peserta.jawaban[fieldKey] || ''
+  // Hapus semua selain angka
+  val = val.replace(/\D/g, '')
+  // Hapus 0 atau 62 di depan karena sudah ada di kotak country code
+  if (val.startsWith('0')) {
+    val = val.substring(1)
+  } else if (val.startsWith('62')) {
+    val = val.substring(2)
+  }
+  peserta.jawaban[fieldKey] = val
+}
+
+const handleCustomUpload = (event, peserta, fieldKey) => {
+  const file = event.target.files[0]
+  if (file) {
+    peserta.jawaban[fieldKey] = file.name // Simpan nama file sebagai penanda sudah diisi
+    // Idealnya file di-upload ke Supabase Storage dan URL-nya yang disimpan.
+  } else {
+    peserta.jawaban[fieldKey] = ''
+  }
+}
 
 // Fungsi untuk me-replace IP lokal ke URL https baru
 const fixPosterUrl = (url) => {
@@ -340,13 +433,25 @@ const generateFormPeserta = () => {
   for (const id in keranjang.value) {
     const qty = keranjang.value[id]
     if (qty > 0) {
-      const tiket = tickets.value.find(t => t.id === id)
+      const tiket = tickets.value.find(t => String(t.id) === String(id))
       for (let i = 0; i < qty; i++) {
         // Siapkan objek jawaban kosong
         const jawabanKosong = {}
-        customFields.value.forEach(f => { jawabanKosong[f.field_key] = '' })
+        const extraData = {} // untuk menampung country code dsb
+        
+        customFields.value.forEach(f => { 
+          if (f.type === 'checkboxes') {
+            jawabanKosong[f.field_key] = []
+          } else {
+            jawabanKosong[f.field_key] = '' 
+          }
+          if (f.type === 'phone_wa') {
+            extraData['_cc_' + f.field_key] = '62'
+          }
+        })
         
         daftarPeserta.value.push({
+          ...extraData,
           tiketId: tiket.id,
           namaTiket: tiket.nama_kategori,
           hargaTiket: tiket.harga,
@@ -398,7 +503,20 @@ const lanjutBayar = () => {
   let isValid = true
   for (const [index, peserta] of daftarPeserta.value.entries()) {
     for (const field of customFields.value) {
-      if (field.required && !peserta.jawaban[field.field_key]) {
+      if (field.type === 'header') continue // Header tidak perlu divalidasi
+      
+      let answer = peserta.jawaban[field.field_key]
+      let isEmpty = false
+      
+      if (field.type === 'checkboxes') {
+        isEmpty = !answer || answer.length === 0
+      } else if (field.type === 'terms') {
+        isEmpty = answer !== true
+      } else {
+        isEmpty = !answer
+      }
+
+      if (field.required && isEmpty) {
         if (window.Swal) {
           window.Swal.fire({ icon: 'warning', title: 'Data Belum Lengkap', text: `Mohon lengkapi "${field.label}" untuk Peserta Ke-${index + 1}`, confirmButtonColor: '#0C387A' })
         } else {
@@ -411,8 +529,13 @@ const lanjutBayar = () => {
   }
   
   if (isValid) {
-    currentStep.value = 'bayar'
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    if (totalPrice.value === 0) {
+      // Tiket Gratis! Langsung eksekusi submit tanpa perlu langkah pembayaran
+      submitData()
+    } else {
+      currentStep.value = 'bayar'
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   }
 }
 
@@ -447,7 +570,7 @@ const orderIdsGlobal = ref([])
 const linkBuktiGlobal = ref('')
 
 const submitData = async () => {
-  if (!buktiBayarBase64.value) {
+  if (totalPrice.value > 0 && !buktiBayarBase64.value) {
     uploadError.value = true
     if (window.Swal) window.Swal.fire({ icon: 'warning', title: 'Struk Belum Ada', text: 'Harap upload foto struk transfer terlebih dahulu.', confirmButtonColor: '#E85D5E' })
     else showToastMsg('Harap upload foto struk transfer!')
@@ -457,16 +580,39 @@ const submitData = async () => {
   isSubmitting.value = true
   
   try {
+    // 0. Gabungkan kode negara (CC) dan nomor HP sebelum dikirim
+    const processedPeserta = daftarPeserta.value.map(p => {
+      let finalJawaban = { ...p.jawaban }
+      for (const field of customFields.value) {
+        if (field.type === 'phone_wa' && p['_cc_' + field.field_key]) {
+          // Gabungkan +62 dan 812...
+          finalJawaban[field.field_key] = p['_cc_' + field.field_key] + (finalJawaban[field.field_key] || '')
+        }
+      }
+      return { ...p, jawaban: finalJawaban }
+    })
+
     // 1. Siapkan payload untuk Google Script
-    const arrPeserta = daftarPeserta.value.map(p => {
+    const arrPeserta = processedPeserta.map(p => {
       const { nama_lengkap, email, no_wa, domisili, ...dataTambahanJSON } = p.jawaban
+      
+      let emailVal = email
+      let noWaVal = no_wa
+      let namaLengkapVal = nama_lengkap
+      
+      for (const field of customFields.value) {
+        if (field.type === 'email' && p.jawaban[field.field_key]) emailVal = p.jawaban[field.field_key]
+        if (field.type === 'phone_wa' && p.jawaban[field.field_key]) noWaVal = p.jawaban[field.field_key]
+        if (field.field_key === 'nama_lengkap' && p.jawaban[field.field_key]) namaLengkapVal = p.jawaban[field.field_key]
+      }
+
       return {
-        namaAnak: nama_lengkap || "-",
+        namaAnak: namaLengkapVal || "-",
         usia: "-",
         domisili: domisili || "-",
         followMunira: "Tidak",
-        hp: no_wa ? no_wa.replace(/\D/g, '') : "-",
-        email: email || "-",
+        hp: noWaVal ? noWaVal.replace(/\D/g, '') : (no_wa ? no_wa.replace(/\D/g, '') : "-"),
+        email: emailVal || "-",
         latitude: "",
         longitude: "",
         dataTambahanJSON: { ...dataTambahanJSON },

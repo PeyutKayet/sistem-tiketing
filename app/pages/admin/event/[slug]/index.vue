@@ -94,29 +94,48 @@
     </div>
 
     <div class="panel flex" style="justify-content:space-between; align-items:flex-start;">
-      <div style="flex:1;">
-        <label class="form-label"><Icon name="lucide:link" style="margin-right:4px;" /> Link Pendaftaran & Akses</label>
-        <div style="display:flex; flex-direction:column; gap:12px; margin-top:6px;">
+      <div style="flex:1; padding-right: 20px;">
+        <label class="form-label" style="margin-bottom: 10px;"><Icon name="lucide:link" style="margin-right:4px;" /> Link Publik</label>
+        
+        <div style="display:flex; flex-direction:column; gap:8px;">
           
-          <div style="font-weight:500; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <span style="font-size:13px; color:#4a5a6e; width:90px;"><Icon name="lucide:ticket" style="margin-right:4px;" /> Event:</span>
-            <span style="background:#f0f4fa; padding:4px 10px; border-radius:6px; font-size:12px; font-family:monospace; color:#1a4a7a; flex: 1; min-width: 200px;">{{ baseUrl }}/{{ selectedEvent.slug }}</span>
-            <button class="btn-outline btn-sm" @click="copyText(`${baseUrl}/${selectedEvent.slug}`, 'Link Pendaftaran')"><Icon name="lucide:clipboard-list" style="margin-right:4px;" /> Salin</button>
-            <button class="btn-primary btn-sm" style="padding:4px 10px;" @click="kirimWaVolunteer(`${baseUrl}/${selectedEvent.slug}`)"><Icon name="lucide:send" style="margin-right:4px;" /> Kirim</button>
+          <!-- Link Pendaftaran -->
+          <div style="display: flex; align-items: center; border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden; background: white;">
+            <div style="width: 120px; padding: 6px 12px; font-size: 11px; font-weight: 600; color: #475569; background: #f8fafc; border-right: 1px solid #cbd5e1; white-space: nowrap;">
+              <Icon name="lucide:ticket" style="margin-right:4px;" /> Pendaftaran
+            </div>
+            <input type="text" readonly :value="`${baseUrl}/${selectedEvent.slug}`" style="flex: 1; padding: 6px 10px; border: none; font-size: 12px; color: #0f172a; outline: none; font-family: monospace;" />
+            <div style="display: flex; border-left: 1px solid #cbd5e1; background: #f8fafc;">
+              <button class="btn-icon" style="padding: 6px 12px; border: none; border-radius: 0; border-right: 1px solid #cbd5e1;" @click="copyText(`${baseUrl}/${selectedEvent.slug}`, 'Link Pendaftaran')" title="Salin"><Icon name="lucide:copy" style="font-size: 13px;" /></button>
+              <button class="btn-icon" style="padding: 6px 12px; border: none; border-radius: 0; border-right: 1px solid #cbd5e1;" @click="kirimWaVolunteer(`${baseUrl}/${selectedEvent.slug}`)" title="Kirim via WhatsApp"><Icon name="lucide:send" style="font-size: 13px; color: #16a34a;" /></button>
+              <a :href="`${baseUrl}/${selectedEvent.slug}`" target="_blank" class="btn-icon" style="padding: 6px 12px; border: none; border-radius: 0; color: #3b82f6; display: flex; align-items: center;" title="Buka di tab baru"><Icon name="lucide:external-link" style="font-size: 13px;" /></a>
+            </div>
           </div>
 
-          <div v-if="selectedEvent.sistem_checkin === 'scanner' || !selectedEvent.sistem_checkin" style="font-weight:500; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <span style="font-size:13px; color:#4a5a6e; width:90px;"><Icon name="lucide:smartphone" style="margin-right:4px;" /> Scanner:</span>
-            <span style="background:#e4f0e8; padding:4px 10px; border-radius:6px; font-size:12px; font-family:monospace; color:#1a6a4a; flex: 1; min-width: 200px;">{{ baseUrl }}/scanner?event={{ selectedEvent.slug }}</span>
-            <button class="btn-outline btn-sm" @click="copyText(`${baseUrl}/scanner?event=${selectedEvent.slug}`, 'Link Scanner')"><Icon name="lucide:clipboard-list" style="margin-right:4px;" /> Salin</button>
-            <button class="btn-primary btn-sm" style="padding:4px 10px;" @click="kirimWaVolunteer(`${baseUrl}/scanner?event=${selectedEvent.slug}`)"><Icon name="lucide:send" style="margin-right:4px;" /> Kirim</button>
+          <!-- Link Scanner -->
+          <div v-if="selectedEvent.settings?.is_qr_active !== false" style="display: flex; align-items: center; border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden; background: white;">
+            <div style="width: 120px; padding: 6px 12px; font-size: 11px; font-weight: 600; color: #475569; background: #f8fafc; border-right: 1px solid #cbd5e1; white-space: nowrap;">
+              <Icon name="lucide:scan-line" style="margin-right:4px;" /> Kamera Scanner
+            </div>
+            <input type="text" readonly :value="`${baseUrl}/scanner/${selectedEvent.slug}`" style="flex: 1; padding: 6px 10px; border: none; font-size: 12px; color: #0f172a; outline: none; font-family: monospace;" />
+            <div style="display: flex; border-left: 1px solid #cbd5e1; background: #f8fafc;">
+              <button class="btn-icon" style="padding: 6px 12px; border: none; border-radius: 0; border-right: 1px solid #cbd5e1;" @click="copyText(`${baseUrl}/scanner/${selectedEvent.slug}`, 'Link Scanner')" title="Salin"><Icon name="lucide:copy" style="font-size: 13px;" /></button>
+              <button class="btn-icon" style="padding: 6px 12px; border: none; border-radius: 0; border-right: 1px solid #cbd5e1;" @click="kirimWaVolunteer(`${baseUrl}/scanner/${selectedEvent.slug}`)" title="Kirim via WhatsApp"><Icon name="lucide:send" style="font-size: 13px; color: #16a34a;" /></button>
+              <a :href="`${baseUrl}/scanner/${selectedEvent.slug}`" target="_blank" class="btn-icon" style="padding: 6px 12px; border: none; border-radius: 0; color: #3b82f6; display: flex; align-items: center;" title="Buka di tab baru"><Icon name="lucide:external-link" style="font-size: 13px;" /></a>
+            </div>
           </div>
 
-          <div v-if="selectedEvent.sistem_checkin === 'portal'" style="font-weight:500; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <span style="font-size:13px; color:#4a5a6e; width:90px;"><Icon name="lucide:monitor" style="margin-right:4px;" /> Absen:</span>
-            <span style="background:#fdf0e4; padding:4px 10px; border-radius:6px; font-size:12px; font-family:monospace; color:#b8681a; flex: 1; min-width: 200px;">{{ baseUrl }}/absen/{{ selectedEvent.slug }}</span>
-            <button class="btn-outline btn-sm" @click="copyText(`${baseUrl}/absen/${selectedEvent.slug}`, 'Link Absen')"><Icon name="lucide:clipboard-list" style="margin-right:4px;" /> Salin</button>
-            <button class="btn-primary btn-sm" style="padding:4px 10px;" @click="kirimWaVolunteer(`${baseUrl}/absen/${selectedEvent.slug}`)"><Icon name="lucide:send" style="margin-right:4px;" /> Kirim</button>
+          <!-- Link Absen Virtual -->
+          <div v-if="selectedEvent.settings?.is_online_absen_active" style="display: flex; align-items: center; border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden; background: white;">
+            <div style="width: 120px; padding: 6px 12px; font-size: 11px; font-weight: 600; color: #475569; background: #f8fafc; border-right: 1px solid #cbd5e1; white-space: nowrap;">
+              <Icon name="lucide:monitor-play" style="margin-right:4px;" /> Absen Online
+            </div>
+            <input type="text" readonly :value="`${baseUrl}/absen/${selectedEvent.slug}`" style="flex: 1; padding: 6px 10px; border: none; font-size: 12px; color: #0f172a; outline: none; font-family: monospace;" />
+            <div style="display: flex; border-left: 1px solid #cbd5e1; background: #f8fafc;">
+              <button class="btn-icon" style="padding: 6px 12px; border: none; border-radius: 0; border-right: 1px solid #cbd5e1;" @click="copyText(`${baseUrl}/absen/${selectedEvent.slug}`, 'Link Absen')" title="Salin"><Icon name="lucide:copy" style="font-size: 13px;" /></button>
+              <button class="btn-icon" style="padding: 6px 12px; border: none; border-radius: 0; border-right: 1px solid #cbd5e1;" @click="kirimWaVolunteer(`${baseUrl}/absen/${selectedEvent.slug}`)" title="Kirim via WhatsApp"><Icon name="lucide:send" style="font-size: 13px; color: #16a34a;" /></button>
+              <a :href="`${baseUrl}/absen/${selectedEvent.slug}`" target="_blank" class="btn-icon" style="padding: 6px 12px; border: none; border-radius: 0; color: #3b82f6; display: flex; align-items: center;" title="Buka di tab baru"><Icon name="lucide:external-link" style="font-size: 13px;" /></a>
+            </div>
           </div>
 
         </div>
