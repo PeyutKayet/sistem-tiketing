@@ -206,13 +206,21 @@ export const useAdmin = () => {
     try {
       if (!currentUser.value?.id) return
       const { data, error } = await supabase.from('organizer_profile').select('*').eq('id', currentUser.value.id).single()
+      
+      console.log('--- muatProfilOrganizer ---')
+      console.log('currentUser ID:', currentUser.value.id)
+      console.log('Data fetched:', data)
+      console.log('Error fetched:', error)
+      
       if (data && !error) {
         organizerProfile.value = data
         if (!(data as any).nama_organizer) showOnboarding.value = true
       } else {
+        console.warn('Failed to load profile or profile empty', error)
         showOnboarding.value = true
       }
     } catch (e) {
+      console.error('Exception in muatProfilOrganizer:', e)
       showOnboarding.value = true
     }
   }

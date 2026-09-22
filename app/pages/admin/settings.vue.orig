@@ -114,14 +114,6 @@ const { userEmail, currentUser, supabase, showToast, organizerProfile, muatProfi
 const baseUrl = ref('')
 const isLoadingProfil = ref(true)
 
-const scannerLink = computed(() => `${baseUrl.value}/scanner?email=${encodeURIComponent(userEmail.value)}`)
-const pass = ref({ old: '', new: '', confirm: '' })
-const isSavingPass = ref(false)
-const profil = ref({ nama_organizer: '', no_wa: '', link_ig: '', link_web: '', pin_scanner: '123456', logo_url: '' })
-const isSavingProfil = ref(false)
-const showPin = ref(false)
-const isUploadingLogo = ref(false)
-
 onMounted(async () => {
   baseUrl.value = window.location.origin
   
@@ -150,11 +142,6 @@ onMounted(async () => {
     isLoadingProfil.value = false
   }
 })
-
-const fixPosterUrl = (url) => {
-  if (!url) return ''
-  return url.replace('http://192.168.1.7:8000', 'https://supabase.e-tiket.web.id')
-}
 
 const uploadLogo = async (e) => {
   const file = e.target.files[0]

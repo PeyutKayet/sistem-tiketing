@@ -255,36 +255,18 @@ const escapeHtml = (text) => {
 }
 
 const updatePreviewFromItems = () => {
-  // Selalu tambahkan default fields di awal
   let html = `
     <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
       <span style="font-size: 9px; color: #8a9aa8; font-weight: 700;">🎟️ TIKET:</span>
       <span style="font-size: 10px; font-weight: 800; color: var(--accent-main); background: #eff6ff; padding: 4px 8px; border-radius: 6px;">VIP / Reguler</span>
     </div>
     <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 8px; width: 100%;">
-      
-      <div style="grid-column: span 12; display: flex; flex-direction: column;">
-        <label style="font-size:9px; font-weight:600; color:#4a5a6e; display:block; margin-bottom:3px; text-transform:uppercase; letter-spacing:0.2px;">Nama Lengkap <span style="color:#d43f34">*</span></label>
-        <input type="text" placeholder="Budi Santoso" style="width:100%; padding:6px; border:1px solid #e6edf5; border-radius:6px; font-size:10px; background:#fafcfe; box-sizing: border-box;" disabled/>
-      </div>
-      
-      <div style="grid-column: span 6; display: flex; flex-direction: column;">
-        <label style="font-size:9px; font-weight:600; color:#4a5a6e; display:block; margin-bottom:3px; text-transform:uppercase; letter-spacing:0.2px;">Email <span style="color:#d43f34">*</span></label>
-        <input type="text" placeholder="budi@email.com" style="width:100%; padding:6px; border:1px solid #e6edf5; border-radius:6px; font-size:10px; background:#fafcfe; box-sizing: border-box;" disabled/>
-      </div>
-      
-      <div style="grid-column: span 6; display: flex; flex-direction: column;">
-        <label style="font-size:9px; font-weight:600; color:#4a5a6e; display:block; margin-bottom:3px; text-transform:uppercase; letter-spacing:0.2px;">No. WhatsApp <span style="color:#d43f34">*</span></label>
-        <input type="text" placeholder="08123456789" style="width:100%; padding:6px; border:1px solid #e6edf5; border-radius:6px; font-size:10px; background:#fafcfe; box-sizing: border-box;" disabled/>
-      </div>
   `;
   
   const sorted = [...formForgeItems.value].sort((a, b) => a.y - b.y || a.x - b.x);
   
   for (const item of sorted) {
-      // Mengonversi grid FormForge (y/x/height/width) ke grid statis biasa
-      // Kita abaikan y/x absolute, gunakan item.width saja
-      html += `<div style="grid-column: span ${item.width}; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: transparent;">`;
+      html += `<div style="grid-column: span ${item.width || 12}; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: transparent;">`;
       
       if (item.type === 'header') {
           html += `<div style="font-size:11px; font-weight:700; color:#0a1929; margin-top:4px; border-bottom:1px solid #e6edf5; padding-bottom:2px; word-wrap:break-word; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex-shrink: 0;">${escapeHtml(item.label)}</div>`;
@@ -293,19 +275,44 @@ const updatePreviewFromItems = () => {
       }
       
       if (item.type === 'header') {} 
-      else if (item.type === 'short_text') html += `<input type="text" placeholder="Jawaban singkat..." style="width:100%; padding:6px; border:1px solid #e6edf5; border-radius:6px; font-size:10px; background:#fafcfe; box-sizing: border-box;" disabled/>`
-      else if (item.type === 'date' || item.type === 'time') html += `<input type="${item.type}" style="width:100%; padding:6px; border:1px solid #e6edf5; border-radius:6px; font-size:10px; background:#fafcfe; box-sizing: border-box;" disabled/>`
-      else if (item.type === 'paragraph') html += `<textarea placeholder="Jawaban panjang..." style="width:100%; padding:6px; border:1px solid #e6edf5; border-radius:6px; font-size:10px; background:#fafcfe; resize:none; box-sizing: border-box; min-height: 40px;" disabled></textarea>`
+      else if (item.type === 'short_text' || item.type === 'phone_wa' || item.type === 'currency_rp') {
+          html += `<input type="text" placeholder="${item.field_key === 'nama_lengkap' ? 'Budi Santoso' : item.field_key === 'email' ? 'budi@email.com' : item.type === 'phone_wa' ? '08123456789' : 'Jawaban singkat...'}" style="width:100%; padding:6px; border:1px solid #e6edf5; border-radius:6px; font-size:10px; background:#fafcfe; box-sizing: border-box;" disabled/>`
+      }
+      else if (item.type === 'date' || item.type === 'time') {
+          html += `<input type="${item.type}" style="width:100%; padding:6px; border:1px solid #e6edf5; border-radius:6px; font-size:10px; background:#fafcfe; box-sizing: border-box;" disabled/>`
+      }
+      else if (item.type === 'paragraph') {
+          html += `<textarea placeholder="Jawaban panjang..." style="width:100%; padding:6px; border:1px solid #e6edf5; border-radius:6px; font-size:10px; background:#fafcfe; resize:none; box-sizing: border-box; min-height: 40px;" disabled></textarea>`
+      }
       else if (item.type === 'dropdown') {
           html += `<select style="width:100%; padding:6px; border:1px solid #e6edf5; border-radius:6px; font-size:10px; background:#fafcfe; box-sizing: border-box;" disabled><option value="">Pilih Opsi ▼</option></select>`;
-      } else if (item.type === 'multiple_choice' || item.type === 'checkboxes') {
+      }
+      else if (item.type === 'multiple_choice' || item.type === 'checkboxes') {
           html += `<div style="display:flex; flex-direction:column; gap:6px; font-size:10px; color:#4a5a6e; padding: 4px 0;">`;
           const isCheckbox = item.type === 'checkboxes';
           (item.options || ['Opsi 1']).forEach(o => html += `<label style="display:flex; align-items:center; gap:6px; cursor:default;"><input type="${isCheckbox ? 'checkbox' : 'radio'}" disabled style="margin:0; width:12px; height:12px; accent-color:var(--primary);" /> <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(o)}</span></label>`);
           html += `</div>`;
-      } else if (item.type === 'file_upload') {
+      }
+      else if (item.type === 'linear_scale') {
+          html += `<div style="display:flex; gap:8px; font-size:10px; color:#4a5a6e; padding: 4px 0; align-items: center; justify-content: space-between;">`;
+          const maxScale = item.scaleCount || 5;
+          for(let i=1; i<=maxScale; i++) {
+              html += `<label style="display:flex; flex-direction:column; align-items:center; gap:4px; cursor:default;"><input type="radio" disabled style="margin:0; width:12px; height:12px; accent-color:var(--primary);" /> <span>${i}</span></label>`;
+          }
+          html += `</div>`;
+      }
+      else if (item.type === 'terms') {
+          const termsText = item.termsText || 'Saya menyetujui semua syarat dan ketentuan yang berlaku.';
+          html += `<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px; max-height: 60px; overflow-y: hidden; font-size: 8px; line-height: 1.4; color: #8a9aa8; margin-bottom: 6px; white-space: pre-wrap;">${escapeHtml(termsText)}</div>
+          <label style="display:flex; align-items:center; gap:6px; cursor:default; font-size:9px;"><input type="checkbox" disabled style="margin:0; width:12px; height:12px; accent-color:var(--primary);" /> Saya menyetujui</label>`;
+      }
+      else if (item.type === 'file_upload') {
           html += `<div style="border:1px dashed #c8d6e8; background:#fafcfe; border-radius:6px; padding:12px; text-align:center; font-size:10px; color:#8a9aa8; display:flex; align-items:center; justify-content:center; box-sizing: border-box;">📎 Klik untuk Upload</div>`;
-      } else {
+      }
+      else if (item.type === 'domisili_api') {
+          html += `<select style="width:100%; padding:6px; border:1px solid #e6edf5; border-radius:6px; font-size:10px; background:#fafcfe; box-sizing: border-box;" disabled><option value="">Pilih Provinsi / Kota ▼</option></select>`;
+      }
+      else {
           html += `<input type="text" placeholder="Jawaban..." disabled style="width:100%; padding:6px; border:1px solid #e6edf5; border-radius:6px; font-size:10px; background:#fafcfe; box-sizing: border-box;" />`;
       }
       html += `</div>`;

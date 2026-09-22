@@ -320,6 +320,12 @@ onMounted(() => {
             })
         }
 
+        const scaleInput = propertyContent.querySelector('#ffPropScale')
+        if (scaleInput) scaleInput.addEventListener('change', function() { updateItem(item.id, { scaleCount: parseInt(this.value, 10) }) })
+        
+        const termsInput = propertyContent.querySelector('#ffPropTermsText')
+        if (termsInput) termsInput.addEventListener('input', function() { updateItem(item.id, { termsText: this.value }) })
+
         const delBtn = propertyContent.querySelector('#ffBtnDelete')
         if (delBtn) delBtn.addEventListener('click', function() { deleteItem(item.id) })
 
