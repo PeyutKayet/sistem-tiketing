@@ -19,13 +19,15 @@ export default defineEventHandler(async (event) => {
   formData.append('target', adminPhone)
   formData.append('message', pesanAdmin)
 
-  // Kirim WhatsApp secara asynchronous (Fire & Forget) agar UI tidak lemot menunggu Fonnte
+  // Kirim WhatsApp secara asynchronous (Fire & Forget)
   $fetch('https://api.fonnte.com/send', {
     method: 'POST',
     headers: { 'Authorization': fonnteToken },
     body: formData
+  }).then((res: any) => {
+    console.log("Response Fonnte:", res)
   }).catch((error: any) => {
-    console.error("Gagal kirim WA di background:", error)
+    console.error("Gagal kirim WA di background. Response:", error.response?._data || error.message)
   })
 
   // Langsung kembalikan respons sukses ke UI

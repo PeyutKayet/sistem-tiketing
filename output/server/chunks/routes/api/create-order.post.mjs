@@ -27,10 +27,13 @@ Total Transfer: *Rp ${Number(body.infaqNominal || 0).toLocaleString("id-ID")}*
 
 Cek & Verifikasi disini:
 ${adminVerifyUrl}?id=${body.transactionId}`;
+  const formData = new FormData();
+  formData.append("target", adminPhone);
+  formData.append("message", pesanAdmin);
   $fetch("https://api.fonnte.com/send", {
     method: "POST",
     headers: { "Authorization": fonnteToken },
-    body: { target: adminPhone, message: pesanAdmin }
+    body: formData
   }).catch((error) => {
     console.error("Gagal kirim WA di background:", error);
   });
