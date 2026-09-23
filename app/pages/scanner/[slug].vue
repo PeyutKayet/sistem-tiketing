@@ -221,7 +221,7 @@ const onScanSuccess = async (decodedText, decodedResult) => {
       throw new Error("Tiket ini BUKAN untuk event ini, atau palsu.")
     }
 
-    if (peserta.status_bayar !== 'lunas') {
+    if (peserta.status_bayar !== 'paid') {
       throw new Error(`Tiket belum lunas (Status: ${peserta.status_bayar})`)
     }
 

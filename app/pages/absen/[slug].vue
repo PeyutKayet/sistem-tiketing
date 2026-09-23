@@ -122,7 +122,7 @@ const prosesAbsen = async () => {
     // Ambil peserta pertama (asumsi unique)
     const p = peserta[0]
     
-    if (p.status_bayar !== 'lunas') {
+    if (p.status_bayar !== 'paid') {
       throw new Error(`Pembayaran tiket Anda masih berstatus "${p.status_bayar}". Tidak bisa melakukan absensi.`)
     }
     

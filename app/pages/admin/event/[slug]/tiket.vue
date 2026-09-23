@@ -147,7 +147,7 @@ const muatDaftarTiket = async () => {
     const { data: tiketData, error } = await supabase.from('kategori_tiket').select('*').eq('event_id', selectedEvent.value.id).order('created_at', { ascending: true })
     if (error) throw error
     
-    const { data: pesertaData } = await supabase.from('peserta').select('nama_tiket').eq('event_id', selectedEvent.value.id).eq('status_bayar', 'lunas')
+    const { data: pesertaData } = await supabase.from('peserta').select('nama_tiket').eq('event_id', selectedEvent.value.id).eq('status_bayar', 'paid')
     
     daftarTiket.value = (tiketData || []).map(t => {
       const terjual = (pesertaData || []).filter(p => p.nama_tiket === t.nama_kategori).length
@@ -160,8 +160,8 @@ const muatDaftarTiket = async () => {
   }
 }
 
-watch(activeTab, (val) => {
-  if (val === 'tiket' && selectedEvent.value) muatDaftarTiket()
+watch(selectedEvent, () => {
+  if (selectedEvent.value) muatDaftarTiket()
 }, { immediate: true })
 
 const simpanTiketBaru = async () => {

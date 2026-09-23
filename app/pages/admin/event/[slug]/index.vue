@@ -201,7 +201,7 @@ const muatTiketStatistik = async () => {
     const { data, error } = await supabase.from('kategori_tiket').select('*').eq('event_id', selectedEvent.value.id)
     if (error) throw error
     
-    const { data: peserta } = await supabase.from('peserta').select('nama_tiket').eq('event_id', selectedEvent.value.id).eq('status_bayar', 'lunas')
+    const { data: peserta } = await supabase.from('peserta').select('nama_tiket').eq('event_id', selectedEvent.value.id).eq('status_bayar', 'paid')
     
     daftarTiket.value = (data || []).map(t => {
       const terjual = (peserta || []).filter(p => p.nama_tiket === t.nama_kategori).length

@@ -117,7 +117,7 @@ export const useAdmin = () => {
       if (error) throw error
       if (data) {
         totalPeserta.value = data.length
-        totalLunas.value = data.filter((p: any) => p.status_bayar === 'lunas').length
+        totalLunas.value = data.filter((p: any) => p.status_bayar === 'paid').length
         totalPending.value = data.filter((p: any) => p.status_bayar === 'pending').length
         totalHadir.value = data.filter((p: any) => p.status_hadir).length
       }

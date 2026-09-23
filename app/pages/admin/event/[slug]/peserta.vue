@@ -17,7 +17,7 @@
       <input type="text" v-model="searchQuery" placeholder="🔍 Cari Nama / Email / WA" class="filter-control" style="flex:1;min-width:180px;" />
       <select v-model="filterStatus" class="filter-control">
         <option value="semua">Semua Status</option>
-        <option value="lunas">Lunas</option>
+        <option value="paid">Lunas</option>
         <option value="pending">Pending</option>
       </select>
       <select v-model="filterHadir" class="filter-control">
@@ -58,7 +58,7 @@
             <td style="padding: 14px 20px;">{{ p.email }}<br><small style="color: #8a9aa8;">{{ p.no_wa }}</small></td>
             <td style="padding: 14px 20px;">{{ p.nama_tiket }}</td>
             <td style="padding: 14px 20px;">
-              <span v-if="p.status_bayar === 'lunas'" class="status-badge active" style="margin:0;">Lunas</span>
+              <span v-if="p.status_bayar === 'paid'" class="status-badge active" style="margin:0;">Lunas</span>
               <span v-else class="status-badge off" style="margin:0; background: #fdf0e4; color: #b8681a;">Pending</span>
             </td>
             <td style="padding: 14px 20px;">
@@ -67,7 +67,7 @@
             </td>
             <td style="padding: 14px 20px; display: flex; gap: 8px;">
               <button v-if="p.status_bayar === 'pending'" @click="setLunas(p.id)" class="btn-primary btn-sm" style="padding: 6px 12px; font-size: 12px;"><Icon name="lucide:check-circle" style="margin-right:4px;" /> Set Lunas</button>
-              <button v-if="p.status_bayar === 'lunas' && !p.status_hadir" @click="setHadir(p.id)" class="btn-success btn-sm" style="padding: 6px 12px; font-size: 12px;"><Icon name="lucide:map-pin" style="margin-right:4px;" /> Check-in</button>
+              <button v-if="p.status_bayar === 'paid' && !p.status_hadir" @click="setHadir(p.id)" class="btn-success btn-sm" style="padding: 6px 12px; font-size: 12px;"><Icon name="lucide:map-pin" style="margin-right:4px;" /> Check-in</button>
               <span v-if="p.status_hadir" style="color: #1a6a4a; font-weight: bold; font-size: 12px;">Hadir <Icon name="lucide:check" /></span>
             </td>
           </tr>
@@ -175,7 +175,7 @@ const downloadCSVPeserta = async () => {
 const setLunas = (id) => {
   showConfirm('Ubah Status', 'Yakin ingin ubah status peserta ini menjadi LUNAS?', 'Ya, Lunas', 'success', async () => {
     try {
-      const { error } = await supabase.from('peserta').update({ status_bayar: 'lunas' }).eq('id', id)
+      const { error } = await supabase.from('peserta').update({ status_bayar: 'paid' }).eq('id', id)
       if (error) throw error
       showToast('Status berhasil diubah menjadi Lunas!', 'success')
       await muatDaftarPeserta()
