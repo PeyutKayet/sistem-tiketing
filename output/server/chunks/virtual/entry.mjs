@@ -1017,7 +1017,7 @@ var virtual_nuxt_node_modules_2F_cache_2Fnuxt_2F_nuxt_2Froutes_default = [
 	{
 		name: "slug",
 		path: "/:slug()",
-		component: () => import('../build/_slug_-BLedrwIS.mjs')
+		component: () => import('../build/_slug_-tf6dMIA5.mjs')
 	},
 	{
 		name: "index",

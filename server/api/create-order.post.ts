@@ -14,11 +14,16 @@ export default defineEventHandler(async (event) => {
   
   const pesanAdmin = `🚨 *PESANAN BARU MASUK*\nEvent: ${body.namaEvent || 'Event'}\nOrder ID: ${body.transactionId}\nTotal Transfer: *Rp ${Number(body.infaqNominal || 0).toLocaleString('id-ID')}*\n\nCek & Verifikasi disini:\n${adminVerifyUrl}?id=${body.transactionId}`
 
+  // Fonnte API mewajibkan format form-data (bukan JSON standar)
+  const formData = new FormData()
+  formData.append('target', adminPhone)
+  formData.append('message', pesanAdmin)
+
   // Kirim WhatsApp secara asynchronous (Fire & Forget) agar UI tidak lemot menunggu Fonnte
   $fetch('https://api.fonnte.com/send', {
     method: 'POST',
     headers: { 'Authorization': fonnteToken },
-    body: { target: adminPhone, message: pesanAdmin }
+    body: formData
   }).catch((error: any) => {
     console.error("Gagal kirim WA di background:", error)
   })
