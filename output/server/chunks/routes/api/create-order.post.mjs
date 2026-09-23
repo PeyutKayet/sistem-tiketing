@@ -34,8 +34,11 @@ ${adminVerifyUrl}?id=${body.transactionId}`;
     method: "POST",
     headers: { "Authorization": fonnteToken },
     body: formData
+  }).then((res) => {
+    console.log("Response Fonnte:", res);
   }).catch((error) => {
-    console.error("Gagal kirim WA di background:", error);
+    var _a;
+    console.error("Gagal kirim WA di background. Response:", ((_a = error.response) == null ? void 0 : _a._data) || error.message);
   });
   return { status: "success" };
 });
