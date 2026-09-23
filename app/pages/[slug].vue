@@ -856,6 +856,7 @@ const submitData = async () => {
     const res = await fetch('/api/create-order', { 
       method: 'POST', 
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'omit', // Abaikan cookie agar backend tidak memverifikasi user (menghindari timeout Supabase)
       body: JSON.stringify(dataPayload) 
     })
     
