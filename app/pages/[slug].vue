@@ -858,6 +858,11 @@ const submitData = async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(dataPayload) 
     })
+    
+    if (!res.ok) {
+      throw new Error(`Pendaftaran tertunda (Error ${res.status}). Pastikan API tersedia.`)
+    }
+    
     const response = await res.json()
 
     // Lanjutkan walau notif WA gagal (atau bisa di-throw error jika wajib)

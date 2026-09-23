@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  web-tiket:
+    build: .
+    container_name: web-tiket
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - FONNTE_TOKEN=${FONNTE_TOKEN}
+      - ADMIN_PHONE=${ADMIN_PHONE}

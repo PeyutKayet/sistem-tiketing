@@ -8,5 +8,14 @@ export default defineNuxtConfig({
   },
   image: {
     domains: ['placehold.co', 'supabase.e-tiket.web.id']
+  },
+  runtimeConfig: {
+    fonnteToken: process.env.FONNTE_TOKEN,
+    adminPhone: process.env.ADMIN_PHONE
+  },
+  routeRules: {
+    '/admin/**': { ssr: false },
+    '/admin': { ssr: false },
+    '/login': { ssr: false }
   }
 })

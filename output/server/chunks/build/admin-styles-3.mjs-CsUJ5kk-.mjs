@@ -1,0 +1,5 @@
+//#region app/components/admin/AdminToast.vue?vue&type=style&index=0&scoped=6b096e53&inline&used&lang.css
+var AdminToast_vue_vue_type_style_index_0_scoped_6b096e53_inline_used_lang_default = "#toastContainer[data-v-6b096e53]{z-index:9999;pointer-events:none;flex-direction:column;gap:12px;display:flex;position:fixed;bottom:24px;right:24px}.toast-msg[data-v-6b096e53]{color:#0a1929;border-left:4px solid var(--primary);pointer-events:auto;background:#fff;border-radius:12px;align-items:center;gap:12px;padding:14px 20px;font-family:Inter,sans-serif;font-size:14px;font-weight:500;transition:transform .4s cubic-bezier(.175,.885,.32,1.275);display:flex;transform:translate(120%);box-shadow:0 10px 32px -8px #00000040}.toast-msg.show[data-v-6b096e53]{transform:translate(0)}.toast-msg.success[data-v-6b096e53]{border-left-color:#1a6a4a}.toast-msg.error[data-v-6b096e53]{border-left-color:#d43f34}.toast-msg.warning[data-v-6b096e53]{border-left-color:#b8681a}";
+
+export { AdminToast_vue_vue_type_style_index_0_scoped_6b096e53_inline_used_lang_default as A };
+//# sourceMappingURL=admin-styles-3.mjs-CsUJ5kk-.mjs.map
