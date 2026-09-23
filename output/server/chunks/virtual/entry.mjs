@@ -886,9 +886,31 @@ var manifestDiagnostics = /* #__PURE__ */ defineProdDiagnostics({
 });
 //#endregion
 //#region virtual:nuxt:node_modules%2F.cache%2Fnuxt%2F.nuxt%2Froute-rules.mjs
-var sensitiveMatcher = (m, p) => {
-	return [];
-};
+var sensitiveMatcher = /* @__PURE__ */ (() => {
+	const $0 = { ssr: false };
+	return (m, p) => {
+		let r = [];
+		if (p.charCodeAt(p.length - 1) === 47) p = p.slice(0, -1);
+		if (p === "/admin") r.push({ data: $0 });
+		else if (p === "/login") r.push({ data: $0 });
+		else if (p.charCodeAt(p.length - 1) === 47) {
+			if (p === "/admin/") r.push({ data: $0 });
+			else if (p === "/login/") r.push({ data: $0 });
+		}
+		let s = p.split("/");
+		if (s.length > 1 && s[s.length - 1] === "") {
+			s.pop();
+			p = p.slice(0, -1);
+		}
+		if (s.length > 1) {
+			if (s[1] === "admin") r.push({
+				data: $0,
+				params: { "_": p.slice(7) }
+			});
+		}
+		return r.reverse();
+	};
+})();
 var foldedMatcher = sensitiveMatcher;
 var decodeRoutePath = function decodeRoutePath(path) {
 	if (!path.includes("%")) return path;
