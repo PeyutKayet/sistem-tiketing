@@ -7,9 +7,23 @@
       
       <div v-else class="content-box">
         <!-- Status Pembayaran -->
-        <div class="status-badge" :class="tiketData.status_bayar === 'paid' ? 'paid' : 'pending'">
-          {{ tiketData.status_bayar === 'paid' ? '✅ LUNAS' : '⏳ MENUNGGU PEMBAYARAN' }}
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px;">
+          <div class="status-badge" :class="tiketData.status_bayar === 'paid' ? 'paid' : 'pending'" style="margin-bottom: 0;">
+            {{ tiketData.status_bayar === 'paid' ? '✅ LUNAS' : '⏳ MENUNGGU PEMBAYARAN' }}
+          </div>
+          
+          <button 
+            v-if="tiketData.status_bayar === 'pending'"
+            @click="refreshStatus(false)" 
+            :disabled="isRefreshing"
+            title="Cek Status Pembayaran"
+            class="refresh-btn"
+            :class="{ 'is-loading': isRefreshing }"
+          >
+            <span class="icon">🔄</span>
+          </button>
         </div>
+        <p v-if="cooldownMessage" style="font-size: 0.75rem; color: #ef4444; margin-bottom: 20px; font-weight: 600;">{{ cooldownMessage }}</p>
         
         <h2 class="event-title">{{ tiketData.event?.nama_event || 'Event' }}</h2>
         <p class="ticket-type">E-Ticket Preview</p>
@@ -81,7 +95,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useHead } from '#imports'
 
@@ -149,7 +163,54 @@ const formatWaLink = (no) => {
   return `https://wa.me/${hp}`
 }
 
+const isRefreshing = ref(false)
+const cooldownMessage = ref('')
+let lastRefreshTime = 0
+let autoPollCount = 0
+
+const refreshStatus = async (isSilent = false) => {
+  const now = Date.now()
+  if (!isSilent && now - lastRefreshTime < 30000) {
+    const sisaDetik = Math.ceil((30000 - (now - lastRefreshTime)) / 1000)
+    cooldownMessage.value = `Tunggu ${sisaDetik} detik lagi untuk merefresh.`
+    return
+  }
+  
+  isRefreshing.value = true
+  cooldownMessage.value = ''
+  if (!isSilent) lastRefreshTime = now
+
+  try {
+    const orderIdInduk = tiketData.value.data_tambahan?.order_id
+    if (!orderIdInduk) throw new Error('Order ID tidak ditemukan')
+    
+    const response = await $fetch(`/api/check-kasera?order_id=${orderIdInduk}`)
+    
+    if (response.payment_status === 'paid' || response.status === 'already_paid') {
+      tiketData.value.status_bayar = 'paid'
+      if (!isSilent) alert('Pembayaran berhasil dikonfirmasi! Tiketmu sudah aktif.')
+      isRefreshing.value = false
+    } else {
+      // Jika pembayaran belum lunas
+      if (isSilent && autoPollCount < 4) {
+        // Coba lagi secara rahasia setiap 3 detik (maksimal 4 kali)
+        autoPollCount++
+        setTimeout(() => refreshStatus(true), 3000)
+      } else {
+        isRefreshing.value = false
+        if (!isSilent) alert('Pembayaran belum diterima oleh Kasera. Coba beberapa saat lagi.')
+      }
+    }
+  } catch (err) {
+    console.error('Gagal mengecek status:', err)
+    isRefreshing.value = false
+    if (!isSilent) alert('Terjadi kesalahan saat mengecek status atau pesanan bukan dari Kasera.')
+  }
+}
+
 const organizerData = ref(null)
+
+let realtimeChannel = null
 
 onMounted(async () => {
   try {
@@ -170,9 +231,37 @@ onMounted(async () => {
           .from('organizer_profile')
           .select('no_wa, link_ig, link_web')
           .eq('id', data.event.organizer_id)
-          .single()
+          .maybeSingle()
         if (org) organizerData.value = org
       }
+
+      // 1. Cek parameter URL dari balikan Kasera
+      if (route.query.status === 'succeeded' && tiketData.value.status_bayar === 'pending') {
+        // Cek secara diam-diam tanpa alert
+        refreshStatus(true)
+      }
+
+      // 2. Berlangganan Supabase Realtime agar ter-update ajaib
+      if (tiketData.value.status_bayar === 'pending') {
+        realtimeChannel = supabase
+          .channel('tiket-lunas-listener')
+          .on(
+            'postgres_changes',
+            { 
+              event: 'UPDATE', 
+              schema: 'public', 
+              table: 'peserta',
+              filter: `id=eq.${tiketData.value.id}` 
+            },
+            (payload) => {
+              if (payload.new.status_bayar === 'paid') {
+                tiketData.value.status_bayar = 'paid'
+              }
+            }
+          )
+          .subscribe()
+      }
+      
     } else {
       error.value = "❌ Tiket tidak ditemukan. Pastikan URL sudah benar."
     }
@@ -181,6 +270,12 @@ onMounted(async () => {
     error.value = "❌ Gagal memuat data tiket. Silakan refresh halaman."
   } finally {
     loading.value = false
+  }
+})
+
+onUnmounted(() => {
+  if (realtimeChannel) {
+    supabase.removeChannel(realtimeChannel)
   }
 })
 </script>
@@ -383,4 +478,35 @@ onMounted(async () => {
 /* Scrollbar styling untuk card yang overflow di HP kecil */
 .ticket-card-wrapper::-webkit-scrollbar { height: 6px; }
 .ticket-card-wrapper::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+
+/* Refresh Button Styling */
+.refresh-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+}
+.refresh-btn:hover {
+  transform: scale(1.05);
+}
+.refresh-btn.is-loading {
+  opacity: 0.7;
+  transform: scale(0.95);
+}
+.refresh-btn.is-loading .icon {
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 </style>

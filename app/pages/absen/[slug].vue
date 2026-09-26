@@ -126,14 +126,14 @@ const prosesAbsen = async () => {
       throw new Error(`Pembayaran tiket Anda masih berstatus "${p.status_bayar}". Tidak bisa melakukan absensi.`)
     }
     
-    if (p.status_hadir) {
+    if (p.is_scanned) {
       throw new Error('Anda sudah melakukan absensi sebelumnya.')
     }
     
     // Update status hadir
     const { error: updateErr } = await supabase
       .from('peserta')
-      .update({ status_hadir: true })
+      .update({ is_scanned: true })
       .eq('id', p.id)
       
     if (updateErr) throw updateErr

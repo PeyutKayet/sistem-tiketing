@@ -1,7 +1,7 @@
 import { defineProdDiagnostics } from 'nostics';
 import { ansiFormatter } from 'nostics/formatters/ansi';
 import { getCurrentScope, ref, watchEffect, getCurrentInstance, onBeforeUnmount, onDeactivated, onActivated, shallowReactive, reactive, effectScope, hasInjectionContext, createApp, provide, onErrorCaptured, onServerPrefetch, unref, createVNode, resolveDynamicComponent, inject, defineAsyncComponent, mergeProps, toRef, defineComponent, h, isVNode, createCommentVNode, shallowRef, isReadonly, Suspense, Fragment, useSSRContext, isRef, isShallow, isReactive, toRaw } from 'vue';
-import { c as createError, $ as $fetch, n as baseURL, o as getHeader, q as hasProtocol, j as joinURL, s as setCookie, t as setHeader, v as klona, w as withQuery, x as sanitizeStatusCode, y as parseURL, e as encodePath, z as decodePath, A as defu, B as defuFn, C as isScriptProtocol } from '../nitro/nitro.mjs';
+import { c as createError, $ as $fetch, t as baseURL, b as getHeader, v as hasProtocol, m as joinURL, s as setCookie, a as setHeader, w as klona, x as withQuery, y as sanitizeStatusCode, z as parseURL, f as encodePath, A as decodePath, B as defu, C as defuFn, D as isScriptProtocol } from '../nitro/nitro.mjs';
 import { RouterView, createMemoryHistory, createRouter, START_LOCATION } from 'vue-router';
 import { createServerClient, parseCookieHeader } from '@supabase/ssr';
 import { _api, addAPIProvider, setCustomIconsLoader } from '@iconify/vue';
@@ -953,7 +953,7 @@ var virtual_nuxt_node_modules_2F_cache_2Fnuxt_2F_nuxt_2Froutes_default = [
 	{
 		name: "absen-slug",
 		path: "/absen/:slug()",
-		component: () => import('../build/_slug_-CGuadnBu.mjs')
+		component: () => import('../build/_slug_-B-WR6_g-.mjs')
 	},
 	{
 		name: "scanner-slug",
@@ -964,43 +964,43 @@ var virtual_nuxt_node_modules_2F_cache_2Fnuxt_2F_nuxt_2Froutes_default = [
 	{
 		name: "tiket-id",
 		path: "/tiket/:id()",
-		component: () => import('../build/_id_-BmH_dsUK.mjs')
+		component: () => import('../build/_id_-D_fh3G8F.mjs')
 	},
 	{
 		name: {}.name,
 		path: "/admin",
 		meta: { "middleware": ["auth"] },
-		component: () => import('../build/admin-BqLZOmQo.mjs'),
+		component: () => import('../build/admin-5_7WNdsT.mjs'),
 		children: [
 			{
 				name: "admin-event-slug-edit",
 				path: "event/:slug()/edit",
-				component: () => import('../build/edit-4yZIEUH1.mjs')
+				component: () => import('../build/edit-BHmaAGkf.mjs')
 			},
 			{
 				name: "admin-event-slug-peserta",
 				path: "event/:slug()/peserta",
-				component: () => import('../build/peserta-Bc7gkNX6.mjs')
+				component: () => import('../build/peserta-BstsWqbj.mjs')
 			},
 			{
 				name: "admin-event-slug-tiket",
 				path: "event/:slug()/tiket",
-				component: () => import('../build/tiket-D07LGTbL.mjs')
+				component: () => import('../build/tiket-KKyCx2ql.mjs')
 			},
 			{
 				name: "admin-event-slug",
 				path: "event/:slug()",
-				component: () => import('../build/_slug_-yNf7Dss-.mjs')
+				component: () => import('../build/_slug_-DnRD8xZx.mjs')
 			},
 			{
 				name: "admin-settings",
 				path: "settings",
-				component: () => import('../build/settings-DfeABUhq.mjs')
+				component: () => import('../build/settings-DFL0Rqzd.mjs')
 			},
 			{
 				name: "admin",
 				path: "",
-				component: () => import('../build/admin-DYqeFPOb.mjs')
+				component: () => import('../build/admin-DqCZqLzn.mjs')
 			}
 		]
 	},
@@ -1017,12 +1017,12 @@ var virtual_nuxt_node_modules_2F_cache_2Fnuxt_2F_nuxt_2Froutes_default = [
 	{
 		name: "slug",
 		path: "/:slug()",
-		component: () => import('../build/_slug_-tf6dMIA5.mjs')
+		component: () => import('../build/_slug_-DabC_Yvh.mjs')
 	},
 	{
 		name: "index",
 		path: "/",
-		component: () => import('../build/pages-hFzHIoTT.mjs')
+		component: () => import('../build/pages-Dgh2z_Sm.mjs')
 	}
 ];
 //#endregion

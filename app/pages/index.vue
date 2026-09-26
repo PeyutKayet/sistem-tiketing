@@ -94,7 +94,7 @@ onMounted(async () => {
       .from('event')
       .select('id, slug, nama_event, tanggal_mulai, lokasi, poster_url, status')
       .neq('is_archived', true)
-      .neq('status', 'finished')
+      .eq('status', 'published')
       .gte('tanggal_mulai', hariIni.toISOString())
       .order('tanggal_mulai', { ascending: true })
       .limit(20)

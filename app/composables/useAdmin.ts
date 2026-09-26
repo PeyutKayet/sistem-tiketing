@@ -113,13 +113,13 @@ export const useAdmin = () => {
   const muatStatistikPeserta = async () => {
     if (!selectedEvent.value) return
     try {
-      const { data, error } = await supabase.from('peserta').select('status_bayar, status_hadir').eq('event_id', selectedEvent.value.id)
+      const { data, error } = await supabase.from('peserta').select('status_bayar, is_scanned').eq('event_id', selectedEvent.value.id)
       if (error) throw error
       if (data) {
         totalPeserta.value = data.length
         totalLunas.value = data.filter((p: any) => p.status_bayar === 'paid').length
         totalPending.value = data.filter((p: any) => p.status_bayar === 'pending').length
-        totalHadir.value = data.filter((p: any) => p.status_hadir).length
+        totalHadir.value = data.filter((p: any) => p.is_scanned).length
       }
     } catch (err) {
       console.error('Gagal memuat statistik:', err)
@@ -133,7 +133,7 @@ export const useAdmin = () => {
       const from = (pesertaPage.value - 1) * limit
       const to = from + limit - 1
 
-      let req = supabase.from('peserta').select('id, nama_lengkap, email, no_wa, nama_tiket, status_bayar, status_hadir, bukti_bayar_url, created_at', { count: 'exact' }).eq('event_id', selectedEvent.value.id)
+      let req = supabase.from('peserta').select('id, nama_lengkap, email, no_wa, nama_tiket, status_bayar, is_scanned, bukti_bayar_url, created_at', { count: 'exact' }).eq('event_id', selectedEvent.value.id)
 
       if (query) {
         req = req.or(`nama_lengkap.ilike.%${query}%,email.ilike.%${query}%,no_wa.ilike.%${query}%`)
@@ -142,9 +142,9 @@ export const useAdmin = () => {
         req = req.eq('status_bayar', status)
       }
       if (hadir === 'hadir') {
-        req = req.eq('status_hadir', true)
+        req = req.eq('is_scanned', true)
       } else if (hadir === 'belum') {
-        req = req.eq('status_hadir', false)
+        req = req.eq('is_scanned', false)
       }
 
       const { data, error, count } = await req.order('created_at', { ascending: false }).range(from, to)

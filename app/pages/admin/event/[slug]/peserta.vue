@@ -67,8 +67,8 @@
             </td>
             <td style="padding: 14px 20px; display: flex; gap: 8px;">
               <button v-if="p.status_bayar === 'pending'" @click="setLunas(p.id)" class="btn-primary btn-sm" style="padding: 6px 12px; font-size: 12px;"><Icon name="lucide:check-circle" style="margin-right:4px;" /> Set Lunas</button>
-              <button v-if="p.status_bayar === 'paid' && !p.status_hadir" @click="setHadir(p.id)" class="btn-success btn-sm" style="padding: 6px 12px; font-size: 12px;"><Icon name="lucide:map-pin" style="margin-right:4px;" /> Check-in</button>
-              <span v-if="p.status_hadir" style="color: #1a6a4a; font-weight: bold; font-size: 12px;">Hadir <Icon name="lucide:check" /></span>
+              <button v-if="p.status_bayar === 'paid' && !p.is_scanned" @click="setHadir(p.id)" class="btn-success btn-sm" style="padding: 6px 12px; font-size: 12px;"><Icon name="lucide:map-pin" style="margin-right:4px;" /> Check-in</button>
+              <span v-if="p.is_scanned" style="color: #1a6a4a; font-weight: bold; font-size: 12px;">Hadir <Icon name="lucide:check" /></span>
             </td>
           </tr>
         </tbody>
@@ -138,13 +138,13 @@ const downloadCSVPeserta = async () => {
   showToast('Menyiapkan file CSV...', 'success')
   
   try {
-    let req = supabase.from('peserta').select('nama_lengkap, email, no_wa, nama_tiket, status_bayar, status_hadir').eq('event_id', selectedEvent.value.id)
+    let req = supabase.from('peserta').select('nama_lengkap, email, no_wa, nama_tiket, status_bayar, is_scanned').eq('event_id', selectedEvent.value.id)
     if (searchQuery.value) {
       req = req.or(`nama_lengkap.ilike.%${searchQuery.value}%,email.ilike.%${searchQuery.value}%,no_wa.ilike.%${searchQuery.value}%`)
     }
     if (filterStatus.value !== 'semua') req = req.eq('status_bayar', filterStatus.value)
-    if (filterHadir.value === 'hadir') req = req.eq('status_hadir', true)
-    else if (filterHadir.value === 'belum') req = req.eq('status_hadir', false)
+    if (filterHadir.value === 'hadir') req = req.eq('is_scanned', true)
+    else if (filterHadir.value === 'belum') req = req.eq('is_scanned', false)
 
     const { data: semuaData, error } = await req.order('created_at', { ascending: false })
     if (error) throw error
@@ -156,7 +156,7 @@ const downloadCSVPeserta = async () => {
       const wa = (p.no_wa || '').replace(/,/g, ' ')
       const tiket = (p.nama_tiket || 'Tiket').replace(/,/g, ' ')
       const statusBayar = p.status_bayar || 'pending'
-      const hadir = p.status_hadir ? 'Hadir' : 'Belum'
+      const hadir = p.is_scanned ? 'Hadir' : 'Belum'
       csvContent += `${nama},${email},${wa},${tiket},${statusBayar},${hadir}\n`
     })
     const encodedUri = encodeURI(csvContent)
@@ -186,7 +186,7 @@ const setLunas = (id) => {
 const setHadir = (id) => {
   showConfirm('Check-in Peserta', 'Verifikasi kehadiran: Proses Check-in peserta ini?', 'Ya, Check-in', 'success', async () => {
     try {
-      const { error } = await supabase.from('peserta').update({ status_hadir: true }).eq('id', id)
+      const { error } = await supabase.from('peserta').update({ is_scanned: true }).eq('id', id)
       if (error) throw error
       showToast('Check-in berhasil!', 'success')
       await muatDaftarPeserta()

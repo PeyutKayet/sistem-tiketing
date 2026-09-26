@@ -1,6 +1,6 @@
 import { b as useRouter$1, m as encodeRoutePath, r as resolveRouteObject, n as navigateTo, h as useRuntimeConfig, f as useNuxtApp, o as nuxtLinkDefaults } from '../virtual/entry.mjs';
 import { defineComponent, shallowRef, h, resolveComponent, computed, unref } from 'vue';
-import { q as hasProtocol, j as joinURL, E as parseQuery, C as isScriptProtocol, F as withTrailingSlash, G as withoutTrailingSlash } from '../nitro/nitro.mjs';
+import { v as hasProtocol, m as joinURL, F as parseQuery, D as isScriptProtocol, G as withTrailingSlash, H as withoutTrailingSlash } from '../nitro/nitro.mjs';
 
 //#region node_modules/nuxt/dist/app/components/nuxt-link.js
 var firstNonUndefined = (...args) => args.find((arg) => arg !== void 0);

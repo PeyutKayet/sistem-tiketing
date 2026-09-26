@@ -229,7 +229,7 @@ const onScanSuccess = async (decodedText, decodedResult) => {
 
     if (checkinMode === 'scanner') {
       // Logika 1x Datang (Hangus)
-      if (peserta.status_hadir) {
+      if (peserta.is_scanned) {
         playBeep(false)
         scanResult.value = {
           success: false,
@@ -239,7 +239,7 @@ const onScanSuccess = async (decodedText, decodedResult) => {
         }
       } else {
         // Update database
-        await supabase.from('peserta').update({ status_hadir: true }).eq('id', peserta.id)
+        await supabase.from('peserta').update({ is_scanned: true }).eq('id', peserta.id)
         playBeep(true)
         scanResult.value = {
           success: true,
@@ -250,9 +250,9 @@ const onScanSuccess = async (decodedText, decodedResult) => {
       }
     } else if (checkinMode === 'none') {
       // Logika Tanpa Batas Keluar Masuk
-      // Boleh update status_hadir kalau belum, tapi tidak ditolak kalau sudah
-      if (!peserta.status_hadir) {
-        await supabase.from('peserta').update({ status_hadir: true }).eq('id', peserta.id)
+      // Boleh update is_scanned kalau belum, tapi tidak ditolak kalau sudah
+      if (!peserta.is_scanned) {
+        await supabase.from('peserta').update({ is_scanned: true }).eq('id', peserta.id)
       }
       playBeep(true)
       scanResult.value = {
@@ -263,8 +263,8 @@ const onScanSuccess = async (decodedText, decodedResult) => {
       }
     } else if (checkinMode === 'portal') {
       // Logika Multi Hari (Asumsi sederhana: tidak pernah menolak di level ini, butuh tabel log harian untuk limit)
-      if (!peserta.status_hadir) {
-        await supabase.from('peserta').update({ status_hadir: true }).eq('id', peserta.id)
+      if (!peserta.is_scanned) {
+        await supabase.from('peserta').update({ is_scanned: true }).eq('id', peserta.id)
       }
       playBeep(true)
       scanResult.value = {

@@ -11,7 +11,16 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     fonnteToken: process.env.FONNTE_TOKEN,
-    adminPhone: process.env.ADMIN_PHONE
+    adminPhone: process.env.ADMIN_PHONE,
+    kaseraApiKey: process.env.KASERA_API_KEY,
+    kaseraWebhookSecret: process.env.KASERA_WEBHOOK_SECRET,
+    supabaseUrl: process.env.SUPABASE_URL,
+    supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY
+  },
+  vite: {
+    server: {
+      allowedHosts: true
+    }
   },
   routeRules: {
     '/admin/**': { ssr: false },

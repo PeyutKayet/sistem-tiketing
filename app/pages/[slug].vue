@@ -711,10 +711,80 @@ const lanjutBayar = () => {
     if (totalPrice.value === 0) {
       // Tiket Gratis! Langsung eksekusi submit tanpa perlu langkah pembayaran
       submitData()
+    } else if (eventData.value?.settings?.is_kasera_active) {
+      // Bayar pakai Kasera! Skip halaman upload bukti
+      submitDataKasera()
     } else {
+      // Pembayaran Manual
       currentStep.value = 'bayar'
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
+  }
+}
+
+// --- LOGIKA SUBMIT KASERA ---
+const submitDataKasera = async () => {
+  isSubmitting.value = true
+  // Munculkan UI loading (bisa meminjam UI loading milik submitData biasa)
+  document.querySelector('.api-loader')?.classList.add('active')
+
+  try {
+    let arrPeserta = JSON.parse(JSON.stringify(daftarPeserta.value))
+    const prefixDynamic = eventData.value?.nama_event ? eventData.value.nama_event.replace(/[^A-Za-z]/g, '').substring(0, 3).toUpperCase() : 'EVT'
+    const dNow = new Date()
+    const dateStr = dNow.getFullYear().toString().slice(-2) + ("0" + (dNow.getMonth() + 1)).slice(-2) + ("0" + dNow.getDate()).slice(-2)
+    const timeStr = ("0" + dNow.getHours()).slice(-2) + ("0" + dNow.getMinutes()).slice(-2)
+
+    const processedPeserta = arrPeserta.map(p => {
+      let finalJawaban = { ...p.jawaban }
+      // Gabungkan kode negara
+      for (const field of customFields.value) {
+        if (field.type === 'phone_wa' && p['_cc_' + field.field_key]) {
+          finalJawaban[field.field_key] = p['_cc_' + field.field_key] + (finalJawaban[field.field_key] || '')
+        }
+      }
+      return {
+        ...p,
+        namaAnak: finalJawaban['nama_lengkap'] || p.jawaban['namaLengkap'] || 'Peserta',
+        email: finalJawaban['email'] || '-',
+        hp: finalJawaban['no_wa'] || '-',
+        dataTambahanJSON: finalJawaban
+      }
+    })
+
+    const payloadBackend = {
+      event_id: eventData.value.id,
+      kategori_id: arrPeserta[0].tiketId, // Di sini aslinya bernama tiketId
+      peserta: processedPeserta.map((p, index) => {
+        let randomStr = Math.random().toString(36).substring(2, 5).toUpperCase()
+        return {
+          nama_lengkap: p.namaAnak,
+          email: p.email,
+          no_wa: p.hp,
+          ticket_id: `${prefixDynamic}-${dateStr}-${timeStr}-${randomStr}`,
+          data_tambahan: p.dataTambahanJSON
+        }
+      })
+    }
+
+    const checkoutRes = await $fetch('/api/checkout', {
+      method: 'POST',
+      body: payloadBackend
+    })
+
+    if (checkoutRes.checkout_url) {
+      window.location.href = checkoutRes.checkout_url
+    } else {
+      throw new Error('Gagal mendapatkan link pembayaran Kasera')
+    }
+
+  } catch (err) {
+    console.error(err)
+    if (window.Swal) window.Swal.fire({ icon: 'error', title: 'Checkout Gagal', text: err.message, confirmButtonColor: '#E85D5E' })
+    else alert('Checkout Gagal: ' + err.message)
+  } finally {
+    isSubmitting.value = false
+    document.querySelector('.api-loader')?.classList.remove('active')
   }
 }
 
@@ -894,8 +964,7 @@ const submitData = async () => {
           nama_tiket: p.namaTiket,
           bukti_bayar_url: linkBuktiGlobal.value,
           data_tambahan: finalDataTambahan,
-          status_bayar: 'pending',
-          status_hadir: false
+          status_bayar: 'pending'
         }
       })
 
@@ -962,7 +1031,7 @@ onMounted(async () => {
     eventData.value = evData
 
     if (evData.organizer_id) {
-      const { data: orgData } = await supabase.from('organizer_profile').select('nama_organizer, no_wa, link_ig, link_web').eq('id', evData.organizer_id).single()
+      const { data: orgData } = await supabase.from('organizer_profile').select('nama_organizer, no_wa, link_ig, link_web').eq('id', evData.organizer_id).maybeSingle()
       if (orgData) organizerProfile.value = orgData
     }
 
