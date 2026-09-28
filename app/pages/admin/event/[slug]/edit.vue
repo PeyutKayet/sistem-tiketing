@@ -12,7 +12,18 @@
         <div class="panel">
           <div class="mb-3">
             <label class="form-label"><Icon name="lucide:image" style="margin-right:4px;" /> Upload Poster Event</label>
-            <input type="file" accept="image/*" class="form-file" @change="handlePosterUpload" style="background:#f7faff; padding:10px; border-radius:12px; border:1px dashed #bcc8d8;" />
+            <div style="position:relative; display:flex; align-items:center; justify-content:center; height:41px; border:1px dashed #cbd5e1; border-radius:12px; background:#f8fafc; cursor:pointer; overflow:hidden; transition:0.2s;" onmouseover="this.style.borderColor='var(--primary)'; this.style.background='#eff6ff'" onmouseout="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc'">
+              <input type="file" accept="image/*" @change="handlePosterUpload" style="position:absolute; inset:0; opacity:0; cursor:pointer; z-index:10;" />
+              <template v-if="posterPreviewUrl || (selectedEvent && selectedEvent.poster_url)">
+                <Icon name="lucide:check-circle-2" style="color:#10b981; margin-right:6px; font-size:16px;" />
+                <span style="font-size:12px; font-weight:600; color:#065f46;">Poster Terpasang (Klik untuk Ganti)</span>
+              </template>
+              <template v-else>
+                <Icon name="lucide:upload-cloud" style="color:#64748b; margin-right:6px; font-size:16px;" />
+                <span style="font-size:12px; font-weight:600; color:#64748b;">Pilih Poster</span>
+              </template>
+            </div>
+            <small style="font-size:11px; color:#8a9aa8; display:block; margin-top:6px;">Format: JPG/PNG. Maks 2MB.</small>
           </div>
 
           <div class="row mb-3">
@@ -24,7 +35,7 @@
               <label class="form-label">Slug</label>
               <div style="display:flex;gap:8px;">
                 <input type="text" v-model="formEditEvent.slug" class="form-control" @input="formEditEvent.slug = formEditEvent.slug.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')" />
-                <button class="btn-outline btn-sm">📋</button>
+                <button class="btn-outline btn-sm" title="Copy"><Icon name="lucide:copy" style="font-size:16px; margin:0;" /></button>
               </div>
             </div>
           </div>
@@ -73,13 +84,13 @@
           <!-- PENGATURAN OFFLINE -->
           <div v-if="formEditEvent.tipe_event === 'offline' || formEditEvent.tipe_event === 'hybrid'" style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 10px;">
              <label class="checkbox-item mb-0" style="font-weight: 600;">
-               <input type="checkbox" v-model="formEditEvent.is_qr_active" /> <span style="font-size: 0.85rem;">Wajibkan Scan QR Code (Bagi Peserta Di Lokasi)</span>
+               <input type="checkbox" v-model="formEditEvent.is_qr_active" /> <span style="font-size: 0.85rem;">Wajib Scan QR Code (Absensi)</span>
              </label>
              <div v-if="formEditEvent.is_qr_active" style="margin-left: 24px; margin-top: 10px;">
                <label class="form-label" style="font-size: 0.75rem;">Frekuensi Scan</label>
                <div style="display: flex; gap: 8px;">
                  <select v-model="formEditEvent.sistem_checkin" class="form-control" style="font-size: 0.8rem; padding: 8px;">
-                   <option value="scanner">1x Scan Langsung Hangus (Event Biasa)</option>
+                   <option value="scanner">Hanya bisa di-scan 1x (Hangus)</option>
                    <option value="none">Bebas Scan Berkali-kali (Akses Keluar-Masuk / Bazar)</option>
                    <option value="portal">Scan Dibatasi Kuota Hari (Training / Bootcamp)</option>
                  </select>
@@ -108,7 +119,7 @@
           </h4>
           
           <label class="checkbox-item mb-0" style="font-weight: 600;">
-            <input type="checkbox" v-model="formEditEvent.is_grup_wa_active" /> <span style="font-size: 0.85rem;">Arahkan Peserta ke Grup Komunitas (WA/Telegram)</span>
+            <input type="checkbox" v-model="formEditEvent.is_grup_wa_active" /> <span style="font-size: 0.85rem;">Sediakan Link Grup Komunitas</span>
           </label>
           <div v-if="formEditEvent.is_grup_wa_active" style="margin-left: 24px; margin-top: 8px; margin-bottom: 12px;">
             <input type="url" v-model="formEditEvent.link_grup_wa" placeholder="Masukkan Link Grup (https://chat.whatsapp...)" class="form-control" style="font-size: 0.85rem;" />
@@ -116,7 +127,7 @@
 
           <div style="margin-top: 12px; border-top: 1px dashed #e2e8f0; padding-top: 12px;">
             <label class="checkbox-item mb-0" style="font-weight: 600;">
-              <input type="checkbox" v-model="formEditEvent.is_snk_active" /> <span style="font-size: 0.85rem;">Wajibkan Persetujuan Syarat & Ketentuan (S&K)</span>
+              <input type="checkbox" v-model="formEditEvent.is_snk_active" /> <span style="font-size: 0.85rem;">Persetujuan Syarat & Ketentuan (S&K)</span>
             </label>
             <div v-if="formEditEvent.is_snk_active" style="margin-left: 24px; margin-top: 8px;">
               <textarea v-model="formEditEvent.snk_text" rows="2" class="form-control" placeholder="Ketik S&K di sini..." style="font-size: 0.85rem;"></textarea>
@@ -125,24 +136,22 @@
         </div>
 
         <div class="panel">
-          <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;display:flex;align-items:center;gap:6px;"><Icon name="lucide:shield-check" style="font-size:16px;color:var(--primary);" /> Anti Calo</h4>
+          <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;display:flex;align-items:center;gap:6px;"><Icon name="lucide:shield-check" style="font-size:16px;color:var(--primary);" /> Sistem Anti-Calo</h4>
           <label class="checkbox-item mb-1">
             <input type="checkbox" v-model="formEditEvent.is_anti_calo_email" /> 1 Email = 1 Tiket 
-            <span class="text-muted" style="font-size:12px;margin-left:4px;">(Peserta tidak bisa daftar berulang dengan email yang sama)</span>
+            
           </label>
           <label class="checkbox-item mb-1">
-            <input type="checkbox" v-model="formEditEvent.is_anti_calo_wa" /> 1 WA = 1 Tiket
+            <input type="checkbox" v-model="formEditEvent.is_anti_calo_wa" /> 1 No. WhatsApp = 1 Tiket
           </label>
-          <label class="checkbox-item mb-1">
-            <input type="checkbox" v-model="formEditEvent.is_wa_konfirm" /> Wajib Konfirmasi Nomor WA Aktif (Akan dikirim OTP)
-          </label>
+
         </div>
 
         <div class="panel">
-          <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;display:flex;align-items:center;gap:6px;"><Icon name="lucide:heart-handshake" style="font-size:16px;color:#d43f34;" /> Fitur Donasi / Infaq</h4>
+          <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;display:flex;align-items:center;gap:6px;"><Icon name="lucide:heart-handshake" style="font-size:16px;color:#d43f34;" /> Donasi / Infaq</h4>
           <div class="mb-3">
             <label class="checkbox-item">
-              <input type="checkbox" v-model="formEditEvent.is_donasi_active" /> Aktifkan Form Donasi Saat Pendaftaran
+              <input type="checkbox" v-model="formEditEvent.is_donasi_active" /> Aktifkan Form Donasi
             </label>
           </div>
           
@@ -161,18 +170,7 @@
           </div>
         </div>
 
-        <div class="panel">
-          <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;display:flex;align-items:center;gap:6px;"><Icon name="lucide:message-circle" style="font-size:16px;color:#15803d;" /> Grup Komunikasi</h4>
-          <div class="mb-3">
-            <label class="checkbox-item">
-              <input type="checkbox" v-model="formEditEvent.is_grup_wa_active" /> Sediakan Link Grup WhatsApp Peserta
-            </label>
-          </div>
-          <div v-if="formEditEvent.is_grup_wa_active" style="padding-top: 10px; border-top: 1px dashed #e6edf5;">
-            <label class="form-label">Link Grup WA</label>
-            <input type="url" v-model="formEditEvent.link_grup_wa" class="form-control" placeholder="https://chat.whatsapp.com/..." />
-          </div>
-        </div>
+
 
         <div class="panel">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">

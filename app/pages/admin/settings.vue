@@ -68,6 +68,25 @@
           <input type="url" v-model="profil.link_web" class="form-control" placeholder="https://..." />
         </div>
       </div>
+
+      <div id="bank-section" :class="{'highlight-pulse': isHighlightBank}" style="margin: 24px 0 16px; border-top: 1px dashed #e2e8f0; padding-top: 16px; padding: 16px; border-radius: 12px; transition: 0.3s;">
+        <h4 style="margin-bottom:12px;font-weight:600;color:#0a1929;"><Icon name="lucide:landmark" style="margin-right:6px; color: var(--primary);" /> Rekening Pencairan Dana</h4>
+        <div class="row mb-3" style="gap:12px; display:flex; flex-wrap: wrap;">
+          <div class="col" style="flex:1; min-width: 150px;">
+            <label class="form-label" style="margin-bottom:4px;">Nama Bank</label>
+            <input type="text" v-model="profil.bank_nama" class="form-control" placeholder="BCA / Mandiri / BNI" />
+          </div>
+          <div class="col" style="flex:1; min-width: 150px;">
+            <label class="form-label" style="margin-bottom:4px;">Nomor Rekening</label>
+            <input type="text" v-model="profil.bank_rekening" class="form-control" placeholder="1234567890" />
+          </div>
+          <div class="col" style="flex:1; min-width: 150px;">
+            <label class="form-label" style="margin-bottom:4px;">Atas Nama</label>
+            <input type="text" v-model="profil.bank_atas_nama" class="form-control" placeholder="Nama Pemilik Rekening" />
+          </div>
+        </div>
+      </div>
+
       <button class="btn-primary" @click="simpanProfilOrganizer" :disabled="isSavingProfil">
         <template v-if="isSavingProfil"><Icon name="lucide:loader-2" class="spin" style="margin-right:4px;" /> Menyimpan...</template><template v-else><Icon name="lucide:save" style="margin-right:4px;" /> Simpan Profil</template>
       </button>
@@ -80,13 +99,6 @@
         <input :type="showPin ? 'text' : 'password'" v-model="profil.pin_scanner" class="filter-control" style="width:140px;" />
         <button class="btn-outline" @click="showPin = !showPin"><Icon name="lucide:eye" /></button>
         <button class="btn-primary" @click="simpanProfilOrganizer" :disabled="isSavingProfil"><Icon name="lucide:save" style="margin-right:4px;" /> Simpan</button>
-      </div>
-      <div style="margin-top:10px;">
-        <label class="form-label"><Icon name="lucide:smartphone" style="margin-right:4px;" /> Link Scanner</label>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-          <code style="background:#f0f4fa;padding:10px 18px;border-radius:40px;font-size:12px;word-break:break-all;font-family:Inter;">{{ scannerLink }}</code>
-          <button class="btn-outline" @click="copyText(scannerLink, 'Link Scanner')"><Icon name="lucide:clipboard-list" style="margin-right:4px;" /> Salin</button>
-        </div>
       </div>
     </div>
 
@@ -107,9 +119,13 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 
 const { userEmail, currentUser, supabase, showToast, organizerProfile, muatProfilOrganizer } = useAdmin()
+
+const route = useRoute()
+const isHighlightBank = ref(false)
 
 const baseUrl = ref('')
 const isLoadingProfil = ref(true)
@@ -130,24 +146,40 @@ onMounted(async () => {
     isLoadingProfil.value = true
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
-      const { data, error } = await supabase.from('organizer_profile').select('*').eq('id', user.id).single()
-      if (data && !error) {
+      const { data, error } = await supabase.from('organizer_profile').select('*').eq('id', user.id).maybeSingle()
+      if (error) {
+        console.warn('Gagal menarik profil:', error.message)
+      } else if (data) {
         profil.value = {
           nama_organizer: data.nama_organizer || '',
           no_wa: data.no_wa || '',
           link_ig: data.link_ig || '',
           link_web: data.link_web || '',
           pin_scanner: data.pin_scanner || '123456',
-          logo_url: data.logo_url || ''
+          logo_url: data.logo_url || '',
+          bank_nama: data.bank_nama || '',
+          bank_rekening: data.bank_rekening || '',
+          bank_atas_nama: data.bank_atas_nama || ''
         }
-      } else {
-        console.warn('Gagal menarik profil langsung:', error)
       }
     }
   } catch (err) {
     console.error('Error langsung settings:', err)
   } finally {
     isLoadingProfil.value = false
+  }
+
+  // Logika Highlight & Scroll
+  if (route.query.highlight === 'rekening') {
+    setTimeout(() => {
+      const bankSec = document.getElementById('bank-section')
+      if (bankSec) {
+        bankSec.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        isHighlightBank.value = true
+        // Matikan efek highlight setelah 3 detik
+        setTimeout(() => { isHighlightBank.value = false }, 3000)
+      }
+    }, 500)
   }
 })
 
@@ -248,5 +280,16 @@ const copyText = async (text, label) => {
 <style scoped>
 .spin { animation: spin 1s linear infinite; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
+
+.highlight-pulse {
+  animation: glowRed 1.5s ease-in-out 2;
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid #ef4444 !important;
+}
+
+@keyframes glowRed {
+  0%, 100% { box-shadow: 0 0 0px rgba(239, 68, 68, 0); }
+  50% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
+}
 </style>
 

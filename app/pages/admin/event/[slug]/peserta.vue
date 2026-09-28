@@ -14,7 +14,10 @@
     </div>
 
     <div class="flex" style="margin-bottom:14px;flex-wrap:wrap;">
-      <input type="text" v-model="searchQuery" placeholder="🔍 Cari Nama / Email / WA" class="filter-control" style="flex:1;min-width:180px;" />
+      <div style="position:relative; flex:1; min-width:180px;">
+        <Icon name="lucide:search" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#8a9aa8; font-size:16px; pointer-events:none;" />
+        <input type="text" v-model="searchQuery" placeholder="Cari Nama / Email / WA" class="filter-control" style="width:100%; padding-left:40px; box-sizing:border-box;" />
+      </div>
       <select v-model="filterStatus" class="filter-control">
         <option value="semua">Semua Status</option>
         <option value="paid">Lunas</option>
@@ -55,7 +58,15 @@
           </tr>
           <tr v-for="p in daftarPeserta" :key="p.id" style="border-bottom: 1px solid #f0f4fa;">
             <td style="padding: 14px 20px; font-weight: 500;">{{ p.nama_lengkap }}</td>
-            <td style="padding: 14px 20px;">{{ p.email }}<br><small style="color: #8a9aa8;">{{ p.no_wa }}</small></td>
+            <td style="padding: 14px 20px;">
+              {{ p.email }}<br>
+              <div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
+                <small style="color: #8a9aa8;">{{ p.no_wa }}</small>
+                <a :href="formatWaLink(p.no_wa)" target="_blank" style="display:inline-flex; align-items:center; justify-content:center; background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; border-radius:6px; padding:2px 8px; text-decoration:none; transition:0.2s;" title="Hubungi via WhatsApp">
+                  <Icon name="mdi:whatsapp" style="font-size:14px; margin-right:4px;" /> <span style="font-size:11px; font-weight:600;">Chat</span>
+                </a>
+              </div>
+            </td>
             <td style="padding: 14px 20px;">{{ p.nama_tiket }}</td>
             <td style="padding: 14px 20px;">
               <span v-if="p.status_bayar === 'paid'" class="status-badge active" style="margin:0;">Lunas</span>
@@ -116,6 +127,14 @@ const filterHadir = ref('semua')
 
 const totalPages = computed(() => Math.ceil(pesertaTotalData.value / 50) || 1)
 
+const formatWaLink = (no) => {
+  if (!no) return '#'
+  let num = String(no).replace(/\D/g, '')
+  if (num.startsWith('0')) num = '62' + num.substring(1)
+  return `https://api.whatsapp.com/send?phone=${num}`
+}
+
+
 const reloadData = () => {
   muatDaftarPeserta(searchQuery.value, filterStatus.value, filterHadir.value, 50)
 }
@@ -138,7 +157,7 @@ const downloadCSVPeserta = async () => {
   showToast('Menyiapkan file CSV...', 'success')
   
   try {
-    let req = supabase.from('peserta').select('nama_lengkap, email, no_wa, nama_tiket, status_bayar, is_scanned').eq('event_id', selectedEvent.value.id)
+    let req = supabase.from('peserta').select('nama_lengkap, email, no_wa, nama_tiket, status_bayar, is_scanned, data_tambahan').eq('event_id', selectedEvent.value.id)
     if (searchQuery.value) {
       req = req.or(`nama_lengkap.ilike.%${searchQuery.value}%,email.ilike.%${searchQuery.value}%,no_wa.ilike.%${searchQuery.value}%`)
     }
@@ -149,20 +168,52 @@ const downloadCSVPeserta = async () => {
     const { data: semuaData, error } = await req.order('created_at', { ascending: false })
     if (error) throw error
 
-    let csvContent = "data:text/csv;charset=utf-8,Nama Lengkap,Email,WhatsApp,Tiket,Status Bayar,Status Hadir\n"
+    // Kumpulkan semua kolom dinamis dari data_tambahan
+    let extraKeys = new Set()
     semuaData.forEach(p => {
-      const nama = (p.nama_lengkap || '').replace(/,/g, ' ')
-      const email = (p.email || '').replace(/,/g, ' ')
-      const wa = (p.no_wa || '').replace(/,/g, ' ')
-      const tiket = (p.nama_tiket || 'Tiket').replace(/,/g, ' ')
+      if (p.data_tambahan && typeof p.data_tambahan === 'object') {
+        Object.keys(p.data_tambahan).forEach(k => extraKeys.add(k))
+      }
+    })
+    const extraHeaders = Array.from(extraKeys)
+
+    let csvContent = "data:text/csv;charset=utf-8,Nama Lengkap,Email,WhatsApp,Tiket,Status Bayar,Status Hadir"
+    if (extraHeaders.length > 0) {
+      // Hilangkan spasi atau underscore pada header jika ingin lebih rapi, tapi kita biarkan aslinya dulu
+      csvContent += "," + extraHeaders.map(h => `"${h.replace(/"/g, '""')}"`).join(",")
+    }
+    csvContent += "\n"
+
+    semuaData.forEach(p => {
+      // Gunakan kutip ganda untuk mencegah bentrok koma di dalam teks
+      const nama = `"${(p.nama_lengkap || '').replace(/"/g, '""')}"`
+      const email = `"${(p.email || '').replace(/"/g, '""')}"`
+      const wa = `"${(p.no_wa || '').replace(/"/g, '""')}"`
+      const tiket = `"${(p.nama_tiket || 'Tiket').replace(/"/g, '""')}"`
       const statusBayar = p.status_bayar || 'pending'
       const hadir = p.is_scanned ? 'Hadir' : 'Belum'
-      csvContent += `${nama},${email},${wa},${tiket},${statusBayar},${hadir}\n`
+      
+      let row = `${nama},${email},${wa},${tiket},${statusBayar},${hadir}`
+
+      // Masukkan data tambahan
+      extraHeaders.forEach(k => {
+        let val = p.data_tambahan ? p.data_tambahan[k] : ''
+        if (val === null || val === undefined) val = ''
+        if (typeof val === 'object') {
+           try { val = JSON.stringify(val) } catch(e) { val = String(val) }
+        }
+        val = `"${String(val).replace(/"/g, '""')}"`
+        row += `,${val}`
+      })
+
+      csvContent += `${row}\n`
     })
-    const encodedUri = encodeURI(csvContent)
+    const blob = new Blob([csvContent.replace('data:text/csv;charset=utf-8,', '')], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement("a")
-    link.setAttribute("href", encodedUri)
+    const url = URL.createObjectURL(blob)
+    link.setAttribute("href", url)
     link.setAttribute("download", `Data_Peserta_${selectedEvent.value.nama_event.replace(/ /g, '_')}.csv`)
+    link.style.visibility = 'hidden'
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -175,7 +226,14 @@ const downloadCSVPeserta = async () => {
 const setLunas = (id) => {
   showConfirm('Ubah Status', 'Yakin ingin ubah status peserta ini menjadi LUNAS?', 'Ya, Lunas', 'success', async () => {
     try {
-      const { error } = await supabase.from('peserta').update({ status_bayar: 'paid' }).eq('id', id)
+      // TODO (PAYMENT GATEWAY): Saat ini sistem berjalan SEMI-AUTO (EO klik lunas secara manual).
+      // Uang akan tetap masuk ke status 'PENDING' sampai Super Admin mengubahnya di halaman /s1u2p3e4r5.
+      // NANTI JIKA SUDAH PAKAI PAYMENT GATEWAY (Otomatis): 
+      // 1. Hapus tombol Set Lunas ini dari layar EO.
+      // 2. Biarkan Webhook dari Payment Gateway yang melakukan update status_bayar = 'paid' dan status_dana = 'PENDING'.
+      const { error } = await supabase.from('peserta').update({ 
+        status_bayar: 'paid'
+      }).eq('id', id)
       if (error) throw error
       showToast('Status berhasil diubah menjadi Lunas!', 'success')
       await muatDaftarPeserta()

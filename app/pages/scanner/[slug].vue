@@ -206,19 +206,20 @@ const onScanSuccess = async (decodedText, decodedResult) => {
     await html5QrCode.value.pause(true)
   }
   
-  // Asumsi isi QR adalah ID Peserta (UUID)
-  const pesertaId = decodedText.trim()
+  // Isi QR bisa berupa Ticket ID atau Order ID (tergantung dari data_tambahan)
+  const qrData = decodedText.trim()
   
   try {
+    // Kita mencari tiket berdasarkan ticket_id atau order_id
     const { data: peserta, error } = await supabase
       .from('peserta')
       .select('*')
-      .eq('id', pesertaId)
+      .or(`data_tambahan->>ticket_id.eq.${qrData},data_tambahan->>order_id.eq.${qrData}`)
       .eq('event_id', eventData.value.id)
       .single()
       
     if (error || !peserta) {
-      throw new Error("Tiket ini BUKAN untuk event ini, atau palsu.")
+      throw new Error("Tiket ini BUKAN untuk event ini, atau QR Code palsu.")
     }
 
     if (peserta.status_bayar !== 'paid') {

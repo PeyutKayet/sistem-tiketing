@@ -51,7 +51,7 @@ const kasera_post = defineEventHandler(async (event) => {
       return { status: "ignored", message: "Order not found" };
     }
     const ids = pesertas.map((p) => p.id);
-    const { error: updateErr } = await supabase.from("peserta").update({ status_bayar: "paid" }).in("id", ids);
+    const { error: updateErr } = await supabase.from("peserta").update({ status_bayar: "paid", status_dana: "CAIR" }).in("id", ids);
     if (updateErr) {
       console.error("Gagal update status DB:", updateErr);
       throw createError({ statusCode: 500, statusMessage: "Database error" });

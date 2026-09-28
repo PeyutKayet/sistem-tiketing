@@ -14,7 +14,7 @@ useHead({
   ],
   link: [
     { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap' },
-    { rel: 'icon', type: 'image/png', href: '/favicon.ico' }
+    { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }
   ],
   script: [
     { src: 'https://unpkg.com/lucide@latest', defer: true },

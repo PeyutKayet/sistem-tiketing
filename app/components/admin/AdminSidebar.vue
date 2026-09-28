@@ -19,7 +19,10 @@
         <Icon name="lucide:users" class="icon" /> <span>Peserta</span>
       </NuxtLink>
       
-      <div class="menu-label mt-4">Pengaturan</div>
+      <div class="menu-label mt-4">Keuangan & Profil</div>
+      <NuxtLink to="/admin/dompet" exact-active-class="router-link-active">
+        <Icon name="lucide:wallet" class="icon" /> <span>Dompet</span>
+      </NuxtLink>
       <NuxtLink to="/admin/settings" exact-active-class="router-link-active">
         <Icon name="lucide:settings" class="icon" /> <span>Settings</span>
       </NuxtLink>

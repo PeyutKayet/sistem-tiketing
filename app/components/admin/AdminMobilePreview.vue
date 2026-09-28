@@ -36,8 +36,8 @@
         <div style="font-weight:700; font-size:11px; color:#0a1929; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
           <Icon name="lucide:ticket" style="color:var(--primary); font-size:14px;" /> Pilih Tiket
         </div>
-        <div v-if="wizardTiketList.length === 0" style="color:#8a9aa8;font-size:11px;text-align:center;padding:10px 0;">Tiket belum tersedia</div>
-        <div v-for="(t, i) in wizardTiketList" :key="i" style="border:1px solid #e6edf5; border-radius:8px; padding:8px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+        <div v-if="wizardTiketList.filter(t => !t.is_hidden && t.is_active !== false).length === 0" style="color:#8a9aa8;font-size:11px;text-align:center;padding:10px 0;">Tiket belum tersedia</div>
+        <div v-for="(t, i) in wizardTiketList.filter(t => !t.is_hidden && t.is_active !== false)" :key="i" style="border:1px solid #e6edf5; border-radius:8px; padding:8px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
           <div>
             <div style="font-size:11px; font-weight:700; color:#0a1929;">{{ t.nama }}</div>
             <div style="font-size:10px; color:var(--primary); font-weight:600;">{{ formatRupiah(t.harga) }}</div>

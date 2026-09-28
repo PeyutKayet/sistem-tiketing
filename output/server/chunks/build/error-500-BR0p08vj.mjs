@@ -19,11 +19,11 @@ import 'ipx';
 import 'vue-router';
 import '@supabase/ssr';
 import '@iconify/vue';
+import 'unhead/plugins';
 import 'unhead/utils';
 import '../routes/renderer.mjs';
 import 'unhead/server';
 import 'unhead/legacy';
-import 'unhead/plugins';
 import 'vue-bundle-renderer/runtime';
 import 'devalue';
 

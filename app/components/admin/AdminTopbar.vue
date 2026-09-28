@@ -17,6 +17,9 @@
         <div class="name">{{ userName }}</div>
         <div class="email">{{ userEmail }}</div>
         <hr />
+        <button class="btn-outline" style="width:100%; margin-bottom:8px; border-radius:12px; font-weight:600; display:flex; justify-content:center; align-items:center; gap:8px;" @click="router.push('/admin/dompet'); showDropdown = false">
+          <Icon name="lucide:wallet" /> Dompet & Keuangan
+        </button>
         <button class="btn-outline" style="width:100%; margin-bottom:10px; border-radius:12px; font-weight:600; display:flex; justify-content:center; align-items:center; gap:8px;" @click="router.push('/admin/settings'); showDropdown = false">
           <Icon name="lucide:settings" /> Buka Pengaturan
         </button>

@@ -1,4 +1,4 @@
-import { defineProdDiagnostics } from 'nostics';
+import process from 'node:process';globalThis._importMeta_=globalThis._importMeta_||{url:"file:///_entry.js",env:process.env};import { defineProdDiagnostics } from 'nostics';
 import { ansiFormatter } from 'nostics/formatters/ansi';
 import { getCurrentScope, ref, watchEffect, getCurrentInstance, onBeforeUnmount, onDeactivated, onActivated, shallowReactive, reactive, effectScope, hasInjectionContext, createApp, provide, onErrorCaptured, onServerPrefetch, unref, createVNode, resolveDynamicComponent, inject, defineAsyncComponent, mergeProps, toRef, defineComponent, h, isVNode, createCommentVNode, shallowRef, isReadonly, Suspense, Fragment, useSSRContext, isRef, isShallow, isReactive, toRaw } from 'vue';
 import { c as createError, $ as $fetch, t as baseURL, b as getHeader, v as hasProtocol, m as joinURL, s as setCookie, a as setHeader, w as klona, x as withQuery, y as sanitizeStatusCode, z as parseURL, f as encodePath, A as decodePath, B as defu, C as defuFn, D as isScriptProtocol } from '../nitro/nitro.mjs';
@@ -6,7 +6,8 @@ import { RouterView, createMemoryHistory, createRouter, START_LOCATION } from 'v
 import { createServerClient, parseCookieHeader } from '@supabase/ssr';
 import { _api, addAPIProvider, setCustomIconsLoader } from '@iconify/vue';
 import { ssrRenderSuspense, ssrRenderComponent, ssrRenderVNode, ssrRenderAttrs } from 'vue/server-renderer';
-import { walkResolver } from 'unhead/utils';
+import { FlatMetaPlugin } from 'unhead/plugins';
+import { walkResolver, hasOwn } from 'unhead/utils';
 import { i as injectHead$1, V as VueResolver, h as headSymbol } from '../routes/renderer.mjs';
 
 function useHead(input, options = {}) {
@@ -45,6 +46,32 @@ function clientUseHead(head, input, options = {}) {
     onActivated(() => {
       deactivated.value = false;
     });
+  }
+  return entry;
+}
+function normalizeSeoMetaInput(input) {
+  if (input._flatMeta)
+    return input;
+  const meta = {};
+  for (const key in input) {
+    if (!hasOwn(input, key) || key === "title" || key === "titleTemplate")
+      continue;
+    meta[key] = input[key];
+  }
+  return {
+    title: input.title,
+    titleTemplate: input.titleTemplate,
+    _flatMeta: meta
+  };
+}
+function useSeoMeta(input = {}, options = {}) {
+  const head = options.head || injectHead$1();
+  head.use(FlatMetaPlugin);
+  const entry = useHead(normalizeSeoMetaInput(input), options);
+  const corePatch = entry.patch;
+  if (!entry.__patched) {
+    entry.patch = (input2) => corePatch(normalizeSeoMetaInput(input2));
+    entry.__patched = true;
   }
   return entry;
 }
@@ -522,6 +549,9 @@ function defineGetter(obj, key, val) {
 	Object.defineProperty(obj, key, { get: () => val });
 }
 
+//#region node_modules/nuxt/dist/app/utils.js
+globalThis._importMeta_.url.replace(/\/app\/.*$/, "/");
+//#endregion
 //#region node_modules/nuxt/dist/app/components/injections.js
 var LayoutMetaSymbol = Symbol("layout-meta");
 var PageRouteSymbol = Symbol("route");
@@ -946,83 +976,93 @@ function getRouteRules(arg) {
 //#endregion
 //#region virtual:nuxt:node_modules%2F.cache%2Fnuxt%2F.nuxt%2Fmiddleware.mjs
 var globalMiddleware = [middleware$1, /* @__PURE__ */ defineNuxtRouteMiddleware((to) => {})];
-var namedMiddleware = { auth: () => import('../build/auth-CGiMJRkB.mjs') };
+var namedMiddleware = { auth: () => import('../build/auth-B6gkLpuq.mjs') };
 //#endregion
 //#region virtual:nuxt:node_modules%2F.cache%2Fnuxt%2F.nuxt%2Froutes.mjs
 var virtual_nuxt_node_modules_2F_cache_2Fnuxt_2F_nuxt_2Froutes_default = [
 	{
 		name: "absen-slug",
 		path: "/absen/:slug()",
-		component: () => import('../build/_slug_-B-WR6_g-.mjs')
+		component: () => import('../build/_slug_-H27VYIVo.mjs')
 	},
 	{
 		name: "scanner-slug",
 		path: "/scanner/:slug()",
 		meta: { layout: false },
-		component: () => import('../build/_slug_-Ds0loAZd.mjs')
+		component: () => import('../build/_slug_-Dsapxi0A.mjs')
 	},
 	{
 		name: "tiket-id",
 		path: "/tiket/:id()",
-		component: () => import('../build/_id_-D_fh3G8F.mjs')
+		component: () => import('../build/_id_-BIFUbDJH.mjs')
 	},
 	{
 		name: {}.name,
 		path: "/admin",
 		meta: { "middleware": ["auth"] },
-		component: () => import('../build/admin-5_7WNdsT.mjs'),
+		component: () => import('../build/admin-CyVuZ8w9.mjs'),
 		children: [
 			{
 				name: "admin-event-slug-edit",
 				path: "event/:slug()/edit",
-				component: () => import('../build/edit-BHmaAGkf.mjs')
+				component: () => import('../build/edit-CU808NH4.mjs')
 			},
 			{
 				name: "admin-event-slug-peserta",
 				path: "event/:slug()/peserta",
-				component: () => import('../build/peserta-BstsWqbj.mjs')
+				component: () => import('../build/peserta-p9N5nC1f.mjs')
 			},
 			{
 				name: "admin-event-slug-tiket",
 				path: "event/:slug()/tiket",
-				component: () => import('../build/tiket-KKyCx2ql.mjs')
+				component: () => import('../build/tiket-ByDCFCas.mjs')
 			},
 			{
 				name: "admin-event-slug",
 				path: "event/:slug()",
-				component: () => import('../build/_slug_-DnRD8xZx.mjs')
+				component: () => import('../build/_slug_-BQeQP4wk.mjs')
+			},
+			{
+				name: "admin-dompet",
+				path: "dompet",
+				component: () => import('../build/dompet-C_jlZJmU.mjs')
 			},
 			{
 				name: "admin-settings",
 				path: "settings",
-				component: () => import('../build/settings-DFL0Rqzd.mjs')
+				component: () => import('../build/settings-BVzGrP9f.mjs')
 			},
 			{
 				name: "admin",
 				path: "",
-				component: () => import('../build/admin-DqCZqLzn.mjs')
+				component: () => import('../build/admin-CYtfe3up.mjs')
 			}
 		]
 	},
 	{
 		name: "admin-verify",
 		path: "/admin-verify",
-		component: () => import('../build/admin-verify-DPzrEr0S.mjs')
+		component: () => import('../build/admin-verify-hvQ_Pzlr.mjs')
 	},
 	{
 		name: "login",
 		path: "/login",
-		component: () => import('../build/login-CCaWOyc5.mjs')
+		component: () => import('../build/login-Cc7pBSFh.mjs')
+	},
+	{
+		name: "s1u2p3e4r5",
+		path: "/s1u2p3e4r5",
+		component: () => import('../build/s1u2p3e4r5-C3fYt10E.mjs')
 	},
 	{
 		name: "slug",
 		path: "/:slug()",
-		component: () => import('../build/_slug_-DabC_Yvh.mjs')
+		component: () => import('../build/_slug_-8u91sv_E.mjs')
 	},
 	{
 		name: "index",
 		path: "/",
-		component: () => import('../build/pages-Dgh2z_Sm.mjs')
+		component: () => import('../build/pages-i2LfDL1K.mjs')
 	}
 ];
 //#endregion
@@ -1229,6 +1269,13 @@ function useHead$1(input, options = {}) {
 		...options
 	});
 }
+function useSeoMeta$1(input, options = {}) {
+	const head = options.head || injectHead(options.nuxt);
+	return useSeoMeta(input, {
+		head,
+		...options
+	});
+}
 //#endregion
 //#region node_modules/nuxt/dist/app/composables/ssr.js
 var $fetch$1 = $fetch$2;
@@ -1410,7 +1457,7 @@ var plugin = /* @__PURE__ */ defineNuxtPlugin({
 });
 //#endregion
 //#region virtual:nuxt:node_modules%2F.cache%2Fnuxt%2F.nuxt%2Fcomponents.plugin.mjs
-var lazyGlobalComponents = [["Icon", defineAsyncComponent(() => import('../build/components-C44pW9aw.mjs').then((n) => n.n).then((r) => r["default"] || r.default || r))]];
+var lazyGlobalComponents = [["Icon", defineAsyncComponent(() => import('../build/components-CJE4y65R.mjs').then((n) => n.n).then((r) => r["default"] || r.default || r))]];
 var virtual_nuxt_node_modules_2F_cache_2Fnuxt_2F_nuxt_2Fcomponents_plugin_default = defineNuxtPlugin({
 	name: "nuxt:global-components",
 	setup(nuxtApp) {
@@ -1817,8 +1864,8 @@ var _sfc_main$2 = {
 				href: "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
 			}, {
 				rel: "icon",
-				type: "image/png",
-				href: "/favicon.ico"
+				type: "image/svg+xml",
+				href: "/favicon.svg"
 			}],
 			script: [{
 				src: "https://unpkg.com/lucide@latest",
@@ -1855,7 +1902,7 @@ var _sfc_main$1 = {
 		const statusText = _error.statusMessage ?? (is404 ? "Page Not Found" : "Internal Server Error");
 		const description = _error.message || _error.toString();
 		const stack = void 0;
-		const _Error404 = defineAsyncComponent(() => import('../build/error-404-D1j2x51i.mjs'));
+		const _Error404 = defineAsyncComponent(() => import('../build/error-404-Uee7of42.mjs'));
 		const _Error = defineAsyncComponent(() => import('../build/error-500-BR0p08vj.mjs'));
 		const ErrorTemplate = is404 ? _Error404 : _Error;
 		return (_ctx, _push, _parent, _attrs) => {
@@ -1956,5 +2003,5 @@ const entry = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   default: entry_default
 }, Symbol.toStringTag, { value: 'Module' }));
 
-export { useHead$1 as a, useRouter$1 as b, useRoute$2 as c, defineNuxtRouteMiddleware as d, useState as e, useNuxtApp as f, useAppConfig as g, useRuntimeConfig as h, appDiagnostics as i, asyncDataDefaults as j, docsBase as k, createError$2 as l, encodeRoutePath as m, navigateTo as n, nuxtLinkDefaults as o, prodReporters as p, entry as q, resolveRouteObject as r, sanitizeTag as s, useSupabaseUser as u };
+export { useHead$1 as a, useRouter$1 as b, useRoute$2 as c, defineNuxtRouteMiddleware as d, useState as e, useSeoMeta$1 as f, useNuxtApp as g, useAppConfig as h, useRuntimeConfig as i, appDiagnostics as j, asyncDataDefaults as k, docsBase as l, createError$2 as m, navigateTo as n, encodeRoutePath as o, prodReporters as p, nuxtLinkDefaults as q, resolveRouteObject as r, sanitizeTag as s, entry as t, useSupabaseUser as u };
 //# sourceMappingURL=entry.mjs.map

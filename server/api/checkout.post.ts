@@ -1,7 +1,8 @@
+import type { CheckoutPayload, Peserta } from '~/types/index'
 import { serverSupabaseClient } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
+  const body = await readBody<CheckoutPayload>(event)
   
   // body.peserta is an array of participants
   if (!body || !body.peserta || !body.peserta.length || !body.event_id || !body.kategori_id) {
@@ -109,7 +110,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // 4. Siapkan Array Data Peserta untuk di-insert
-  const payloadSupabase = body.peserta.map((p: any) => {
+  const payloadSupabase = body.peserta.map((p: Peserta) => {
     let dataTambahan = {
       ...p.data_tambahan, // Custom form fields, etc.
       ticket_id: p.ticket_id, // e.g. KOP-260924-XXXX

@@ -49,7 +49,7 @@ export const useAdmin = () => {
     is_grup_wa_active: false, link_grup_wa: '',
     poster_file: null, poster_preview: null 
   }))
-  const formTiketBaru = useState<any>('admin_formTiketBaru', () => ({ nama: '', harga: '', kuota: '', buka: '', tutup: '' }))
+  const formTiketBaru = useState<any>('admin_formTiketBaru', () => ({ nama: '', harga: '', is_gratis: false, kuota: '', is_unlimited: false, is_hidden: false, is_active: true, buka: '', tutup: '' }))
   const wizardTiketList = useState<any[]>('admin_wizardTiketList', () => [])
   const formForgeItems = useState<any[]>('admin_formForgeItems', () => [])
   const isSavingEvent = useState('admin_isSavingEvent', () => false)
@@ -167,6 +167,18 @@ export const useAdmin = () => {
 
   const prosesLogout = async () => {
     if (confirm('Yakin ingin mengakhiri sesi dan keluar dari aplikasi?')) {
+      // Bersihkan state global sebelum logout agar data tidak bocor (cross-contamination)
+      allEvents.value = []
+      selectedEvent.value = null
+      daftarPeserta.value = []
+      organizerProfile.value = null
+      totalPeserta.value = 0
+      totalLunas.value = 0
+      totalPending.value = 0
+      totalHadir.value = 0
+      pesertaPage.value = 1
+      pesertaTotalData.value = 0
+      
       await supabase.auth.signOut()
       router.push('/login')
     }

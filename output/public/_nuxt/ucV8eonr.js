@@ -1,1 +1,0 @@
-import{i as e}from"./BPs46E6U.js";var t=()=>e().$supabase.client;export{t};

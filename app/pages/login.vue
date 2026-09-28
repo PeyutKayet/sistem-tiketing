@@ -1,8 +1,8 @@
 <template>
   <div class="page" id="page">
 
-    <!-- SCENE: STUDIO KAMERA -->
-    <section class="scene" id="scene" :class="{ 'looking-away': isLookingAway }">
+        <!-- SCENE: ABSTRACT DASHBOARD -->
+    <section class="scene" id="scene">
       <div class="scene-bg">
           <div class="quote-box">
             <div class="quote-mark">"</div>
@@ -10,32 +10,26 @@
             <div class="quote-line"></div>
           </div>
           
-          <div class="pedestal p1"></div>
-          <div class="pedestal p2"></div>
-          <div class="pedestal p3"></div>
-          <div class="pedestal p4"></div>
-          
-          <div class="sphere s1"></div>
-          <div class="sphere s2"></div>
-
-          <div class="plant left">
-            <svg viewBox="0 0 100 100" fill="#94a3b8"><path d="M50 100 C50 100 0 80 0 40 C0 0 50 0 50 0 C50 0 100 80 100 40 C100 0 50 0 50 0 Z" opacity="0.5"/></svg>
+          <div class="abstract-graphic t1">
+            <div class="t-title">VIP Access</div>
+            <div class="t-line"></div>
+            <div class="t-row"><span>GUEST</span><span>Ahmad Muhsin</span></div>
+            <div class="t-row"><span>DATE</span><span>24 Oct 2026</span></div>
+            <div class="t-barcode"></div>
           </div>
-          <div class="plant right">
-            <svg viewBox="0 0 100 100" fill="#cbd5e1"><path d="M50 100 C50 100 20 80 20 50 C20 20 50 20 50 20 C50 20 80 80 80 50 C80 20 50 20 50 20 Z" opacity="0.7"/></svg>
+          
+          <div class="abstract-graphic t2">
+            <div class="s-title">Tiket Terjual</div>
+            <div class="s-value">1,248</div>
+            <div class="s-bars">
+              <div class="bar" style="height: 30%; background: rgba(255,255,255,0.4);"></div>
+              <div class="bar" style="height: 60%; background: rgba(255,255,255,0.6);"></div>
+              <div class="bar" style="height: 40%; background: rgba(255,255,255,0.8);"></div>
+              <div class="bar" style="height: 80%; background: rgba(255,255,255,0.9);"></div>
+              <div class="bar" style="height: 100%; background: white;"></div>
+            </div>
           </div>
       </div> 
-
-      <!-- CAMERA 1-4 -->
-      <div v-for="i in 4" :key="i" :class="'camera-rig c' + i">
-        <div class="stand-pole"></div><div class="stand-base"></div>
-        <div class="camera-body">
-          <div class="lens">
-            <div class="lens-inner" :class="{ 'success-glow': isSuccess }"></div>
-            <div class="beam"></div>
-          </div>
-        </div>
-      </div>
     </section>
 
     <!-- FORM LOGIN -->
@@ -45,50 +39,66 @@
         <small>ORGANIZER</small>
       </div>
 
-      <h1>Selamat Datang Kembali!</h1>
-      <p class="subtitle">
-        Masuk untuk melanjutkan pengelolaan event<br>
-        bersama EventHub.
+      <h1 v-if="!isRegister">Selamat Datang!</h1>
+      <h1 v-else>Buat Akun Organizer</h1>
+      
+      <p class="subtitle" v-if="!isRegister">
+        Masuk untuk melanjutkan pengelolaan event<br>bersama EventHub.
+      </p>
+      <p class="subtitle" v-else>
+        Bergabunglah bersama ribuan penyelenggara event lainnya.
       </p>
 
-      <form @submit.prevent="prosesLogin">
-        <div class="field">
-          <span class="icon">✉</span>
-          <input type="email" v-model="email" placeholder="Email atau Username" required>
+      <form @submit.prevent="isRegister ? prosesRegister() : prosesLogin()">
+        
+        <div v-if="isRegister" class="field">
+          <span class="icon"><Icon name="lucide:user" /></span>
+          <input type="text" v-model="fullName" placeholder="Nama Lengkap Organizer" required>
+        </div>
+        
+        <div v-if="isRegister" class="field">
+          <span class="icon"><Icon name="lucide:phone" /></span>
+          <input type="tel" v-model="phone" placeholder="Nomor WhatsApp" required>
         </div>
 
         <div class="field">
-          <span class="icon">🔒</span>
-          <!-- Event focus/blur untuk memutar kamera -->
+          <span class="icon"><Icon name="lucide:mail" /></span>
+          <input type="email" v-model="email" placeholder="Email" required>
+        </div>
+
+        <div class="field">
+          <span class="icon"><Icon name="lucide:lock" /></span>
           <input 
             :type="showPassword ? 'text' : 'password'" 
             v-model="password" 
             placeholder="Password" 
             required
-            @focus="isLookingAway = true"
-            @blur="isLookingAway = false"
           >
           <button type="button" class="toggle" @click="showPassword = !showPassword" aria-label="Tampilkan password">
             {{ showPassword ? '◉' : '◌' }}
           </button>
         </div>
 
-        <div class="row">
+        <div class="row" v-if="!isRegister">
           <label class="remember">
             <input type="checkbox"> Ingat saya
           </label>
           <a href="#">Lupa password?</a>
         </div>
 
-        <button class="btn" type="submit" :disabled="isLoadingBtn === 'login'">
-          {{ isLoadingBtn === 'login' ? 'Memproses...' : 'Masuk ➔' }}
+        <button class="btn" type="submit" :disabled="isLoadingBtn">
+          <template v-if="!isRegister">{{ isLoadingBtn === 'login' ? 'Memproses...' : 'Masuk ➔' }}</template>
+          <template v-else>{{ isLoadingBtn === 'register' ? 'Mendaftarkan...' : 'Daftar Sekarang ➔' }}</template>
         </button>
 
         <div class="divider">atau</div>
 
-        <button class="signup" type="button" @click="prosesRegister" :disabled="isLoadingBtn === 'register'">
+        <button v-if="!isRegister" class="signup" type="button" @click="isRegister = true">
           <svg style="width:18px;height:18px;margin-right:4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
-          {{ isLoadingBtn === 'register' ? 'Mendaftarkan...' : 'Buat Akun Baru' }}
+          Buat Akun Baru
+        </button>
+        <button v-else class="signup" type="button" @click="isRegister = false">
+          Kembali ke Login
         </button>
         
         <div style="text-align: center; margin-top: 16px; font-size: 12px; color: #64748b; font-weight: 500;">
@@ -112,7 +122,7 @@ import { useRouter } from 'vue-router'
 
 useHead({
   title: 'EventHub — Login Organizer',
-  bodyAttrs: { style: 'margin:0; background: #f1f5f9; overflow: hidden;' }
+  bodyAttrs: { class: 'login-body-style', style: 'margin:0; background: #f1f5f9;' }
 })
 
 const router = useRouter()
@@ -120,6 +130,10 @@ const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 
 // State
+const isRegister = ref(false)
+const fullName = ref('')
+const phone = ref('')
+
 const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
@@ -211,7 +225,13 @@ const prosesRegister = async () => {
 
   const { data, error } = await supabase.auth.signUp({
     email: email.value,
-    password: password.value
+    password: password.value,
+    options: {
+      data: {
+        full_name: fullName.value,
+        phone: phone.value
+      }
+    }
   })
 
   if (error) {
@@ -244,37 +264,20 @@ const prosesRegister = async () => {
 .quote-text { font-size: 18px; font-weight: 700; color: #334155; line-height: 1.6; letter-spacing: 0.5px; }
 .quote-line { width: 40px; height: 3px; background: var(--blue); margin-top: 12px; border-radius: 2px; }
 
-.pedestal { position: absolute; background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%); box-shadow: -10px 10px 20px rgba(0,0,0,0.05), inset 2px 2px 5px rgba(255,255,255,0.8); border-radius: 4px; z-index: 2; }
-.p1 { width: 140px; height: 180px; bottom: 0; left: 10%; }
-.p2 { width: 120px; height: 260px; bottom: 0; left: 35%; background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%); }
-.p3 { width: 100px; height: 120px; bottom: 0; right: 25%; }
-.p4 { width: 160px; height: 80px; bottom: 0; right: 5%; }
+.abstract-graphic { position: absolute; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); transition: transform 0.3s; }
+.abstract-graphic:hover { transform: translateY(-5px) !important; }
+.t1 { bottom: 12%; right: 15%; background: white; padding: 24px; width: 280px; transform: rotate(-6deg); z-index: 5; }
+.t1 .t-title { font-weight: 800; font-size: 20px; color: #0f172a; margin-bottom: 8px; }
+.t1 .t-line { height: 4px; width: 40px; background: #2563eb; border-radius: 4px; margin-bottom: 16px; }
+.t1 .t-row { display:flex; justify-content:space-between; font-size:12px; color:#64748b; margin-bottom:8px; font-weight:600; }
+.t1 .t-barcode { margin-top: 20px; height: 45px; background: repeating-linear-gradient(90deg, #0f172a, #0f172a 2px, transparent 2px, transparent 6px); width: 100%; opacity:0.8; }
 
-.sphere { position: absolute; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #ffffff 0%, #94a3b8 100%); box-shadow: -5px 10px 15px rgba(0,0,0,0.1); z-index: 1; }
-.s1 { width: 60px; height: 60px; bottom: 20px; left: 28%; }
-.s2 { width: 40px; height: 40px; bottom: 100px; right: 40%; background: radial-gradient(circle at 30% 30%, #bfdbfe 0%, #3b82f6 100%); }
+.t2 { top: 25%; right: 25%; background: linear-gradient(135deg, #3b82f6, #2563eb); padding: 24px; width: 220px; transform: rotate(8deg); box-shadow: 0 15px 30px rgba(37,99,235,0.3); z-index: 4; }
+.t2 .s-title { font-weight: 700; font-size: 14px; color: white; opacity: 0.9; }
+.t2 .s-value { font-weight: 800; font-size: 36px; color: white; margin-top: 4px; }
+.t2 .s-bars { display:flex; align-items:flex-end; gap:6px; margin-top: 20px; height:50px; }
+.t2 .bar { flex: 1; border-radius: 4px; }
 
-.plant { position: absolute; bottom: 0; z-index: 1; opacity: 0.6; filter: drop-shadow(-5px 5px 5px rgba(0,0,0,0.05)); }
-.plant svg { width: 120px; height: auto; }
-.plant.left { left: -20px; bottom: 40px; transform: rotate(15deg); }
-.plant.right { right: 20%; bottom: 60px; }
-
-.camera-rig { position: absolute; z-index: 100; }
-.stand-pole { width: 14px; height: 60px; background: linear-gradient(to right, #1e293b, #0f172a, #1e293b); position: absolute; left: 50%; bottom: -50px; transform: translateX(-50%); border-radius: 4px; z-index: 4; }
-.stand-base { width: 50px; height: 12px; background: #0f172a; position: absolute; left: 50%; bottom: -60px; transform: translateX(-50%); border-radius: 6px; z-index: 4; }
-
-.camera-body { width: 90px; height: 55px; background: linear-gradient(135deg, #1e293b 0%, #020617 100%); border-radius: 8px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.1); transform-origin: center center; transition: transform 0.1s linear; z-index: 5; }
-.camera-body::before { content: ''; position: absolute; top: -35px; right: 10px; width: 48px; height: 48px; background: radial-gradient(circle at 30% 30%, #475569, #020617); border-radius: 50%; box-shadow: inset -2px -2px 6px rgba(0,0,0,0.5), -15px 0 0 -5px #1e293b; }
-.camera-body::after { content: ''; position: absolute; top: -15px; left: -5px; width: 30px; height: 25px; background: #0f172a; border-radius: 4px; box-shadow: inset 1px 1px 2px rgba(255,255,255,0.1); }
-
-.lens { width: 50px; height: 40px; background: linear-gradient(to right, #0f172a, #000000); position: absolute; top: 50%; right: -45px; transform: translateY(-50%); border-radius: 4px 10px 10px 4px; box-shadow: 5px 0 15px rgba(0,0,0,0.5); z-index: 6; }
-.lens-inner { width: 8px; height: 28px; background: #fde047; position: absolute; right: 2px; top: 50%; transform: translateY(-50%); border-radius: 50%; opacity: 0.9; box-shadow: 0 0 10px rgba(253, 224, 71, 0.5); transition: 0.3s; }
-.lens-inner.success-glow { transform: translateY(-50%) scale(2); box-shadow: 0 0 50px #fde047; }
-
-.beam { position: absolute; top: 50%; left: 100%; height: 0px; transform-origin: left center; pointer-events: none; z-index: 999; transition: opacity 0.3s ease; }
-.beam::after { content: ''; position: absolute; top: -60px; left: 0; width: 100%; height: 120px; background: radial-gradient(ellipse at left, rgba(253, 224, 71, 0.45) 0%, transparent 80%); filter: blur(8px); mix-blend-mode: screen; }
-
-.c1 { bottom: 250px; left: 10%; } .c2 { bottom: 330px; left: 35%; } .c3 { bottom: 190px; right: 28%; } .c4 { bottom: 150px; right: 10%; } 
 
 .login-card { position: relative; min-height: calc(100vh - 48px); background: #ffffff; border-radius: 34px; padding: 58px clamp(38px,6vw,92px) 34px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 18px 55px rgba(0,0,0,.05); overflow: hidden; border: 1px solid var(--line); z-index: 10; }
 .logo { text-align: center; font-size: 38px; font-weight: 1000; letter-spacing: -2px; line-height: .8; margin-bottom: 42px; }
@@ -310,19 +313,26 @@ a { color: #2563eb; text-decoration: none; font-weight: 600; }
 #msg { text-align: center; font-size: 13px; font-weight: 600; margin-top: 16px; min-height: 20px; }
 .footer { text-align: center; color: #94a3b8; font-size: 12px; margin-top: 28px; }
 
-/* EFEK MENGHINDAR SAAT KETIK PASSWORD */
-.looking-away .camera-body { transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); transform: rotate(195deg) scaleY(-1) !important; }
-.looking-away .beam { opacity: 0 !important; transition: opacity 0.3s ease; }
-
 @media(max-width: 1050px) {
-  body { overflow: auto; }
   .page { grid-template-columns: 1fr; padding: 18px; }
   .scene { min-height: 380px; }
   .login-card { min-height: 700px; }
 }
 @media(max-width: 650px) {
-  .page { gap: 18px; }
-  .login-card { padding: 42px 24px 28px; }
+  .page { gap: 18px; padding: 12px; }
+  .scene { display: none; } /* Sembunyikan gambar grafis di HP */
+  .login-card { padding: 42px 24px 28px; min-height: calc(100vh - 24px); border-radius: 24px; }
   .quote-box { display: none; }
+}
+</style>
+
+<style>
+.login-body-style {
+  overflow: hidden;
+}
+@media(max-width: 1050px) {
+  .login-body-style {
+    overflow: auto !important;
+  }
 }
 </style>

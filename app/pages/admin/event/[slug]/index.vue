@@ -93,6 +93,17 @@
       </div>
     </div>
 
+    <div class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h4 style="font-weight:600;color:#0a1929;margin:0;"><Icon name="lucide:banknote" style="margin-right:4px; color:#15803d;" /> Ringkasan Keuangan (Lunas)</h4>
+      </div>
+      <div class="stats-grid" style="margin:0;">
+        <div class="stat-card" style="background:#eff6ff; border-color:#bfdbfe;"><div class="label" style="color:#1e3a8a;">Pendapatan Tiket</div><div class="value" style="color:#1d4ed8;">{{ formatRupiah(totalPendapatanTiket, true) }}</div></div>
+        <div class="stat-card" style="background:#f0fdf4; border-color:#bbf7d0;"><div class="label" style="color:#14532d;">Pendapatan Donasi</div><div class="value" style="color:#15803d;">{{ formatRupiah(totalPendapatanDonasi, true) }}</div></div>
+        <div class="stat-card" style="background:#f8fafc; border-color:#e2e8f0;"><div class="label" style="color:#0f172a;">Total Keseluruhan</div><div class="value" style="color:#0a1929;">{{ formatRupiah(totalPendapatanTiket + totalPendapatanDonasi, true) }}</div></div>
+      </div>
+    </div>
+
     <div class="panel flex" style="justify-content:space-between; align-items:flex-start;">
       <div style="flex:1; padding-right: 20px;">
         <label class="form-label" style="margin-bottom: 10px;"><Icon name="lucide:link" style="margin-right:4px;" /> Link Publik</label>
@@ -188,9 +199,11 @@ const isArchived = computed(() => selectedEvent.value && (selectedEvent.value.st
 
 const daftarTiket = ref([])
 const isLoadingDaftarTiket = ref(false)
+const totalPendapatanTiket = ref(0)
+const totalPendapatanDonasi = ref(0)
 
-const formatRupiah = (angka) => {
-  if (angka === 0) return 'GRATIS'
+const formatRupiah = (angka, forceNumber = false) => {
+  if (angka === 0 && !forceNumber) return 'GRATIS'
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka)
 }
 
@@ -201,12 +214,27 @@ const muatTiketStatistik = async () => {
     const { data, error } = await supabase.from('kategori_tiket').select('*').eq('event_id', selectedEvent.value.id)
     if (error) throw error
     
-    const { data: peserta } = await supabase.from('peserta').select('nama_tiket').eq('event_id', selectedEvent.value.id).eq('status_bayar', 'paid')
+    const { data: peserta } = await supabase.from('peserta').select('nama_tiket, data_tambahan').eq('event_id', selectedEvent.value.id).eq('status_bayar', 'paid')
     
+    let tiketRev = 0
+    let donasiRev = 0
+
     daftarTiket.value = (data || []).map(t => {
       const terjual = (peserta || []).filter(p => p.nama_tiket === t.nama_kategori).length
+      tiketRev += (terjual * t.harga)
       return { ...t, terjual }
     })
+
+    ;(peserta || []).forEach(p => {
+      if (p.data_tambahan && p.data_tambahan.donasi) {
+        // Hapus titik/koma jika user input Rp 50.000 (disimpan string) -> lalu parse Int
+        const donasiStr = String(p.data_tambahan.donasi).replace(/\D/g, '')
+        donasiRev += parseInt(donasiStr) || 0
+      }
+    })
+
+    totalPendapatanTiket.value = tiketRev
+    totalPendapatanDonasi.value = donasiRev
   } catch (err) {
     showToast('Gagal memuat tiket: ' + err.message, 'error')
   } finally {

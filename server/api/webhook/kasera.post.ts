@@ -74,10 +74,10 @@ export default defineEventHandler(async (event) => {
     // Ambil semua ID peserta dalam pesanan tersebut
     const ids = pesertas.map(p => p.id)
 
-    // Update status_bayar jadi 'paid' untuk semua ID tersebut
+    // Update status_bayar jadi 'paid' dan status_dana jadi 'CAIR' untuk semua ID tersebut
     const { error: updateErr } = await supabase
       .from('peserta')
-      .update({ status_bayar: 'paid' })
+      .update({ status_bayar: 'paid', status_dana: 'CAIR' })
       .in('id', ids)
 
     if (updateErr) {

@@ -113,7 +113,7 @@ import { onMounted, watch } from 'vue' // Tambahkan import Vue hooks
 const {
   isLoading, eventAktif, eventSelesai, eventArsip,
   showArsip, formatDate, selectedEvent, activeTab,
-  showWizard, wizardStepNow, formEvent, wizardTiketList, muatDaftarPeserta,
+  showWizard, wizardStepNow, formEvent, wizardTiketList, formForgeItems, muatDaftarPeserta,
   muatDaftarEvent, currentUser // Kita keluarkan muatDaftarEvent & currentUser dari state
 } = useAdmin()
 
@@ -133,7 +133,15 @@ const pilihEvent = (ev) => {
 const bukaWizard = () => {
   formEvent.value = { nama: '', slug: '', tanggal: '', lokasi: '', deskripsi: '', poster_file: null, poster_preview: null }
   wizardTiketList.value = []
-  if (window.FormForge) window.FormForge.setItems([])
+  
+  // Reset FormForge Items to the 3 mandatory default fields
+  formForgeItems.value = [
+      { id: 'ff_default_nama', type: 'short_text', label: 'Nama Lengkap', field_key: 'nama_lengkap', x: 0, y: 0, width: 12, height: 2, required: true, undeletable: true },
+      { id: 'ff_default_email', type: 'short_text', label: 'Email', field_key: 'email', x: 0, y: 2, width: 6, height: 2, required: true, undeletable: true },
+      { id: 'ff_default_wa', type: 'phone_wa', label: 'No. WhatsApp', field_key: 'no_wa', x: 6, y: 2, width: 6, height: 2, required: true, undeletable: true }
+  ];
+  if (window._ffInstance) window._ffInstance.init(formForgeItems.value)
+  
   wizardStepNow.value = 1
   showWizard.value = true
 }

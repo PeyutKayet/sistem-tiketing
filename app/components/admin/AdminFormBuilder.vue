@@ -3,7 +3,7 @@
     <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 20px;">
       <div>
         <h4 style="margin-bottom:4px;font-weight:600;color:#0a1929;display:flex;align-items:center;gap:6px;"><Icon name="lucide:layout-template" style="color:var(--primary);" /> Form Builder</h4>
-        <p class="text-muted" style="margin:0; font-size: 13px;">Rancang formulir data peserta yang akan mengisi tiket ini.</p>
+        <p class="text-muted" style="margin:0; font-size: 13px;">Kustomisasi formulir pendaftaran peserta.</p>
       </div>
       <div class="flex" style="gap:8px;">
         <button class="btn-outline btn-sm" @click="resetGrid" style="font-size:12px; padding:6px 12px; font-weight:600; display:flex; align-items:center; gap:4px;"><Icon name="lucide:rotate-ccw" style="font-size:14px;" /> Reset</button>
@@ -159,6 +159,7 @@ onMounted(() => {
                 div.dataset.id = item.id
                 gridContainer.appendChild(div)
                 div.addEventListener('mousedown', onItemMouseDown)
+                div.addEventListener('touchstart', onItemMouseDown, {passive: false})
                 div.addEventListener('click', onItemClick)
             }
             
@@ -190,7 +191,10 @@ onMounted(() => {
             if (!item.undeletable) {
                 div.querySelector('.delete-btn').addEventListener('click', (e) => { e.stopPropagation(); deleteItem(item.id) })
             }
-            div.querySelector('.ff-resize-handle').addEventListener('mousedown', (e) => { e.stopPropagation(); e.preventDefault(); startResize(item.id, e) })
+            const handle = div.querySelector('.ff-resize-handle')
+            const onRes = (e) => { e.stopPropagation(); if(e.type !== 'touchstart') e.preventDefault(); startResize(item.id, e) }
+            handle.addEventListener('mousedown', onRes)
+            handle.addEventListener('touchstart', onRes, {passive: false})
         }
 
         existingEls.forEach(el => {
@@ -345,10 +349,13 @@ onMounted(() => {
     }
 
     let dragState = null
+    const getEvX = (e) => e.touches ? e.touches[0].clientX : e.clientX;
+    const getEvY = (e) => e.touches ? e.touches[0].clientY : e.clientY;
+
     function onItemMouseDown(e) {
         const itemEl = e.target.closest('.ff-grid-item')
         if (!itemEl || e.target.closest('button') || e.target.closest('.ff-resize-handle')) return
-        e.preventDefault()
+        if (e.type !== 'touchstart') e.preventDefault()
         const item = items.find(it => it.id === itemEl.dataset.id)
         if (!item) return
         
@@ -356,19 +363,20 @@ onMounted(() => {
         const cellW = rect.width / GRID_COLUMNS
         dragState = {
             id: item.id, startX: item.x, startY: item.y,
-            offX: (e.clientX - (item.x * cellW + rect.left)) / cellW,
-            offY: (e.clientY - (item.y * cellW + rect.top)) / cellW,
+            offX: (getEvX(e) - (item.x * cellW + rect.left)) / cellW,
+            offY: (getEvY(e) - (item.y * cellW + rect.top)) / cellW,
             dragging: false
         }
-        document.addEventListener('mousemove', onDragMove)
-        document.addEventListener('mouseup', onDragEnd)
+        document.addEventListener('mousemove', onDragMove); document.addEventListener('touchmove', onDragMove, {passive: false})
+        document.addEventListener('mouseup', onDragEnd); document.addEventListener('touchend', onDragEnd)
     }
     function onDragMove(e) {
         if (!dragState) return
+        if (e.type === 'touchmove') e.preventDefault()
         const rect = gridContainer.getBoundingClientRect()
         const cellW = rect.width / GRID_COLUMNS
-        const col = Math.round((e.clientX - rect.left - dragState.offX * cellW) / cellW)
-        const row = Math.round((e.clientY - rect.top - dragState.offY * cellW) / cellW)
+        const col = Math.round((getEvX(e) - rect.left - dragState.offX * cellW) / cellW)
+        const row = Math.round((getEvY(e) - rect.top - dragState.offY * cellW) / cellW)
         
         const item = items.find(it => it.id === dragState.id)
         item._dragX = Math.max(0, Math.min(col, GRID_COLUMNS - item.width))
@@ -402,7 +410,7 @@ onMounted(() => {
         }
         dropPreview.style.visibility = 'hidden'; dropPreview.style.opacity = '0'
         dragState = null
-        document.removeEventListener('mousemove', onDragMove); document.removeEventListener('mouseup', onDragEnd)
+        document.removeEventListener('mousemove', onDragMove); document.removeEventListener('touchmove', onDragMove); document.removeEventListener('mouseup', onDragEnd); document.removeEventListener('touchend', onDragEnd)
         renderGrid()
     }
 
@@ -410,13 +418,13 @@ onMounted(() => {
     function startResize(id, e) {
         const item = items.find(it => it.id === id); if(!item) return
         const rect = gridContainer.getBoundingClientRect()
-        resizeState = { id, startX: e.clientX, startY: e.clientY, startW: item.width, startH: item.height, cellW: rect.width / GRID_COLUMNS }
-        document.addEventListener('mousemove', onResizeMove); document.addEventListener('mouseup', onResizeEnd)
+        resizeState = { id, startX: getEvX(e), startY: getEvY(e), startW: item.width, startH: item.height, cellW: rect.width / GRID_COLUMNS }
+        document.addEventListener('mousemove', onResizeMove); document.addEventListener('touchmove', onResizeMove, {passive: false}); document.addEventListener('mouseup', onResizeEnd); document.addEventListener('touchend', onResizeEnd)
     }
     function onResizeMove(e) {
         if (!resizeState) return
-        const dx = (e.clientX - resizeState.startX) / resizeState.cellW
-        const dy = (e.clientY - resizeState.startY) / resizeState.cellW
+        if(e.type === 'touchmove') e.preventDefault(); const dx = (getEvX(e) - resizeState.startX) / resizeState.cellW
+        const dy = (getEvY(e) - resizeState.startY) / resizeState.cellW
         const item = items.find(it => it.id === resizeState.id)
         let newW = Math.max(MIN_ITEM_WIDTH, Math.min(MAX_ITEM_WIDTH, Math.round(resizeState.startW + dx)))
         let newH = Math.max(MIN_ITEM_HEIGHT, Math.min(MAX_ITEM_HEIGHT, Math.round(resizeState.startH + dy)))
@@ -440,34 +448,64 @@ onMounted(() => {
         }
         dropPreview.style.visibility = 'hidden'; dropPreview.style.opacity = '0'
         resizeState = null
-        document.removeEventListener('mousemove', onResizeMove); document.removeEventListener('mouseup', onResizeEnd)
+        document.removeEventListener('mousemove', onResizeMove); document.removeEventListener('touchmove', onResizeMove); document.removeEventListener('mouseup', onResizeEnd); document.removeEventListener('touchend', onResizeEnd)
         renderGrid()
     }
 
     let sideDrag = null
     builderWrapper.value.querySelectorAll('.ff-field-type-btn').forEach(btn => {
-        btn.addEventListener('mousedown', e => {
+        btn.addEventListener('click', e => {
+            if (sideDrag && sideDrag.dragging) return;
+            
+            let targetY = 0;
+            if (selectedId) {
+                const selItem = items.find(it => it.id === selectedId);
+                if (selItem) targetY = selItem.y + selItem.height;
+            }
+            
+            if (!targetY) targetY = getMaxRow();
+            
+            // Geser semua item di bawah posisi target ke bawah agar form baru punya ruang
+            items.forEach(it => { if (it.y >= targetY) it.y += 10; });
+            
+            addItem(btn.dataset.type, 0, targetY);
+            
+            setTimeout(() => {
+                const el = gridContainer.querySelector(`[data-id="${selectedId}"]`);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        });
+        const startDrag = e => {
             const type = btn.dataset.type
             const clone = document.createElement('div')
             clone.className = 'ff-sidebar-drag-clone'
             clone.textContent = FIELD_LABELS[type] || type
-            clone.style.left = e.clientX + 'px'; clone.style.top = e.clientY + 'px'
+            const cx = e.touches ? e.touches[0].clientX : e.clientX
+            const cy = e.touches ? e.touches[0].clientY : e.clientY
+            clone.style.left = cx + 'px'; clone.style.top = cy + 'px'
             document.body.appendChild(clone)
             sideDrag = { type, clone, dragging: false }
-            document.addEventListener('mousemove', onSideMove); document.addEventListener('mouseup', onSideEnd)
-            e.preventDefault()
-        })
+            document.addEventListener('mousemove', onSideMove); document.addEventListener('touchmove', onSideMove, {passive: false})
+            document.addEventListener('mouseup', onSideEnd); document.addEventListener('touchend', onSideEnd)
+            if(e.type !== 'touchstart') e.preventDefault()
+        }
+        btn.addEventListener('mousedown', startDrag)
+        btn.addEventListener('touchstart', startDrag, {passive: false})
     })
     function onSideMove(e) {
         if(!sideDrag) return
-        sideDrag.clone.style.left = e.clientX + 'px'; sideDrag.clone.style.top = e.clientY + 'px'
+        sideDrag.dragging = true
+        if(e.type === 'touchmove') e.preventDefault()
+        const cx = e.touches ? e.touches[0].clientX : e.clientX
+        const cy = e.touches ? e.touches[0].clientY : e.clientY
+        sideDrag.clone.style.left = cx + 'px'; sideDrag.clone.style.top = cy + 'px'
         
         const rect = gridContainer.getBoundingClientRect()
-        const isOver = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom
+        const isOver = cx >= rect.left && cx <= rect.right && cy >= rect.top && cy <= rect.bottom
         if(isOver) {
             const cellW = rect.width / GRID_COLUMNS
-            const col = Math.max(0, Math.min(GRID_COLUMNS - 6, Math.round((e.clientX - rect.left) / cellW)))
-            const row = Math.max(0, Math.round((e.clientY - rect.top) / cellW))
+            const col = Math.max(0, Math.min(GRID_COLUMNS - 6, Math.round((cx - rect.left) / cellW)))
+            const row = Math.max(0, Math.round((cy - rect.top) / cellW))
             
             dropPreview.style.left = (col * cellW + 2) + 'px'
             dropPreview.style.top = (row * cellW + 2) + 'px'
@@ -480,18 +518,21 @@ onMounted(() => {
     }
     function onSideEnd(e) {
         if(!sideDrag) return
+        const cx = e.changedTouches ? e.changedTouches[0].clientX : e.clientX
+        const cy = e.changedTouches ? e.changedTouches[0].clientY : e.clientY
         const rect = gridContainer.getBoundingClientRect()
-        const isOver = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom
-        if(isOver) {
+        const isOver = cx >= rect.left && cx <= rect.right && cy >= rect.top && cy <= rect.bottom
+        if(isOver && sideDrag.dragging) {
             const cellW = rect.width / GRID_COLUMNS
-            const col = Math.max(0, Math.min(GRID_COLUMNS - 6, Math.round((e.clientX - rect.left) / cellW)))
-            const row = Math.max(0, Math.round((e.clientY - rect.top) / cellW))
+            const col = Math.max(0, Math.min(GRID_COLUMNS - 6, Math.round((cx - rect.left) / cellW)))
+            const row = Math.max(0, Math.round((cy - rect.top) / cellW))
             addItem(sideDrag.type, col, row)
         }
         sideDrag.clone.remove()
         dropPreview.style.visibility = 'hidden'; dropPreview.style.opacity = '0'
-        document.removeEventListener('mousemove', onSideMove); document.removeEventListener('mouseup', onSideEnd)
-        sideDrag = null
+        document.removeEventListener('mousemove', onSideMove); document.removeEventListener('touchmove', onSideMove)
+        document.removeEventListener('mouseup', onSideEnd); document.removeEventListener('touchend', onSideEnd)
+        setTimeout(() => sideDrag = null, 50)
     }
 
     function onItemClick(e) {

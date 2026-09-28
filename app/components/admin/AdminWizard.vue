@@ -32,18 +32,35 @@
                 </div>
                 <div class="col" style="flex:1;">
                   <label class="form-label">Upload Poster</label>
-                  <input type="file" accept="image/*" class="form-file" @change="handlePosterUpload" style="background:#f7faff; padding:6px; border-radius:8px; border:1px dashed #bcc8d8; font-size:12px;" />
+                  <div style="position:relative; display:flex; align-items:center; justify-content:center; height:41px; border:1px dashed #cbd5e1; border-radius:12px; background:#f8fafc; cursor:pointer; overflow:hidden; transition:0.2s;" onmouseover="this.style.borderColor='var(--primary)'; this.style.background='#eff6ff'" onmouseout="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc'">
+                    <input type="file" accept="image/*" @change="handlePosterUpload" style="position:absolute; inset:0; opacity:0; cursor:pointer;" />
+                    <template v-if="formEvent.poster_preview">
+                      <Icon name="lucide:check-circle-2" style="color:#10b981; margin-right:6px; font-size:16px;" />
+                      <span style="font-size:12px; font-weight:600; color:#065f46;">Terpasang</span>
+                    </template>
+                    <template v-else>
+                      <Icon name="lucide:upload-cloud" style="color:#64748b; margin-right:6px; font-size:16px;" />
+                      <span style="font-size:12px; font-weight:600; color:#64748b;">Pilih Poster</span>
+                    </template>
+                  </div>
                 </div>
               </div>
               
               <div class="row mb-3">
                 <div class="col">
-                  <label class="form-label">Slug URL</label>
+                  <label class="form-label">Slug URL <span style="color:#d43f34">*</span></label>
                   <input type="text" v-model="formEvent.slug" placeholder="contoh-tech-summit" class="form-control" @input="formEvent.slug = formEvent.slug.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')" />
                 </div>
                 <div class="col">
-                  <label class="form-label">Tanggal</label>
-                  <input type="date" v-model="formEvent.tanggal" class="form-control" />
+                  <label class="form-label">Tanggal <span style="color:#d43f34">*</span></label>
+                  <div style="position:relative; display:flex; align-items:center; cursor:pointer;">
+                    <Icon name="lucide:calendar-days" style="position:absolute; left:14px; color:#8a9aa8; font-size:16px; z-index:2; pointer-events:none;" />
+                    <div class="form-control" style="padding-left:40px; display:flex; align-items:center;">
+                      <span v-if="!formEvent.tanggal" style="color:#8a9aa8;">Pilih tanggal acara...</span>
+                      <span v-else style="color:#0f172a; font-weight:500;">{{ formatTanggalKustom(formEvent.tanggal) }}</span>
+                    </div>
+                    <input type="date" v-model="formEvent.tanggal" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:3;" />
+                  </div>
                 </div>
               </div>
               <div class="mb-3">
@@ -52,8 +69,11 @@
               </div>
               <div class="row mb-0">
                 <div class="col">
-                  <label class="form-label">Lokasi Acara</label>
-                  <input type="text" v-model="formEvent.lokasi" placeholder="Contoh: Jakarta Convention Center" class="form-control" />
+                  <label class="form-label">Lokasi Acara <span style="color:#d43f34">*</span></label>
+                  <div style="position:relative; display:flex; align-items:center;">
+                    <Icon name="lucide:map-pin" style="position:absolute; left:14px; color:#8a9aa8; font-size:16px;" />
+                    <input type="text" v-model="formEvent.lokasi" placeholder="Contoh: Jakarta (Ketik 'Online' jika virtual)" class="form-control" style="padding-left:40px;" />
+                  </div>
                 </div>
                 <div class="col">
                   <label class="form-label">Link Maps (Opsional)</label>
@@ -113,8 +133,8 @@
                       <label style="font-weight:600; font-size:12px; color:#0a1929; display:flex; align-items:center; gap:4px; margin-bottom:8px;"><Icon name="lucide:shield-check" style="font-size:14px;color:var(--primary);" /> Anti Calo</label>
                       <div class="flex" style="flex-wrap:wrap; gap:8px; margin-left:24px;">
                         <label class="checkbox-item" style="font-size: 11px;"><input type="checkbox" v-model="formEvent.is_anti_calo_email" /> 1 Email = 1 Tiket</label>
-                        <label class="checkbox-item" style="font-size: 11px;"><input type="checkbox" v-model="formEvent.is_anti_calo_wa" /> 1 WA = 1 Tiket</label>
-                        <label class="checkbox-item" style="font-size: 11px;"><input type="checkbox" v-model="formEvent.is_wa_konfirm" /> OTP WA</label>
+                        <label class="checkbox-item" style="font-size: 11px;"><input type="checkbox" v-model="formEvent.is_anti_calo_wa" /> 1 No. WhatsApp = 1 Tiket</label>
+
                       </div>
                     </div>
                   </div>
@@ -143,22 +163,68 @@
                   <input type="text" v-model="formTiketBaru.nama" placeholder="Contoh: VIP / Early Bird" class="form-control" style="font-size:12px;" />
                 </div>
                 <div class="col" style="flex:1;">
-                  <label class="form-label" style="font-size:11px;">Kuota</label>
-                  <input type="number" v-model="formTiketBaru.kuota" placeholder="Contoh: 100" class="form-control" style="font-size:12px;" />
+                  <label class="form-label" style="font-size:11px; display:flex; justify-content:space-between; align-items:center;">
+                    <span>Kuota</span>
+                    <label style="cursor:pointer; font-weight:normal; margin:0;"><input type="checkbox" v-model="formTiketBaru.is_unlimited" style="margin:0 4px 0 0;" /> Unlimited</label>
+                  </label>
+                  <input v-if="!formTiketBaru.is_unlimited" type="number" v-model="formTiketBaru.kuota" placeholder="Contoh: 100" class="form-control" style="font-size:12px;" />
+                  <div v-else class="form-control" style="background:#f8fafc; color:#8a9aa8; text-align:center; font-style:italic; font-size:12px;">Tidak Terbatas</div>
                 </div>
               </div>
               <div class="row mb-3">
                 <div class="col">
-                  <label class="form-label" style="font-size:11px;">Harga (Biarkan 0 jika Gratis)</label>
-                  <div style="position:relative; display:flex; align-items:center;">
+                  <label class="form-label" style="font-size:11px; display:flex; justify-content:space-between; align-items:center;">
+                    <span>Harga</span>
+                    <label style="cursor:pointer; font-weight:normal; margin:0;"><input type="checkbox" v-model="formTiketBaru.is_gratis" style="margin:0 4px 0 0;" /> Gratis</label>
+                  </label>
+                  <div v-if="!formTiketBaru.is_gratis" style="position:relative; display:flex; align-items:center;">
                     <span style="position:absolute; left:14px; color:#8a9aa8; font-weight:600; font-size:12px;">Rp</span>
                     <input type="text" v-model="formTiketBaru.harga" placeholder="0" class="form-control" style="padding-left:42px; font-size:12px;" @input="formatRupiahInput" />
+                  </div>
+                  <div v-else class="form-control" style="background:#f8fafc; color:#10b981; font-weight:600; text-align:center; font-size:12px;">Gratis</div>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col">
+                  <label class="form-label" style="font-size:11px;">Penjualan Dibuka</label>
+                  <div style="position:relative; display:flex; align-items:center; cursor:pointer;">
+                    <Icon name="lucide:calendar-clock" style="position:absolute; left:12px; color:#8a9aa8; font-size:14px; z-index:2; pointer-events:none;" />
+                    <div class="form-control" style="padding-left:34px; display:flex; align-items:center; font-size:12px;">
+                      <span v-if="!formTiketBaru.buka" style="color:#8a9aa8;">Pilih waktu buka...</span>
+                      <span v-else style="color:#0f172a; font-weight:500;">{{ formatDateTimeKustom(formTiketBaru.buka) }}</span>
+                    </div>
+                    <input type="datetime-local" v-model="formTiketBaru.buka" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:3;" />
+                  </div>
+                </div>
+                <div class="col">
+                  <label class="form-label" style="font-size:11px;">Penjualan Ditutup</label>
+                  <div style="position:relative; display:flex; align-items:center; cursor:pointer;">
+                    <Icon name="lucide:calendar-clock" style="position:absolute; left:12px; color:#8a9aa8; font-size:14px; z-index:2; pointer-events:none;" />
+                    <div class="form-control" style="padding-left:34px; display:flex; align-items:center; font-size:12px;">
+                      <span v-if="!formTiketBaru.tutup" style="color:#8a9aa8;">Pilih waktu tutup...</span>
+                      <span v-else style="color:#0f172a; font-weight:500;">{{ formatDateTimeKustom(formTiketBaru.tutup) }}</span>
+                    </div>
+                    <input type="datetime-local" v-model="formTiketBaru.tutup" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:3;" />
                   </div>
                 </div>
               </div>
               <div class="row mb-3">
-                <div class="col"><label class="form-label" style="font-size:11px;">Penjualan Dibuka</label><input type="datetime-local" v-model="formTiketBaru.buka" class="form-control" style="font-size:12px;" /></div>
-                <div class="col"><label class="form-label" style="font-size:11px;">Penjualan Ditutup</label><input type="datetime-local" v-model="formTiketBaru.tutup" class="form-control" style="font-size:12px;" /></div>
+                <div class="col">
+                  <label style="display:flex; align-items:center; gap:8px; font-size:12px; cursor:pointer; color:#4a5a6e; font-weight:600;">
+                    <input type="checkbox" v-model="formTiketBaru.is_hidden" style="width:16px; height:16px;" />
+                    Sembunyikan Tiket (Tiket Privat / Direct Link)
+                  </label>
+                  <div style="font-size:11px; color:#8a9aa8; margin-top:4px; margin-left:24px;">Tiket tidak akan muncul di halaman publik, hanya bisa diakses via link rahasia.</div>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col">
+                  <label style="display:flex; align-items:center; gap:8px; font-size:12px; cursor:pointer; color:#4a5a6e; font-weight:600;">
+                    <input type="checkbox" v-model="formTiketBaru.is_active" style="width:16px; height:16px; accent-color:#10b981;" />
+                    Tiket Aktif (Bisa Dibeli)
+                  </label>
+                  <div style="font-size:11px; color:#8a9aa8; margin-top:4px; margin-left:24px;">Hapus centang untuk menonaktifkan tiket sepenuhnya (Tidak akan terlihat & tidak bisa dibeli).</div>
+                </div>
               </div>
               <div class="flex" style="gap:10px; margin-top:8px;">
                 <button class="btn-primary" style="padding:8px 20px; font-weight:600; display:flex; align-items:center; gap:6px; font-size:12px;" @click="tambahTiketSimulasi"><Icon name="lucide:plus-circle" style="font-size:16px;" /> Tambah Tiket</button>
@@ -171,8 +237,12 @@
               <div v-if="wizardTiketList.length === 0" style="color:#8a9aa8; font-style:italic; text-align:center; padding:20px 0; font-size:12px;">Belum ada tiket yang ditambahkan.</div>
               <div v-for="(t, i) in wizardTiketList" :key="i" style="background: #ffffff; display: flex; justify-content: space-between; align-items:center; padding: 12px 16px; border: 1px solid #e6edf5; border-radius: 12px; margin-bottom: 8px; font-size: 13px; box-shadow: 0 1px 4px rgba(0,0,0,0.02);">
                 <div>
-                  <div style="font-weight:700; color:#0a1929; margin-bottom:4px;">{{ t.nama }}</div>
-                  <div style="font-size:11px; color:#8a9aa8;"><Icon name="lucide:users" style="font-size:12px;vertical-align:text-bottom;margin-right:2px;" /> Kuota: <span style="font-weight:600;color:#4a5a6e;">{{ t.kuota }}</span></div>
+                  <div style="font-weight:700; color:#0a1929; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                    {{ t.nama }}
+                    <span v-if="t.is_active === false" style="background:#fee2e2; color:#ef4444; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:600;">Nonaktif</span>
+                    <span v-if="t.is_hidden" style="background:#f1f5f9; color:#64748b; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:600;"><Icon name="lucide:eye-off" style="font-size:10px; margin-right:2px;" /> Privat</span>
+                  </div>
+                  <div style="font-size:11px; color:#8a9aa8;"><Icon name="lucide:users" style="font-size:12px;vertical-align:text-bottom;margin-right:2px;" /> Kuota: <span style="font-weight:600;color:#4a5a6e;">{{ t.kuota == 0 ? 'Tidak Terbatas' : t.kuota }}</span></div>
                 </div>
                 <div style="display:flex; align-items:center; gap:16px;">
                   <div style="font-weight:700; color:var(--primary); background:#eef3f9; padding:4px 10px; border-radius:8px; font-size:12px;">{{ formatRupiah(t.harga) }}</div>
@@ -288,6 +358,22 @@ const escapeHtml = (text) => {
   const div = document.createElement('div'); div.textContent = text; return div.innerHTML 
 }
 
+const formatTanggalKustom = (dateStr) => {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  return new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+}
+
+const formatDateTimeKustom = (dateStr) => {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  // Example output: "Sen, 17 Ags 2026, 09:00"
+  return new Intl.DateTimeFormat('id-ID', { 
+    weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', 
+    hour: '2-digit', minute: '2-digit' 
+  }).format(date).replace(/\./g, ':');
+}
+
 const updatePreviewFromItems = () => {
   let html = '<div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-rows: 20px; gap: 4px; width: 100%;">';
   const sorted = [...formForgeItems.value].sort((a, b) => a.y - b.y || a.x - b.x);
@@ -387,25 +473,45 @@ const handlePosterUpload = (e) => {
 const tutupWizard = () => { showWizard.value = false }
 
 const tambahTiketSimulasi = () => {
-  const { nama, harga, kuota, buka, tutup } = formTiketBaru.value
-  if (!nama || !kuota) return showToast('Nama dan Kuota wajib diisi!', 'error')
+  const { nama, harga, is_gratis, kuota, is_unlimited, is_hidden, is_active, buka, tutup } = formTiketBaru.value
+  if (!nama) return showToast('Nama tiket wajib diisi!', 'error')
+  if (!is_unlimited && !kuota) return showToast('Kuota wajib diisi jika tidak unlimited!', 'error')
   
-  const hargaRaw = parseInt(harga.replace(/\./g, '')) || 0
+  if (buka && tutup) {
+    if (new Date(tutup) < new Date(buka)) return showToast('Waktu tutup tidak boleh sebelum waktu buka!', 'error')
+  }
+
+  const hargaRaw = is_gratis ? 0 : (parseInt(harga.replace(/\./g, '')) || 0)
+  const kuotaVal = is_unlimited ? 0 : parseInt(kuota)
+
   wizardTiketList.value.push({
     nama,
     harga: hargaRaw,
-    kuota: parseInt(kuota),
+    kuota: kuotaVal,
+    is_gratis,
+    is_unlimited,
+    is_hidden,
+    is_active: is_active !== false,
+    secret_token: is_hidden ? Math.random().toString(36).substring(2, 10) : null,
     buka: buka ? buka + ':00' : null,
     tutup: tutup ? tutup + ':00' : null
   })
   resetFormTiket()
 }
 
-const resetFormTiket = () => { formTiketBaru.value = { nama: '', harga: '', kuota: '', buka: '', tutup: '' } }
+const resetFormTiket = () => { formTiketBaru.value = { nama: '', harga: '', is_gratis: false, kuota: '', is_unlimited: false, is_hidden: false, is_active: true, buka: '', tutup: '' } }
 const hapusTiketSimulasi = (index) => { wizardTiketList.value.splice(index, 1) }
 
 const goNext = async () => {
   if (wizardStepNow.value < 4) {
+    // Validasi Step 1
+    if (wizardStepNow.value === 1) {
+      if (!formEvent.value.nama) return showToast('Nama acara wajib diisi!', 'error')
+      if (!formEvent.value.slug) return showToast('Slug URL wajib diisi!', 'error')
+      if (!formEvent.value.tanggal) return showToast('Tanggal acara wajib diisi!', 'error')
+      if (!formEvent.value.lokasi) return showToast('Lokasi acara (atau ketik Online) wajib diisi!', 'error')
+    }
+
     if (wizardStepNow.value === 3) updatePreviewFromItems() // Ensure HP view syncs before step 4
     wizardStepNow.value++
     return
@@ -466,6 +572,9 @@ const goNext = async () => {
         nama_kategori: t.nama,
         harga: t.harga,
         kuota_maksimal: t.kuota,
+        is_active: t.is_active !== false,
+        is_hidden: t.is_hidden || false,
+        secret_token: t.secret_token || null,
         tanggal_mulai_penjualan: t.buka || null, // Pastikan tidak kirim string kosong
         tanggal_selesai_penjualan: t.tutup || null // Pastikan tidak kirim string kosong
       }))
@@ -484,3 +593,18 @@ const goNext = async () => {
   }
 }
 </script>
+<style scoped>
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    background: transparent;
+    bottom: 0;
+    color: transparent;
+    cursor: pointer;
+    height: auto;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: auto;
+}
+</style>

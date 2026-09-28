@@ -7,13 +7,13 @@
       
       <div v-else class="content-box">
         <!-- Status Pembayaran -->
-        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px;">
-          <div class="status-badge" :class="tiketData.status_bayar === 'paid' ? 'paid' : 'pending'" style="margin-bottom: 0;">
-            {{ tiketData.status_bayar === 'paid' ? '✅ LUNAS' : '⏳ MENUNGGU PEMBAYARAN' }}
+        <!-- Status Pembayaran (Hanya muncul jika Pending) -->
+        <div v-if="tiketData.status_bayar === 'pending'" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px;">
+          <div class="status-badge pending" style="margin-bottom: 0;">
+            ⏳ MENUNGGU PEMBAYARAN
           </div>
           
           <button 
-            v-if="tiketData.status_bayar === 'pending'"
             @click="refreshStatus(false)" 
             :disabled="isRefreshing"
             title="Cek Status Pembayaran"
@@ -25,36 +25,53 @@
         </div>
         <p v-if="cooldownMessage" style="font-size: 0.75rem; color: #ef4444; margin-bottom: 20px; font-weight: 600;">{{ cooldownMessage }}</p>
         
-        <h2 class="event-title">{{ tiketData.event?.nama_event || 'Event' }}</h2>
-        <p class="ticket-type">E-Ticket Preview</p>
+        <!-- Judul Halaman -->
+        <h2 class="page-title">
+          <Icon name="lucide:ticket" style="color: #2563EB;" /> E-Ticket Anda
+        </h2>
 
         <!-- AREA TIKET (Hanya muncul penuh jika lunas) -->
         <div v-if="tiketData.status_bayar === 'paid'" class="ticket-card-wrapper" style="margin-bottom: 25px;">
           <!-- Elemen ini yang akan di-screenshot -->
           <div id="ticketCard" class="ticket-card">
-            <!-- Left Stub -->
-            <div class="stub">
-               <div class="cutout"></div>
-               <div class="stub-text">{{ tiketData.nama_tiket }}</div>
-               <div class="perforated"></div>
+            <!-- Header (Kategori) -->
+            <div class="ticket-header">
+               <div class="ticket-category">{{ tiketData.nama_tiket }}</div>
+               <div class="ticket-label" style="display:flex; align-items:center;"><Icon name="lucide:check-circle-2" style="font-size:14px; margin-right:4px; margin-bottom:1px;" /> LUNAS</div>
             </div>
 
-            <!-- Right Body -->
-            <div class="body">
-               <div class="info-group">
-                  <div class="nama">{{ tiketData.nama_lengkap }}</div>
-                  
-                  <div class="event-info">
-                     <div class="nama-event">{{ tiketData.event?.nama_event }}</div>
-                     <div class="tanggal">{{ new Date(tiketData.created_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) }}</div>
-                  </div>
+            <!-- Pemisah Melengkung (Sobekan) -->
+            <div class="ticket-divider">
+                <div class="dash"></div>
+            </div>
 
-                  <div class="ticket-id">{{ tiketData.data_tambahan?.ticket_id || ticketId }}</div>
+            <!-- Body Utama -->
+            <div class="ticket-body">
+               <div class="ticket-details">
+                  <div class="detail-box" style="margin-bottom: 15px;">
+                     <span class="detail-label">NAMA PESERTA</span>
+                     <span class="detail-value nama">{{ tiketData.nama_lengkap }}</span>
+                  </div>
+                  
+                  <div class="detail-row">
+                      <div class="detail-box">
+                         <span class="detail-label">EVENT</span>
+                         <span class="detail-value event">{{ tiketData.event?.nama_event }}</span>
+                      </div>
+
+                      <div class="detail-box" style="text-align: right;">
+                         <span class="detail-label">TANGGAL</span>
+                         <span class="detail-value date">{{ new Date(tiketData.created_at).toLocaleDateString('id-ID', {day: '2-digit', month: 'short', year: 'numeric'}) }}</span>
+                      </div>
+                  </div>
                </div>
 
-               <!-- QR CODE -->
-               <div class="qr-box">
-                   <img :src="`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${tiketData.data_tambahan?.ticket_id || ticketId}`" alt="QR Code" crossorigin="anonymous" />
+               <!-- QR Code & ID -->
+               <div class="ticket-qr-section">
+                   <div class="qr-box">
+                       <img :src="`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${tiketData.data_tambahan?.ticket_id || ticketId}`" alt="QR Code" crossorigin="anonymous" />
+                   </div>
+                   <div class="ticket-id">{{ tiketData.data_tambahan?.ticket_id || ticketId }}</div>
                </div>
             </div>
           </div>
@@ -80,16 +97,22 @@
         <!-- Tombol Tambahan -->
         <div class="action-buttons">
            <button v-if="tiketData.status_bayar === 'paid'" @click="unduhTiket" :disabled="isDownloading" class="btn btn-download">
-             <span v-if="isDownloading">⏳ Memproses...</span>
-             <span v-else>📥 Unduh E-Ticket (Gambar)</span>
+             <span v-if="isDownloading" style="display:flex; align-items:center; gap:8px;"><Icon name="lucide:loader-2" class="spin" /> Memproses...</span>
+             <span v-else style="display:flex; align-items:center; gap:8px;"><Icon name="lucide:download" /> Simpan E-Ticket</span>
            </button>
            
            <button v-if="tiketData.status_bayar === 'paid' && linkGrupWa" @click="bukaGrupWa" class="btn btn-wa">
-             💬 Masuk Grup WhatsApp Event
+             <Icon name="lucide:message-circle" style="font-size:1.2rem; margin-right:4px;" /> Bergabung ke Grup WhatsApp
            </button>
         </div>
 
       </div>
+
+      <!-- PROMO FOOTER -->
+      <div v-if="!loading" class="promo-footer">
+        Punya acara sendiri? <NuxtLink to="/login" class="promo-link">Buat Sistem Tiket</NuxtLink>
+      </div>
+
     </div>
   </div>
 </template>
@@ -141,7 +164,7 @@ const unduhTiket = async () => {
     const canvas = await window.html2canvas(el, { 
       scale: 3, // Resolusi tinggi
       useCORS: true, 
-      backgroundColor: '#ffffff' 
+      backgroundColor: '#F8FAFC' 
     })
     
     const link = document.createElement('a')
@@ -298,8 +321,12 @@ onUnmounted(() => {
   min-height: 100vh;
   padding: 40px 15px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .ticket-container {
@@ -314,6 +341,8 @@ onUnmounted(() => {
   padding: 30px;
   text-align: center;
   border: 1px solid var(--border-soft);
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .state-msg { color: var(--text-muted); font-weight: 700; text-align: center; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
@@ -323,136 +352,174 @@ onUnmounted(() => {
 .status-badge.paid { background: #DCFCE7; color: #16A34A; }
 .status-badge.pending { background: #FEF9C3; color: #CA8A04; }
 
+.page-title { margin: 0 0 20px 0; font-size: 1.25rem; font-weight: 900; color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 8px; letter-spacing: -0.5px; }
+
 .event-title { margin: 0 0 5px 0; color: var(--primary); font-weight: 900; font-size: 1.5rem; line-height: 1.3; letter-spacing: -0.5px; }
 .ticket-type { margin: 0 0 25px; color: var(--text-muted); font-size: 0.85rem; font-weight: 700; }
 
 .ticket-card-wrapper {
-  overflow-x: auto; /* Agar tidak terpotong di HP super kecil */
-  padding: 10px;
-  margin: 0 -10px; /* Kompensasi padding */
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
-/* DESAIN TIKET PERSIS SEPERTI GAMBAR */
+/* DESAIN TIKET PREMIUM BOARDING PASS */
 .ticket-card {
   display: flex;
+  flex-direction: column;
   width: 100%;
-  min-width: 420px; /* Memaksa landscape */
-  background: white;
-  border-radius: 16px;
-  border: 1px solid var(--border-soft);
-  overflow: hidden;
+  max-width: 360px;
   margin: 0 auto;
   position: relative;
-  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+  filter: drop-shadow(0 15px 35px rgba(0,0,0,0.08));
+  box-sizing: border-box;
 }
 
-.stub {
-  background: var(--accent);
+.ticket-header {
+  background: linear-gradient(135deg, #2563EB, #1D4ED8);
   color: white;
-  width: 70px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  flex-shrink: 0;
-}
-
-.stub .cutout {
-  position: absolute;
-  left: -12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 24px;
-  height: 24px;
-  background: white; /* Background container luar card */
-  border-radius: 50%;
-  box-shadow: inset -1px 0 0 var(--border-soft);
-  z-index: 10;
-}
-
-.stub-text {
-  transform: rotate(-90deg);
-  font-weight: 900;
-  letter-spacing: 3px;
-  font-size: 1.2rem;
-  white-space: nowrap;
-}
-
-.perforated {
-  position: absolute;
-  right: -2px;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background-image: radial-gradient(circle, white 2px, transparent 2.5px);
-  background-size: 10px 10px;
-  background-position: center;
-  z-index: 10;
-}
-
-.body {
-  flex: 1;
-  padding: 25px 25px 25px 35px;
+  padding: 20px 20px;
+  border-radius: 20px 20px 0 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 20px;
-  background: white;
 }
-
-.info-group {
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-  gap: 25px;
-}
-
-.nama {
+.ticket-category {
   font-weight: 900;
-  font-size: 1.3rem;
-  color: var(--primary);
+  font-size: 1.5rem;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+}
+.ticket-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  background: rgba(255,255,255,0.2);
+  padding: 5px 12px;
+  border-radius: 12px;
 }
 
-.event-info {
+.ticket-divider {
+  height: 0;
+  background: white;
+  position: relative;
+}
+.ticket-divider .dash {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  top: 0;
+  border-top: 2px dashed #CBD5E1;
+  z-index: 10;
+}
+.ticket-divider::before, .ticket-divider::after {
+  content: '';
+  position: absolute;
+  top: -12px;
+  width: 24px;
+  height: 24px;
+  background: var(--bg-color);
+  border-radius: 50%;
+  z-index: 5;
+}
+.ticket-divider::before { left: -12px; box-shadow: inset -3px 0 8px rgba(0,0,0,0.03); }
+.ticket-divider::after { right: -12px; box-shadow: inset 3px 0 8px rgba(0,0,0,0.03); }
+
+.ticket-body {
+  background: white;
+  padding: 20px 20px 25px;
+  border-radius: 0 0 20px 20px;
   display: flex;
   flex-direction: column;
+  gap: 20px;
 }
 
-.nama-event {
-  font-weight: 900;
-  font-size: 1.1rem;
-  color: var(--primary);
-  margin-bottom: 4px;
+.ticket-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  text-align: left;
 }
-
-.tanggal {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  font-weight: 600;
+.detail-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
 }
-
-.ticket-id {
-  font-weight: 900;
-  font-size: 1.1rem;
-  color: var(--primary);
+.detail-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.detail-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #94A3B8;
   letter-spacing: 1px;
 }
-
-.qr-box {
-  border: 1px solid var(--border-soft);
-  border-radius: 12px;
-  padding: 10px;
-  background: white;
-  flex-shrink: 0;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+.detail-value {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1.3;
+}
+.detail-value.event {
+  font-size: 0.95rem;
+}
+.detail-value.nama {
+  font-size: 1.25rem;
+  color: #2563EB;
+  text-transform: uppercase;
 }
 
+.ticket-qr-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.qr-box {
+  padding: 10px;
+  background: white;
+  border: 2px solid #F1F5F9;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+}
 .qr-box img {
   width: 110px;
   height: 110px;
   display: block;
+}
+.ticket-id {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #475569;
+  background: #F1F5F9;
+  padding: 4px 14px;
+  border-radius: 10px;
+}
+
+/* Promo Link Minimalis */
+.promo-footer {
+  margin-top: 30px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.promo-footer .promo-link {
+  color: var(--primary);
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-color: #CBD5E1;
+  text-underline-offset: 3px;
+  margin-left: 4px;
+  transition: 0.2s;
+}
+.promo-footer .promo-link:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
 }
 
 /* Elemen Lainnya */
@@ -508,5 +575,30 @@ onUnmounted(() => {
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+/* KHUSUS HP KECIL (iPhone SE, dll) - BISA MASUK 1 LAYAR TANPA SCROLL */
+@media(max-width: 500px) {
+  .ticket-wrapper { padding: 10px 10px; }
+  .content-box { padding: 15px 15px; border-radius: 20px; }
+  .status-badge { margin-bottom: 15px; padding: 4px 12px; }
+  .page-title { margin-bottom: 15px; font-size: 1.15rem; }
+  .ticket-card-wrapper { margin-bottom: 15px; padding: 0; }
+  
+  .ticket-header { padding: 15px 20px; }
+  .ticket-body { padding: 15px 20px 20px; gap: 15px; }
+  .ticket-details { gap: 0; }
+  .detail-row { gap: 10px; }
+  .detail-value { font-size: 0.95rem; }
+  .detail-value.nama { font-size: 1.15rem; }
+  .detail-value.event { font-size: 0.9rem; }
+  
+  .ticket-qr-section { gap: 10px; }
+  .qr-box { padding: 8px; border-radius: 10px; }
+  .qr-box img { width: 95px; height: 95px; }
+  .ticket-id { font-size: 0.9rem; padding: 4px 10px; }
+  
+  .action-buttons { gap: 8px; margin-top: 5px; }
+  .btn { padding: 12px; font-size: 0.85rem; border-radius: 12px; }
 }
 </style>

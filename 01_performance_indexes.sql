@@ -12,3 +12,6 @@ CREATE INDEX IF NOT EXISTS idx_peserta_status_bayar ON peserta(status_bayar);
 
 -- Index tambahan: riwayat absen berdasarkan peserta
 CREATE INDEX IF NOT EXISTS idx_riwayat_absen_peserta_id ON riwayat_absen(peserta_id);
+
+-- Index khusus (JSONB) untuk webhook Kasera, menghindari Full Table Scan
+CREATE INDEX IF NOT EXISTS idx_peserta_order_id ON peserta ((data_tambahan->>'order_id'));

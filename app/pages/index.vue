@@ -1,8 +1,14 @@
 <template>
   <div id="gridEventContainer">
-    <div class="grid-event-header">
-      <h1>EventHub Discover v2</h1>
-      <p>Temukan dan ikuti berbagai event menarik yang sedang berlangsung!</p>
+    <div class="grid-event-header-compact">
+      <div class="header-texts">
+        <h1>EventHub</h1>
+        <p>Temukan event menarik!</p>
+      </div>
+      <NuxtLink to="/admin" class="header-cta-btn">
+        <img src="/favicon.svg" alt="EventHub" class="header-cta-icon" />
+        <span>Buat Event</span>
+      </NuxtLink>
     </div>
 
     <!-- State Loading: Skeleton UI -->
@@ -112,9 +118,14 @@ onMounted(async () => {
 
 <style scoped>
 #gridEventContainer { width: 100%; max-width: 480px; padding: 15px; margin: 0 auto; background: var(--bg-main); min-height: 100vh; }
-.grid-event-header { text-align: center; margin-bottom: 25px; margin-top: 10px; }
-.grid-event-header h1 { font-size: 1.8rem; font-weight: 800; letter-spacing: -1px; margin: 0 0 6px 0; color: var(--text-main); }
-.grid-event-header p { color: var(--text-muted); margin: 0; font-size: 0.85rem; font-weight: 500; }
+.grid-event-header-compact { display: flex; align-items: center; justify-content: space-between; margin-top: 5px; margin-bottom: 20px; gap: 10px; }
+.header-texts { flex: 1; }
+.header-texts h1 { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; margin: 0 0 2px 0; color: var(--text-main); }
+.header-texts p { color: var(--text-muted); margin: 0; font-size: 0.75rem; font-weight: 500; }
+.header-cta-btn { display: flex; align-items: center; gap: 6px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); color: var(--primary, #3b82f6); padding: 8px 14px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: 700; transition: all 0.2s ease; cursor: pointer; white-space: nowrap; }
+.header-cta-btn:hover { background: rgba(59, 130, 246, 0.15); transform: translateY(-1px); }
+.header-cta-btn:active { transform: scale(0.95); }
+.header-cta-icon { width: 14px; height: 14px; object-fit: contain; }
 .event-cards-wrapper { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 .event-card { background: var(--card-light); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid var(--border-soft); cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: flex; flex-direction: column; }
 .event-card:active { transform: scale(0.98); }
@@ -137,4 +148,6 @@ onMounted(async () => {
   50% { opacity: 0.5; }
   100% { opacity: 1; }
 }
+
+
 </style>
