@@ -24,6 +24,49 @@
               <input type="tel" v-model="peserta.jawaban[field.field_key]" @input="handlePhoneInput(peserta, field.field_key)" placeholder="81234567890" class="form-input phone-input" />
             </div>
 
+            <!-- Domisili (Auto) -->
+            <div v-else-if="field.type === 'domisili_api'" style="position: relative;">
+              <input 
+                type="text" 
+                v-model="peserta.jawaban[field.field_key]" 
+                @input="handleDomisiliInput(peserta, field.field_key, $event)" 
+                @focus="peserta['_showDomisili_' + field.field_key] = true"
+                @blur="hideDomisili(peserta, field.field_key)"
+                class="form-input" 
+                :placeholder="field.label || 'Ketik nama kota/kecamatan...'" 
+                autocomplete="off"
+              />
+              <div v-show="peserta['_showDomisili_' + field.field_key]" class="domisili-suggestions" v-if="peserta['_domisiliSugs_' + field.field_key] || peserta['_domisiliLoading_' + field.field_key]">
+                
+                <div v-if="peserta['_domisiliLoading_' + field.field_key]" class="domisili-item" style="color: #e11d48; font-weight: 700; display:flex; align-items:center;">
+                  <div class="map-pin-mini"></div> Mencari titik di peta...
+                </div>
+                
+                <template v-else-if="peserta['_domisiliSugs_' + field.field_key]">
+                  <!-- Opsi Manual -->
+                  <div class="domisili-item manual" @mousedown.prevent="selectDomisili(peserta, field.field_key, peserta.jawaban[field.field_key], peserta['_domisiliFallbackLat_' + field.field_key], peserta['_domisiliFallbackLon_' + field.field_key])">
+                    <svg style="width:16px;height:16px;display:inline-block;vertical-align:middle;margin-right:5px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    Gunakan: "<b>{{ peserta.jawaban[field.field_key] }}</b>"
+                  </div>
+                  
+                  <!-- Hasil API -->
+                  <div v-if="peserta['_domisiliSugs_' + field.field_key].length === 0" class="domisili-item" style="color: var(--text-muted); font-size: 0.75rem;">
+                    Lokasi spesifik tidak ada di list peta, silakan klik tombol 'Gunakan' di atas 👆
+                  </div>
+                  <template v-else>
+                    <div 
+                      v-for="(tempat, i) in peserta['_domisiliSugs_' + field.field_key]" 
+                      :key="i"
+                      class="domisili-item"
+                      @mousedown.prevent="selectDomisili(peserta, field.field_key, formatTempat(tempat.display_name), tempat.lat, tempat.lon)"
+                    >
+                      {{ tempat.display_name }}
+                    </div>
+                  </template>
+                </template>
+              </div>
+            </div>
+
             <!-- Paragraph (long_text) -->
             <textarea v-else-if="field.type === 'paragraph'" v-model="peserta.jawaban[field.field_key]" rows="3" class="form-input form-textarea" :placeholder="field.label"></textarea>
 
@@ -108,6 +151,75 @@ const props = defineProps({
 
 const emit = defineEmits(['toast'])
 const { compressImageFile } = useImageCompress()
+import { ref } from 'vue'
+
+const domisiliTimers = ref({})
+
+const handleDomisiliInput = (peserta, fieldKey, event) => {
+  const val = event.target.value.trim()
+  peserta.jawaban[fieldKey] = val
+  peserta['_showDomisili_' + fieldKey] = true
+  
+  if (val.length < 3) {
+    peserta['_domisiliSugs_' + fieldKey] = null
+    peserta['_domisiliLoading_' + fieldKey] = false
+    return
+  }
+
+  const timerKey = `${peserta.id || Math.random()}_${fieldKey}`
+  if (domisiliTimers.value[timerKey]) {
+    clearTimeout(domisiliTimers.value[timerKey])
+  }
+
+  peserta['_domisiliLoading_' + fieldKey] = true
+  
+  domisiliTimers.value[timerKey] = setTimeout(async () => {
+    try {
+      // Menggunakan Photon (berbasis Elasticsearch) yang mendukung pencarian suku kata / autocomplete dengan baik
+      const res = await fetch(`https://photon.komoot.io/api/?q=${val}&bbox=95.0,-11.0,141.0,6.0&limit=5`)
+      const rawData = await res.json()
+      
+      const data = rawData.features ? rawData.features.map(f => {
+        const p = f.properties
+        const namaArr = [p.name, p.county || p.city, p.state].filter(Boolean)
+        return {
+          lat: f.geometry.coordinates[1].toString(),
+          lon: f.geometry.coordinates[0].toString(),
+          display_name: namaArr.join(", ")
+        }
+      }) : []
+      
+      peserta['_domisiliFallbackLat_' + fieldKey] = data.length > 0 ? data[0].lat : ""
+      peserta['_domisiliFallbackLon_' + fieldKey] = data.length > 0 ? data[0].lon : ""
+      peserta['_domisiliSugs_' + fieldKey] = data
+    } catch (e) {
+      console.error(e)
+      peserta['_domisiliSugs_' + fieldKey] = []
+    } finally {
+      peserta['_domisiliLoading_' + fieldKey] = false
+    }
+  }, 800)
+}
+
+const selectDomisili = (peserta, fieldKey, name, lat, lon) => {
+  peserta.jawaban[fieldKey] = name
+  peserta['_lat_' + fieldKey] = lat
+  peserta['_lon_' + fieldKey] = lon
+  peserta['_showDomisili_' + fieldKey] = false
+}
+
+const formatTempat = (displayName) => {
+  if (!displayName) return ''
+  const parts = displayName.split(',')
+  return parts.slice(0, 3).join(', ').trim()
+}
+
+const hideDomisili = (peserta, fieldKey) => {
+  // Biarkan klik memproses dahulu (sudah dicegah blur via mousedown.prevent)
+  setTimeout(() => {
+    peserta['_showDomisili_' + fieldKey] = false
+  }, 150)
+}
 
 const handlePhoneInput = (peserta, fieldKey) => {
   let val = peserta.jawaban[fieldKey] || ''
@@ -383,4 +495,60 @@ const handleCustomUpload = async (event, peserta, fieldKey) => {
   line-height: 1.5;
   color: var(--text-muted);
 }
+.domisili-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 99;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  margin-top: 5px;
+}
+.domisili-item {
+  padding: 12px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.8rem;
+  color: var(--text-main);
+  font-weight: 500;
+  line-height: 1.4;
+}
+.domisili-item:hover {
+  background: #f8fafc;
+}
+.domisili-item.manual {
+  border-bottom: 2px dashed var(--primary);
+  color: var(--primary);
+  font-weight: 800;
+  background-color: #fff1f2;
+}
+.map-pin-mini { 
+  width: 16px; 
+  height: 16px; 
+  background: #e11d48; 
+  border-radius: 50% 50% 50% 0; 
+  transform: rotate(-45deg); 
+  animation: pinBounceMini 0.5s infinite alternate; 
+  display: inline-block; 
+  position: relative; 
+  margin-right: 6px; 
+  top: 2px; 
+}
+.map-pin-mini::after { 
+  content: ''; 
+  width: 6px; 
+  height: 6px; 
+  background: white; 
+  position: absolute; 
+  top: 5px; 
+  left: 5px; 
+  border-radius: 50%; 
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.2); 
+}
+@keyframes pinBounceMini { to { transform: translateY(-4px) rotate(-45deg); } }
 </style>

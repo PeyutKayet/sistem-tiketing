@@ -55,7 +55,10 @@
         </div>
         <div class="col">
           <label class="form-label" style="margin-bottom:4px;">No. WhatsApp Utama</label>
-          <input type="text" v-model="profil.no_wa" class="form-control" placeholder="Contoh: 6281234567890" />
+          <div style="display:flex; align-items:stretch; background:var(--bg-main); border:1px solid var(--border-soft); border-radius:12px; overflow:hidden;">
+            <input type="text" :value="wa_cc" @input="handleCCChange" class="form-control" style="width:70px; text-align:center; font-weight:600; border:none; border-right: 1px solid var(--border-soft); border-radius:0; background:var(--card-light);" placeholder="62" />
+            <input type="tel" :value="displayWa" @input="handleWaInput" class="form-control" style="border:none; border-radius:0; flex-grow:1; box-shadow:none; padding-left:12px;" placeholder="81234567890" />
+          </div>
         </div>
       </div>
       <div class="row mb-3">
@@ -138,6 +141,31 @@ const isSavingProfil = ref(false)
 const showPin = ref(false)
 const isUploadingLogo = ref(false)
 
+const wa_cc = ref('62')
+const handleCCChange = (e) => {
+  let val = e.target.value.replace(/\D/g, '')
+  e.target.value = val // paksa DOM langsung berubah
+  wa_cc.value = val
+  let clean = displayWa.value
+  profil.value.no_wa = clean ? wa_cc.value + clean : ''
+}
+
+const handleWaInput = (e) => {
+  let val = e.target.value.replace(/\D/g, '')
+  if (val.startsWith('0')) val = val.substring(1)
+  if (val.startsWith(wa_cc.value)) val = val.substring(wa_cc.value.length)
+  e.target.value = val // paksa DOM langsung berubah
+  profil.value.no_wa = val ? wa_cc.value + val : ''
+}
+
+const displayWa = computed(() => {
+  let raw = profil.value.no_wa || ''
+  raw = raw.replace(/\D/g, '')
+  if (raw.startsWith(wa_cc.value)) return raw.substring(wa_cc.value.length)
+  if (raw.startsWith('0')) return raw.substring(1)
+  return raw
+})
+
 onMounted(async () => {
   baseUrl.value = window.location.origin
   
@@ -150,9 +178,17 @@ onMounted(async () => {
       if (error) {
         console.warn('Gagal menarik profil:', error.message)
       } else if (data) {
+        let loadedWa = data.no_wa || ''
+        if (loadedWa.startsWith('62')) {
+          wa_cc.value = '62'
+        } else {
+          // just leave it as 62, or extract if needed. Since our system expects 62 by default:
+          // We can try to extract CC if we implement a complex parser, but assuming mostly '62' or local
+        }
+        
         profil.value = {
           nama_organizer: data.nama_organizer || '',
-          no_wa: data.no_wa || '',
+          no_wa: loadedWa,
           link_ig: data.link_ig || '',
           link_web: data.link_web || '',
           pin_scanner: data.pin_scanner || '123456',

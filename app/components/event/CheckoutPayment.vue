@@ -83,6 +83,7 @@ const props = defineProps({
   totalPrice: { type: Number, required: true },
   adminFee: { type: Number, required: true },
   kodeUnik: { type: Number, required: true },
+  donasiAmount: { type: Number, default: 0 },
   buktiBayarPreview: { type: String, default: '' },
   uploadError: { type: Boolean, default: false },
   isSubmitting: { type: Boolean, default: false }

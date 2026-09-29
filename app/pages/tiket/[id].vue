@@ -8,7 +8,7 @@
       <div v-else class="content-box">
         <!-- Status Pembayaran -->
         <!-- Status Pembayaran (Hanya muncul jika Pending) -->
-        <div v-if="tiketData.status_bayar === 'pending'" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px;">
+        <div v-if="tiketData.status_bayar === 'pending' && !isBypassLock" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px;">
           <div class="status-badge pending" style="margin-bottom: 0;">
             ⏳ MENUNGGU PEMBAYARAN
           </div>
@@ -30,8 +30,8 @@
           <Icon name="lucide:ticket" style="color: #2563EB;" /> E-Ticket Anda
         </h2>
 
-        <!-- AREA TIKET (Hanya muncul penuh jika lunas) -->
-        <div v-if="tiketData.status_bayar === 'paid'" class="ticket-card-wrapper" style="margin-bottom: 25px;">
+        <!-- AREA TIKET (Hanya muncul penuh jika lunas atau tiket gratis) -->
+        <div v-if="tiketData.status_bayar === 'paid' || isBypassLock" class="ticket-card-wrapper" style="margin-bottom: 25px;">
           <!-- Elemen ini yang akan di-screenshot -->
           <div id="ticketCard" class="ticket-card">
             <!-- Header (Kategori) -->
@@ -67,17 +67,23 @@
                </div>
 
                <!-- QR Code & ID -->
-               <div class="ticket-qr-section">
+               <div v-if="tiketData.event?.settings?.is_qr_active !== false" class="ticket-qr-section">
                    <div class="qr-box">
                        <img :src="`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${tiketData.data_tambahan?.ticket_id || ticketId}`" alt="QR Code" crossorigin="anonymous" />
                    </div>
                    <div class="ticket-id">{{ tiketData.data_tambahan?.ticket_id || ticketId }}</div>
                </div>
+               <div v-else class="ticket-qr-section" style="padding-bottom: 20px;">
+                   <div class="ticket-id" style="font-size: 1.2rem; margin-top: 10px;">{{ tiketData.data_tambahan?.ticket_id || ticketId }}</div>
+               </div>
             </div>
           </div>
         </div>
-        
-        <div v-else class="locked-box">
+        <div v-if="tiketData.status_bayar === 'pending' && isBypassLock" class="state-msg" style="margin-bottom: 25px; padding: 15px; border-radius: 12px; background: #FFFBEB; border: 1px dashed #FCD34D; color: #D97706; font-size: 0.85rem; text-align: center;">
+          Tiket Anda sudah aktif! Terima kasih atas sedekah Infaq Anda, tim kami sedang memverifikasi transfer donasi Anda.
+        </div>
+
+        <div v-else-if="tiketData.status_bayar === 'pending'" class="locked-box">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0110 0v4"></path></svg>
           <p style="margin-bottom: 20px;">Data dan bukti transfer Anda sedang <strong>ditinjau oleh Admin</strong>. E-Ticket akan otomatis terbuka di halaman ini setelah diverifikasi.</p>
           
@@ -96,13 +102,17 @@
 
         <!-- Tombol Tambahan -->
         <div class="action-buttons">
-           <button v-if="tiketData.status_bayar === 'paid'" @click="unduhTiket" :disabled="isDownloading" class="btn btn-download">
+           <button v-if="tiketData.status_bayar === 'paid' || isBypassLock" @click="unduhTiket" :disabled="isDownloading" class="btn btn-download">
              <span v-if="isDownloading" style="display:flex; align-items:center; gap:8px;"><Icon name="lucide:loader-2" class="spin" /> Memproses...</span>
              <span v-else style="display:flex; align-items:center; gap:8px;"><Icon name="lucide:download" /> Simpan E-Ticket</span>
            </button>
            
-           <button v-if="tiketData.status_bayar === 'paid' && linkGrupWa" @click="bukaGrupWa" class="btn btn-wa">
+           <button v-if="(tiketData.status_bayar === 'paid' || isBypassLock) && linkGrupWa" @click="bukaGrupWa" class="btn btn-wa">
              <Icon name="lucide:message-circle" style="font-size:1.2rem; margin-right:4px;" /> Bergabung ke Grup WhatsApp
+           </button>
+
+           <button v-if="organizerData?.no_wa" @click="kabariAdmin" class="btn" style="background: #e2e8f0; color: #475569;">
+             <Icon name="lucide:send" style="font-size:1.2rem; margin-right:4px;" /> Kabari Admin via WA
            </button>
         </div>
 
@@ -139,6 +149,10 @@ const error = ref('')
 const tiketData = ref(null)
 const isDownloading = ref(false)
 
+const isBypassLock = computed(() => {
+  return tiketData.value?.kategori_tiket?.harga === 0 && tiketData.value?.event?.settings?.is_infaq_wajib !== true
+})
+
 const supabase = useSupabaseClient()
 
 const linkGrupWa = computed(() => {
@@ -149,6 +163,21 @@ const bukaGrupWa = () => {
   if (linkGrupWa.value) {
     window.open(linkGrupWa.value, '_blank')
   }
+}
+
+const kabariAdmin = () => {
+  if (!organizerData.value?.no_wa) return
+  const noAdmin = organizerData.value.no_wa
+  const domain = window.location.origin
+  
+  let rawText = ''
+  if (isBypassLock.value) {
+    rawText = `Hai Admin,\nSaya sudah mendaftar untuk acara *${tiketData.value?.event?.nama_event || 'Event'}*.\n\nIni adalah link tiket saya:\n${domain}/tiket/${ticketId}\n\nTerima kasih! 🙏`
+  } else {
+    rawText = `Hai Admin,\nSaya sudah mendaftar dan mentransfer pembayaran untuk acara *${tiketData.value?.event?.nama_event || 'Event'}*.\n\nIni adalah link tiket saya:\n${domain}/tiket/${ticketId}\n\nSaya akan cek link tersebut secara berkala sampai dikonfirmasi. Terima kasih! 🙏`
+  }
+  
+  window.open(`https://api.whatsapp.com/send?phone=${noAdmin}&text=${encodeURIComponent(rawText)}`, "_blank")
 }
 
 const unduhTiket = async () => {
@@ -239,7 +268,7 @@ onMounted(async () => {
   try {
     const { data, error: sbErr } = await supabase
       .from('peserta')
-      .select('*, event(nama_event, settings, organizer_id)')
+      .select('*, event(nama_event, settings, organizer_id), kategori_tiket(harga)')
       .eq('data_tambahan->>order_id', ticketId)
       .limit(1)
       .single()

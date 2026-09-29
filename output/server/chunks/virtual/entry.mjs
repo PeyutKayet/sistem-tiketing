@@ -994,7 +994,7 @@ var virtual_nuxt_node_modules_2F_cache_2Fnuxt_2F_nuxt_2Froutes_default = [
 	{
 		name: "tiket-id",
 		path: "/tiket/:id()",
-		component: () => import('../build/_id_-BIFUbDJH.mjs')
+		component: () => import('../build/_id_-CTOsnGgu.mjs')
 	},
 	{
 		name: {}.name,
@@ -1005,7 +1005,7 @@ var virtual_nuxt_node_modules_2F_cache_2Fnuxt_2F_nuxt_2Froutes_default = [
 			{
 				name: "admin-event-slug-edit",
 				path: "event/:slug()/edit",
-				component: () => import('../build/edit-CU808NH4.mjs')
+				component: () => import('../build/edit-F_c04VwN.mjs')
 			},
 			{
 				name: "admin-event-slug-peserta",
@@ -1030,7 +1030,7 @@ var virtual_nuxt_node_modules_2F_cache_2Fnuxt_2F_nuxt_2Froutes_default = [
 			{
 				name: "admin-settings",
 				path: "settings",
-				component: () => import('../build/settings-BVzGrP9f.mjs')
+				component: () => import('../build/settings-B5vfj2pN.mjs')
 			},
 			{
 				name: "admin",
@@ -1057,7 +1057,7 @@ var virtual_nuxt_node_modules_2F_cache_2Fnuxt_2F_nuxt_2Froutes_default = [
 	{
 		name: "slug",
 		path: "/:slug()",
-		component: () => import('../build/_slug_-8u91sv_E.mjs')
+		component: () => import('../build/_slug_-OhKTzqxl.mjs')
 	},
 	{
 		name: "index",

@@ -26,11 +26,11 @@ export const useCart = (
   })
 
   const grandTotal = computed(() => {
-    if (totalPrice.value === 0) {
-      // If tickets are free, the grandTotal is just the donation amount (no admin fee or kode unik)
-      return donasiAmount.value > 0 ? donasiAmount.value : 0
+    if (totalPrice.value === 0 && donasiAmount.value === 0) {
+      return 0
     }
-    return totalPrice.value + adminFee + kodeUnik.value + donasiAmount.value
+    // Jika ada total harga ATAU ada donasi, maka kenakan adminFee dan kodeUnik
+    return totalPrice.value + donasiAmount.value + adminFee + kodeUnik.value
   })
 
   const updateKeranjang = (tiketId: string | number, change: number, sisaKuota: number) => {

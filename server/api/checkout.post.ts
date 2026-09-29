@@ -36,8 +36,11 @@ export default defineEventHandler(async (event) => {
 
   const isKaseraActive = eventData.settings?.is_kasera_active === true
   
-  // Total harga tiket = harga tiket * jumlah peserta
-  const hargaTiketTotal = Number(kategori.harga) * body.peserta.length
+  // Ambil donasi/infaq dari peserta pertama (jika ada)
+  const infaqNominal = Number(body.peserta[0]?.data_tambahan?.infaqNominal || 0)
+  
+  // Total harga tiket = (harga tiket * jumlah peserta) + infaq
+  const hargaTiketTotal = (Number(kategori.harga) * body.peserta.length) + infaqNominal
   const uniqueOrderId = `TRX-${Math.random().toString(36).substring(2, 7).toUpperCase()}`
   
   let finalResponse = {
@@ -61,7 +64,9 @@ export default defineEventHandler(async (event) => {
     try {
       const kaseraPayload = {
         amount: totalAmount,
-        description: `Tiket ${eventData.nama_event} (${body.peserta.length} Pax)`,
+        description: infaqNominal > 0 
+          ? `Tiket ${eventData.nama_event} (${body.peserta.length} Pax) + Infaq` 
+          : `Tiket ${eventData.nama_event} (${body.peserta.length} Pax)`,
         external_id: uniqueOrderId,
         merchant_ref: uniqueOrderId,
         customer: {

@@ -82,7 +82,7 @@ const serverSupabaseClient = async (event) => {
 };
 
 const checkout_post = defineEventHandler(async (event) => {
-  var _a, _b;
+  var _a, _b, _c, _d;
   const body = await readBody(event);
   if (!body || !body.peserta || !body.peserta.length || !body.event_id || !body.kategori_id) {
     throw createError({ statusCode: 400, statusMessage: "Bad Request: Missing required data" });
@@ -98,7 +98,8 @@ const checkout_post = defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: "Kategori tiket tidak ditemukan" });
   }
   const isKaseraActive = ((_a = eventData.settings) == null ? void 0 : _a.is_kasera_active) === true;
-  const hargaTiketTotal = Number(kategori.harga) * body.peserta.length;
+  const infaqNominal = Number(((_c = (_b = body.peserta[0]) == null ? void 0 : _b.data_tambahan) == null ? void 0 : _c.infaqNominal) || 0);
+  const hargaTiketTotal = Number(kategori.harga) * body.peserta.length + infaqNominal;
   const uniqueOrderId = `TRX-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
   let finalResponse = {
     status: "success",
@@ -116,7 +117,7 @@ const checkout_post = defineEventHandler(async (event) => {
     try {
       const kaseraPayload = {
         amount: totalAmount,
-        description: `Tiket ${eventData.nama_event} (${body.peserta.length} Pax)`,
+        description: infaqNominal > 0 ? `Tiket ${eventData.nama_event} (${body.peserta.length} Pax) + Infaq` : `Tiket ${eventData.nama_event} (${body.peserta.length} Pax)`,
         external_id: uniqueOrderId,
         merchant_ref: uniqueOrderId,
         customer: {
@@ -137,7 +138,7 @@ const checkout_post = defineEventHandler(async (event) => {
       });
       finalResponse.checkout_url = kaseraRes.checkout_url;
     } catch (error) {
-      const kaseraData = (_b = error.response) == null ? void 0 : _b._data;
+      const kaseraData = (_d = error.response) == null ? void 0 : _d._data;
       console.error("Kasera Error Lengkap:", kaseraData || error.message);
       const detailError = kaseraData ? JSON.stringify(kaseraData) : error.message;
       throw createError({ statusCode: 500, statusMessage: `Gagal Kasera: ${detailError}` });

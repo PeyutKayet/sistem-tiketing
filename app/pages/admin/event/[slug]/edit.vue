@@ -160,6 +160,9 @@
               <div class="col">
                 <label class="form-label">Teks Header Donasi</label>
                 <input type="text" v-model="formEditEvent.donasi_header" class="form-control" placeholder="Contoh: Infaq Pembangunan Masjid" />
+                <label class="checkbox-item" style="margin-top: 15px; font-weight: 600;">
+                  <input type="checkbox" v-model="formEditEvent.is_infaq_wajib" /> Jadikan Infaq Wajib (Peserta tidak bisa menonaktifkan)
+                </label>
               </div>
               <div class="col">
                 <label class="form-label">Pilihan Nominal (Pisahkan dengan koma)</label>
@@ -179,8 +182,13 @@
           <AdminFormBuilder />
         </div>
 
-        <button class="btn-primary" @click="simpanEdit" :disabled="isSavingEdit" style="margin-top:14px;width:100%;padding:14px;font-size:15px;">
-          {{ isSavingEdit ? '<Icon name="lucide:hourglass" style="margin-right:4px;" /> Menyimpan...' : '💾 Simpan Perubahan' }}
+        <button class="btn-primary" @click="simpanEdit" :disabled="isSavingEdit" style="margin-top:14px;width:100%;padding:14px;font-size:15px; display:flex; align-items:center; justify-content:center; gap:8px;">
+          <template v-if="isSavingEdit">
+            <Icon name="lucide:loader-2" class="spin" style="font-size:1.2rem;" /> Menyimpan...
+          </template>
+          <template v-else>
+            <Icon name="lucide:save" style="font-size:1.2rem;" /> Simpan Perubahan
+          </template>
         </button>
       </div>
 
@@ -375,10 +383,19 @@ onUnmounted(() => {
 watch(selectedEvent, (val) => {
   if (val) {
     const s = val.settings || {}
+    let localDateStr = ''
+    if (val.tanggal_mulai) {
+      const d = new Date(val.tanggal_mulai)
+      const yyyy = d.getFullYear()
+      const mm = String(d.getMonth() + 1).padStart(2, '0')
+      const dd = String(d.getDate()).padStart(2, '0')
+      localDateStr = `${yyyy}-${mm}-${dd}`
+    }
+    
     formEditEvent.value = {
       nama: val.nama_event,
       slug: val.slug,
-      tanggal: val.tanggal_mulai ? val.tanggal_mulai.substring(0, 10) : '',
+      tanggal: localDateStr,
       lokasi: val.lokasi,
       deskripsi: val.deskripsi,
       tipe_event: s.tipe_event || 'offline',
@@ -392,6 +409,7 @@ watch(selectedEvent, (val) => {
       is_anti_calo_wa: s.is_anti_calo_wa || false,
       is_wa_konfirm: s.is_wa_konfirm || false,
       is_donasi_active: s.is_donasi_active || false,
+      is_infaq_wajib: s.is_infaq_wajib || false,
       donasi_header: s.donasi_header || '',
       donasi_options: s.donasi_options || '',
       is_grup_wa_active: s.link_grup_wa && s.link_grup_wa.length > 5,
@@ -454,6 +472,7 @@ const simpanEdit = async () => {
       is_anti_calo_wa: formEditEvent.value.is_anti_calo_wa,
       is_wa_konfirm: formEditEvent.value.is_wa_konfirm,
       is_donasi_active: formEditEvent.value.is_donasi_active,
+      is_infaq_wajib: formEditEvent.value.is_infaq_wajib,
       donasi_header: formEditEvent.value.donasi_header,
       donasi_options: formEditEvent.value.donasi_options,
       link_grup_wa: formEditEvent.value.is_grup_wa_active ? formEditEvent.value.link_grup_wa : '',
@@ -467,8 +486,8 @@ const simpanEdit = async () => {
       tanggal_mulai: formEditEvent.value.tanggal || null,
       lokasi: formEditEvent.value.lokasi,
       deskripsi: formEditEvent.value.deskripsi,
-      sistem_checkin: formEditEvent.value.is_qr_active ? formEditEvent.value.sistem_checkin : 'none',
-      target_absen: formEditEvent.value.is_qr_active && formEditEvent.value.sistem_checkin === 'portal' ? (parseInt(formEditEvent.value.target_absen) || 0) : 0,
+      sistem_checkin: formEditEvent.value.sistem_checkin || 'scanner',
+      target_absen: parseInt(formEditEvent.value.target_absen) || 0,
       poster_url: finalPosterUrl,
       settings: newSettings
     }
@@ -480,7 +499,8 @@ const simpanEdit = async () => {
     await muatDaftarEvent(currentUser.value.id)
     // auto-updated via muatDaftarEvent
   } catch (err) {
-    showToast('Gagal menyimpan perubahan: ' + err.message, 'error')
+    console.error('Supabase Update Error:', err)
+    showToast('Gagal menyimpan perubahan: ' + (err.message || JSON.stringify(err)), 'error')
   } finally {
     isSavingEdit.value = false
   }

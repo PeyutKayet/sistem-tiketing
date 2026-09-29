@@ -93,7 +93,7 @@
             <svg class="donasi-svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
             <span class="form-section-title" style="margin: 0; font-size: 0.95rem;">{{ eventData.settings.donasi_header || 'Infaq / Donasi' }}</span>
           </div>
-          <label class="switch-small">
+          <label v-if="!eventData.settings.is_infaq_wajib" class="switch-small">
             <input type="checkbox" v-model="isInfaqOn" @change="handleToggleInfaq">
             <span class="slider-small round-small"></span>
           </label>
@@ -125,12 +125,12 @@
           <div v-if="selectedDonasiOpt === 'custom' || (!hasFixedOptions && hasCustomOption)" class="form-input-group">
             <span class="form-input-prefix">Rp</span>
             <input 
-              type="number" 
-              v-model.number="customDonasiValue"
+              type="text" 
+              inputmode="numeric"
+              :value="customDonasiValueFormatted"
               @input="updateCustomDonasi"
               class="form-input donasi-input" 
               placeholder="0" 
-              min="0"
             />
           </div>
         </div>
@@ -165,8 +165,10 @@
     <div v-else-if="currentStep === 'sukses'" class="step-content active">
       <SuccessStep 
         :eventData="eventData"
+        :isFree="grandTotal === 0"
         @kirim-wa="kirimWA"
         @buka-grup="bukaGrupWa"
+        @lihat-tiket="() => { window.location.href = `/tiket/${transactionIdGlobal}` }"
       />
     </div>
   </div>
@@ -287,6 +289,7 @@ const isSetujuSnk = ref(false)
 const isInfaqOn = ref(true) // Otomatis menyala di awal
 const selectedDonasiOpt = ref('')
 const customDonasiValue = ref(0)
+const customDonasiValueFormatted = ref('')
 
 const parsedDonasiOptions = computed(() => {
   if (!eventData.value?.settings?.donasi_options) return []
@@ -324,8 +327,13 @@ const initDefaultDonasi = () => {
 // Panggil inisialisasi setiap kali pindah ke step 'form' (bisa via watch, atau saat tombol lanjut ditekan)
 import { watch } from 'vue'
 watch(currentStep, (newVal) => {
-  if (newVal === 'form' && donasiAmount.value === 0 && isInfaqOn.value) {
-    initDefaultDonasi()
+  if (newVal === 'form') {
+    if (eventData.value?.settings?.is_infaq_wajib) {
+      isInfaqOn.value = true
+    }
+    if (donasiAmount.value === 0 && isInfaqOn.value) {
+      initDefaultDonasi()
+    }
   }
 })
 
@@ -348,9 +356,18 @@ const selectDonasi = (opt) => {
   }
 }
 
-const updateCustomDonasi = () => {
+const updateCustomDonasi = (e) => {
+  let val = e.target.value.replace(/\D/g, '')
+  if (val) {
+    customDonasiValueFormatted.value = Number(val).toLocaleString('id-ID')
+    customDonasiValue.value = Number(val)
+  } else {
+    customDonasiValueFormatted.value = ''
+    customDonasiValue.value = 0
+  }
+
   if (selectedDonasiOpt.value === 'custom') {
-    donasiAmount.value = customDonasiValue.value || 0
+    donasiAmount.value = customDonasiValue.value
   }
 }
 
@@ -492,12 +509,18 @@ const lanjutBayar = () => {
       }
     }
   }
+
+  if (isValid && eventData.value?.settings?.is_infaq_wajib && donasiAmount.value <= 0) {
+    isValid = false
+    if (window.Swal) window.Swal.fire({ icon: 'warning', title: 'Infaq Wajib', text: 'Mohon isi nominal infaq terbaik Anda.', confirmButtonColor: '#E85D5E' })
+    else showToastMsg('Mohon isi nominal infaq!')
+  }
   
   if (isValid) {
-    if (totalPrice.value === 0) {
+    if (totalPrice.value === 0 && donasiAmount.value === 0) {
       // Tiket Gratis! Langsung eksekusi submit tanpa perlu langkah pembayaran
       submitData()
-    } else if (eventData.value?.settings?.is_kasera_active) {
+    } else if (eventData.value?.settings?.is_kasera_active && grandTotal.value >= 10000) {
       // Bayar pakai Kasera! Skip halaman upload bukti
       submitDataKasera()
     } else {
@@ -515,6 +538,22 @@ const submitDataKasera = async () => {
   document.querySelector('.api-loader')?.classList.add('active')
 
   try {
+    // -- DOUBLE CHECK KUOTA TIKET --
+    if (tickets.value.length > 0 && !tickets.value[0].is_unlimited) {
+      const { count, error: countErr } = await supabase
+        .from('peserta')
+        .select('*', { count: 'exact', head: true })
+        .eq('kategori_id', tickets.value[0].id)
+      
+      if (!countErr && count !== null) {
+        const sisaSekarang = tickets.value[0].kuota_maksimal - count
+        if (sisaSekarang < daftarPeserta.value.length) {
+          throw new Error(`Maaf, sisa kuota tiket ini hanya ${sisaSekarang > 0 ? sisaSekarang : 0}. Pesanan ditolak untuk mencegah oversold.`)
+        }
+      }
+    }
+    // -- END DOUBLE CHECK --
+
     let arrPeserta = JSON.parse(JSON.stringify(daftarPeserta.value))
     const prefixDynamic = eventData.value?.nama_event ? eventData.value.nama_event.replace(/[^A-Za-z]/g, '').substring(0, 3).toUpperCase() : 'EVT'
     const dNow = new Date()
@@ -527,6 +566,10 @@ const submitDataKasera = async () => {
       for (const field of customFields.value) {
         if (field.type === 'phone_wa' && p['_cc_' + field.field_key]) {
           finalJawaban[field.field_key] = p['_cc_' + field.field_key] + (finalJawaban[field.field_key] || '')
+        }
+        if (field.type === 'domisili_api' && p['_lat_' + field.field_key]) {
+          finalJawaban['lat'] = p['_lat_' + field.field_key]
+          finalJawaban['lon'] = p['_lon_' + field.field_key]
         }
       }
       return {
@@ -558,7 +601,9 @@ const submitDataKasera = async () => {
       body: payloadBackend
     })
 
+    let isRedirecting = false
     if (checkoutRes.checkout_url) {
+      isRedirecting = true
       window.location.href = checkoutRes.checkout_url
     } else {
       throw new Error('Gagal mendapatkan link pembayaran Kasera')
@@ -569,8 +614,10 @@ const submitDataKasera = async () => {
     if (window.Swal) window.Swal.fire({ icon: 'error', title: 'Checkout Gagal', text: err.message, confirmButtonColor: '#E85D5E' })
     else alert('Checkout Gagal: ' + err.message)
   } finally {
-    isSubmitting.value = false
-    document.querySelector('.api-loader')?.classList.remove('active')
+    if (typeof isRedirecting === 'undefined' || !isRedirecting) {
+      isSubmitting.value = false
+      document.querySelector('.api-loader')?.classList.remove('active')
+    }
   }
 }
 
@@ -613,7 +660,7 @@ const transactionIdGlobal = ref('')
 
 const submitData = async () => {
   const startTime = Date.now()
-  if (totalPrice.value > 0 && !buktiBayarFile.value) {
+  if (grandTotal.value > 0 && !buktiBayarFile.value) {
     uploadError.value = true
     if (window.Swal) window.Swal.fire({ icon: 'warning', title: 'Struk Belum Ada', text: 'Harap upload foto struk transfer terlebih dahulu.', confirmButtonColor: '#E85D5E' })
     else showToastMsg('Harap upload foto struk transfer!')
@@ -623,6 +670,22 @@ const submitData = async () => {
   isSubmitting.value = true
   
   try {
+    // -- DOUBLE CHECK KUOTA TIKET --
+    if (tickets.value.length > 0 && !tickets.value[0].is_unlimited) {
+      const { count, error: countErr } = await supabase
+        .from('peserta')
+        .select('*', { count: 'exact', head: true })
+        .eq('kategori_id', tickets.value[0].id)
+      
+      if (!countErr && count !== null) {
+        const sisaSekarang = tickets.value[0].kuota_maksimal - count
+        if (sisaSekarang < daftarPeserta.value.length) {
+          throw new Error(`Maaf, sisa kuota tiket ini hanya ${sisaSekarang > 0 ? sisaSekarang : 0}. Pesanan ditolak untuk mencegah oversold.`)
+        }
+      }
+    }
+    // -- END DOUBLE CHECK --
+
     // 0. Gabungkan kode negara (CC) dan nomor HP sebelum dikirim
     const processedPeserta = daftarPeserta.value.map(p => {
       let finalJawaban = { ...p.jawaban }
@@ -630,6 +693,10 @@ const submitData = async () => {
         if (field.type === 'phone_wa' && p['_cc_' + field.field_key]) {
           // Gabungkan +62 dan 812...
           finalJawaban[field.field_key] = p['_cc_' + field.field_key] + (finalJawaban[field.field_key] || '')
+        }
+        if (field.type === 'domisili_api' && p['_lat_' + field.field_key]) {
+          finalJawaban['lat'] = p['_lat_' + field.field_key]
+          finalJawaban['lon'] = p['_lon_' + field.field_key]
         }
       }
       return { ...p, jawaban: finalJawaban }
@@ -750,7 +817,7 @@ const submitData = async () => {
           nama_tiket: p.namaTiket,
           bukti_bayar_url: linkBuktiGlobal.value,
           data_tambahan: finalDataTambahan,
-          status_bayar: 'pending'
+          status_bayar: grandTotal.value === 0 ? 'paid' : 'pending'
         }
       })
 
@@ -771,9 +838,14 @@ const submitData = async () => {
         await new Promise(r => setTimeout(r, 3500 - elapsed))
       }
 
-      // 4. Pindah ke halaman sukses
-      currentStep.value = 'sukses'
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      // 4. Pindah ke halaman sukses atau tiket
+      if (totalPrice.value === 0) {
+        window.isRedirecting = true
+        window.location.href = `/tiket/${transactionIdGlobal.value}`
+      } else {
+        currentStep.value = 'sukses'
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
       
     } else {
       throw new Error(response.message || 'Gagal memproses pendaftaran')
@@ -783,15 +855,25 @@ const submitData = async () => {
     if (window.Swal) window.Swal.fire({ icon: 'error', title: 'Pendaftaran Gagal', text: err.message, confirmButtonColor: '#E85D5E' })
     else showToastMsg('Gagal: ' + err.message)
   } finally {
-    isSubmitting.value = false
+    if (!window.isRedirecting) {
+      isSubmitting.value = false
+    }
   }
 }
 
 const kirimWA = () => {
-  const noAdmin = organizerProfile.value?.no_wa || "62800000000"
+  let noAdmin = organizerProfile.value?.no_wa || "62800000000"
+  noAdmin = noAdmin.replace(/\D/g, '')
+  if (noAdmin.startsWith('0')) noAdmin = '62' + noAdmin.substring(1)
+  
   const domain = window.location.origin
   
-  const rawText = `Hai Admin,\nSaya sudah mendaftar dan mentransfer pembayaran untuk acara *${eventData.value?.nama_event || 'Event'}*.\n\nIni adalah link tiket saya:\n${domain}/tiket/${transactionIdGlobal.value}\n\nSaya akan cek link tersebut secara berkala sampai dikonfirmasi. Terima kasih! 🙏`
+  let rawText = ''
+  if (grandTotal.value === 0) {
+    rawText = `Hai Admin,\nSaya sudah mendaftar untuk acara *${eventData.value?.nama_event || 'Event'}*.\n\nIni adalah link tiket saya:\n${domain}/tiket/${transactionIdGlobal.value}\n\nTerima kasih! 🙏`
+  } else {
+    rawText = `Hai Admin,\nSaya sudah mendaftar dan mentransfer pembayaran untuk acara *${eventData.value?.nama_event || 'Event'}*.\n\nIni adalah link tiket saya:\n${domain}/tiket/${transactionIdGlobal.value}\n\nSaya akan cek link tersebut secara berkala sampai dikonfirmasi. Terima kasih! 🙏`
+  }
   
   window.open(`https://api.whatsapp.com/send?phone=${noAdmin}&text=${encodeURIComponent(rawText)}`, "_blank")
 }

@@ -9,11 +9,18 @@
 
     <!-- Notifikasi Admin / WA -->
     <div class="notification-box">
-      <p class="notification-text">Lakukan konfirmasi ke admin agar tiket Anda segera di-approve.</p>
+      <p v-if="isFree" class="notification-text">E-Ticket Anda sudah jadi! Silakan simpan tiket Anda dan hubungi admin untuk info lebih lanjut.</p>
+      <p v-else class="notification-text">Lakukan konfirmasi ke admin agar tiket Anda segera di-approve.</p>
       
+      <button v-if="isFree" @click="$emit('lihat-tiket')" class="btn btn-ticket" style="margin-bottom: 10px;">
+        <svg class="btn-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        LIHAT E-TICKET SAYA
+      </button>
+
       <button @click="$emit('kirim-wa')" class="btn btn-wa">
         <svg class="btn-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.125-.339-.153-.889-.356-1.956-1.011-1.39-1.206-2.327-3.08-2.39-3.167-.063-.087-.573-.761-.573-1.451 0-.69.356-1.028.48-1.168.125-.14.271-.175.361-.175.09 0 .179.004.258.008.083.004.195-.031.305.234.114.276.391.958.427 1.03.036.073.06.157.014.248-.045.09-.068.145-.138.227-.07.082-.147.177-.208.244-.067.073-.138.153-.058.291.08.138.358.591.768.961.531.479.972.632 1.109.695.138.063.22.052.302-.041.082-.093.356-.411.451-.552.095-.14.19-.118.315-.072.125.047.795.375.932.443.138.068.23.102.264.159.034.057.034.331-.11.736z"></path></svg>
-        KONFIRMASI VIA WHATSAPP
+        <span v-if="isFree">KABARI ADMIN</span>
+        <span v-else>KONFIRMASI PEMBAYARAN</span>
       </button>
     </div>
 
@@ -26,10 +33,11 @@
 
 <script setup>
 defineProps({
-  eventData: { type: Object, default: () => ({}) }
+  eventData: { type: Object, default: () => ({}) },
+  isFree: { type: Boolean, default: false }
 })
 
-defineEmits(['kirim-wa', 'buka-grup'])
+defineEmits(['kirim-wa', 'buka-grup', 'lihat-tiket'])
 </script>
 
 <style scoped>
@@ -104,6 +112,11 @@ defineEmits(['kirim-wa', 'buka-grup'])
   background: #25D366;
   color: white;
   box-shadow: 0 4px 6px rgba(37, 211, 102, 0.2);
+}
+.btn-ticket {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 6px rgba(15, 23, 42, 0.2);
 }
 .btn-group {
   background: #e2e8f0;
