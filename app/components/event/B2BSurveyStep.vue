@@ -200,7 +200,7 @@
               <div class="question-group">
                 <label class="q-label">
                   7. Jika biaya total <b>Kelas Reguler CALM</b> selama 2 bulan adalah 
-                  <span class="price-pill-tag">{{ assignedTier?.harga_reguler || 'Rp500.000' }}</span>, 
+                  <span class="price-pill-tag">{{ assignedTier?.harga_reguler || 'Rp299.000' }}</span>, 
                   bagaimana kemungkinan Anda mendaftar? <span class="req">*</span>
                 </label>
                 <div class="radio-options vertical">
@@ -222,7 +222,7 @@
               <div class="question-group">
                 <label class="q-label">
                   8. Jika biaya total <b>Kelas Eksklusif CALM</b> selama 2 bulan adalah 
-                  <span class="price-pill-tag gold">{{ assignedTier?.harga_eksklusif || 'Rp1.700.000' }}</span>, 
+                  <span class="price-pill-tag gold">{{ assignedTier?.harga_eksklusif || 'Rp2.500.000' }}</span>, 
                   bagaimana kemungkinan Anda mendaftar? <span class="req">*</span>
                 </label>
                 <div class="radio-options vertical">
@@ -343,9 +343,9 @@ const willingnessOptions = [
 
 const assignedTier = ref(null)
 
-// Apakah responden memilih Sangat tertarik / Tertarik?
+// Apakah responden lanjut mengisi survei? (Hanya "Tidak tertarik" yang melewati pertanyaan No. 5 s/d 9)
 const isInterested = computed(() => {
-  return surveyData.value.minat_calm === 'Sangat tertarik' || surveyData.value.minat_calm === 'Tertarik'
+  return !!surveyData.value.minat_calm && surveyData.value.minat_calm !== 'Tidak tertarik'
 })
 
 // Auto-fill Nomor WhatsApp dari identitas peserta langkah sebelumnya

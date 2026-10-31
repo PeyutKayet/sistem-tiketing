@@ -25,10 +25,11 @@ const pricingTier_get = defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const supabase = createClient(config.supabaseUrl, config.supabaseServiceKey);
   const defaultTiers = [
-    { tier: 1, label: "Tahap 1", harga_reguler: "Rp500.000", harga_eksklusif: "Rp1.700.000", harga_reguler_num: 5e5, harga_eksklusif_num: 17e5 },
-    { tier: 2, label: "Tahap 2", harga_reguler: "Rp700.000", harga_eksklusif: "Rp2.100.000", harga_reguler_num: 7e5, harga_eksklusif_num: 21e5 },
-    { tier: 3, label: "Tahap 3", harga_reguler: "Rp800.000", harga_eksklusif: "Rp2.400.000", harga_reguler_num: 8e5, harga_eksklusif_num: 24e5 },
-    { tier: 4, label: "Tahap 4", harga_reguler: "Rp1.000.000", harga_eksklusif: "Rp2.600.000", harga_reguler_num: 1e6, harga_eksklusif_num: 26e5 }
+    { tier: 1, label: "Tahap 1", harga_reguler: "Rp299.000", harga_eksklusif: "Rp2.500.000", harga_reguler_num: 299e3, harga_eksklusif_num: 25e5 },
+    { tier: 2, label: "Tahap 2", harga_reguler: "Rp499.000", harga_eksklusif: "Rp2.100.000", harga_reguler_num: 499e3, harga_eksklusif_num: 21e5 },
+    { tier: 3, label: "Tahap 3", harga_reguler: "Rp599.000", harga_eksklusif: "Rp1.900.000", harga_reguler_num: 599e3, harga_eksklusif_num: 19e5 },
+    { tier: 4, label: "Tahap 4", harga_reguler: "Rp799.000", harga_eksklusif: "Rp2.100.000", harga_reguler_num: 799e3, harga_eksklusif_num: 21e5 },
+    { tier: 5, label: "Tahap 5", harga_reguler: "Rp999.000", harga_eksklusif: "Rp2.500.000", harga_reguler_num: 999e3, harga_eksklusif_num: 25e5 }
   ];
   let resolvedEventId = eventId;
   let customTiers = null;

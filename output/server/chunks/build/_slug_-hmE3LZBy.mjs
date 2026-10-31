@@ -617,7 +617,7 @@ var _sfc_main$3 = {
 		];
 		const assignedTier = ref(null);
 		const isInterested = computed(() => {
-			return surveyData.value.minat_calm === "Sangat tertarik" || surveyData.value.minat_calm === "Tertarik";
+			return !!surveyData.value.minat_calm && surveyData.value.minat_calm !== "Tidak tertarik";
 		});
 		watch(() => props.primaryParticipant, (newVal) => {
 			if (newVal && newVal.phone && !surveyData.value.no_wa_calm) surveyData.value.no_wa_calm = newVal.phone;
@@ -627,11 +627,11 @@ var _sfc_main$3 = {
 		});
 		return (_ctx, _push, _parent, _attrs) => {
 			const _component_Icon = components_default;
-			_push(`<div${ssrRenderAttrs(mergeProps({ class: "b2b-survey-container" }, _attrs))} data-v-e1a6dc89><div class="survey-header-card" data-v-e1a6dc89><div class="survey-badge" data-v-e1a6dc89>SURVEI RISET MINAT</div><h2 class="survey-title" data-v-e1a6dc89>Survei Program CALM — Khazilmu</h2><p class="survey-desc" data-v-e1a6dc89> Khazilmu sedang mengembangkan program pembelajaran psikologi diri berbasis Al-Qur’an dan Sunnah. Agar program ini sesuai dengan kebutuhan Anda, kami ingin mendengar pendapat Anda melalui survei singkat ini (1–2 menit). </p></div><div class="survey-card" data-v-e1a6dc89><h3 class="section-heading" data-v-e1a6dc89>Profil Responden</h3><div class="question-group" data-v-e1a6dc89><label class="q-label" data-v-e1a6dc89>1. Jenis kelamin <span class="req" data-v-e1a6dc89>*</span></label><div class="radio-options" data-v-e1a6dc89><!--[-->`);
+			_push(`<div${ssrRenderAttrs(mergeProps({ class: "b2b-survey-container" }, _attrs))} data-v-49ef3924><div class="survey-header-card" data-v-49ef3924><div class="survey-badge" data-v-49ef3924>SURVEI RISET MINAT</div><h2 class="survey-title" data-v-49ef3924>Survei Program CALM — Khazilmu</h2><p class="survey-desc" data-v-49ef3924> Khazilmu sedang mengembangkan program pembelajaran psikologi diri berbasis Al-Qur’an dan Sunnah. Agar program ini sesuai dengan kebutuhan Anda, kami ingin mendengar pendapat Anda melalui survei singkat ini (1–2 menit). </p></div><div class="survey-card" data-v-49ef3924><h3 class="section-heading" data-v-49ef3924>Profil Responden</h3><div class="question-group" data-v-49ef3924><label class="q-label" data-v-49ef3924>1. Jenis kelamin <span class="req" data-v-49ef3924>*</span></label><div class="radio-options" data-v-49ef3924><!--[-->`);
 			ssrRenderList(["Perempuan", "Laki-laki"], (item) => {
-				_push(`<label class="${ssrRenderClass([{ selected: surveyData.value.jenis_kelamin === item }, "radio-card"])}" data-v-e1a6dc89><input type="radio"${ssrIncludeBooleanAttr(ssrLooseEqual(surveyData.value.jenis_kelamin, item)) ? " checked" : ""}${ssrRenderAttr("value", item)} data-v-e1a6dc89><span class="radio-text" data-v-e1a6dc89>${ssrInterpolate(item)}</span></label>`);
+				_push(`<label class="${ssrRenderClass([{ selected: surveyData.value.jenis_kelamin === item }, "radio-card"])}" data-v-49ef3924><input type="radio"${ssrIncludeBooleanAttr(ssrLooseEqual(surveyData.value.jenis_kelamin, item)) ? " checked" : ""}${ssrRenderAttr("value", item)} data-v-49ef3924><span class="radio-text" data-v-49ef3924>${ssrInterpolate(item)}</span></label>`);
 			});
-			_push(`<!--]--></div></div><div class="question-group mt-4" data-v-e1a6dc89><label class="q-label" data-v-e1a6dc89>2. Usia <span class="req" data-v-e1a6dc89>*</span></label><div class="radio-options grid-2" data-v-e1a6dc89><!--[-->`);
+			_push(`<!--]--></div></div><div class="question-group mt-4" data-v-49ef3924><label class="q-label" data-v-49ef3924>2. Usia <span class="req" data-v-49ef3924>*</span></label><div class="radio-options grid-2" data-v-49ef3924><!--[-->`);
 			ssrRenderList([
 				"Di bawah 18 tahun",
 				"18–25 tahun",
@@ -639,9 +639,9 @@ var _sfc_main$3 = {
 				"36–45 tahun",
 				"Di atas 45 tahun"
 			], (item) => {
-				_push(`<label class="${ssrRenderClass([{ selected: surveyData.value.usia === item }, "radio-card"])}" data-v-e1a6dc89><input type="radio"${ssrIncludeBooleanAttr(ssrLooseEqual(surveyData.value.usia, item)) ? " checked" : ""}${ssrRenderAttr("value", item)} data-v-e1a6dc89><span class="radio-text" data-v-e1a6dc89>${ssrInterpolate(item)}</span></label>`);
+				_push(`<label class="${ssrRenderClass([{ selected: surveyData.value.usia === item }, "radio-card"])}" data-v-49ef3924><input type="radio"${ssrIncludeBooleanAttr(ssrLooseEqual(surveyData.value.usia, item)) ? " checked" : ""}${ssrRenderAttr("value", item)} data-v-49ef3924><span class="radio-text" data-v-49ef3924>${ssrInterpolate(item)}</span></label>`);
 			});
-			_push(`<!--]--></div></div><div class="question-group mt-4" data-v-e1a6dc89><label class="q-label" data-v-e1a6dc89>3. Profesi / aktivitas saat ini <span class="req" data-v-e1a6dc89>*</span></label><div class="radio-options grid-2" data-v-e1a6dc89><!--[-->`);
+			_push(`<!--]--></div></div><div class="question-group mt-4" data-v-49ef3924><label class="q-label" data-v-49ef3924>3. Profesi / aktivitas saat ini <span class="req" data-v-49ef3924>*</span></label><div class="radio-options grid-2" data-v-49ef3924><!--[-->`);
 			ssrRenderList([
 				"Pelajar/mahasiswa",
 				"Ibu rumah tangga",
@@ -650,37 +650,37 @@ var _sfc_main$3 = {
 				"Guru/dosen",
 				"Lainnya"
 			], (item) => {
-				_push(`<label class="${ssrRenderClass([{ selected: surveyData.value.profesi_pilihan === item }, "radio-card"])}" data-v-e1a6dc89><input type="radio"${ssrIncludeBooleanAttr(ssrLooseEqual(surveyData.value.profesi_pilihan, item)) ? " checked" : ""}${ssrRenderAttr("value", item)} data-v-e1a6dc89><span class="radio-text" data-v-e1a6dc89>${ssrInterpolate(item === "Lainnya" ? "Lainnya..." : item)}</span></label>`);
+				_push(`<label class="${ssrRenderClass([{ selected: surveyData.value.profesi_pilihan === item }, "radio-card"])}" data-v-49ef3924><input type="radio"${ssrIncludeBooleanAttr(ssrLooseEqual(surveyData.value.profesi_pilihan, item)) ? " checked" : ""}${ssrRenderAttr("value", item)} data-v-49ef3924><span class="radio-text" data-v-49ef3924>${ssrInterpolate(item === "Lainnya" ? "Lainnya..." : item)}</span></label>`);
 			});
 			_push(`<!--]--></div>`);
-			if (surveyData.value.profesi_pilihan === "Lainnya") _push(`<div class="custom-input-box mt-2" data-v-e1a6dc89><input type="text"${ssrRenderAttr("value", surveyData.value.profesi_lainnya)} placeholder="Tuliskan profesi/aktivitas Anda saat ini..." class="survey-input" data-v-e1a6dc89></div>`);
+			if (surveyData.value.profesi_pilihan === "Lainnya") _push(`<div class="custom-input-box mt-2" data-v-49ef3924><input type="text"${ssrRenderAttr("value", surveyData.value.profesi_lainnya)} placeholder="Tuliskan profesi/aktivitas Anda saat ini..." class="survey-input" data-v-49ef3924></div>`);
 			else _push(`<!---->`);
-			_push(`</div></div><div class="info-highlight-card" data-v-e1a6dc89><div class="info-badge" data-v-e1a6dc89>Tentang Program CALM</div><h3 class="info-title" data-v-e1a6dc89>Cognitive Awareness &amp; Learning to Manage Emotions</h3><p class="info-p" data-v-e1a6dc89> Program kelola emosi dari Khazilmu, terutama bagi Muslimah. Membantu Anda mengenali pemicu emosi, mengelola amarah dan <i data-v-e1a6dc89>overthinking</i>, serta menyampaikan perasaan dengan lebih baik melalui pendekatan psikologi ilmiah dan nilai sunnah. </p><div class="info-features" data-v-e1a6dc89><div class="feat-item" data-v-e1a6dc89>`);
+			_push(`</div></div><div class="info-highlight-card" data-v-49ef3924><div class="info-badge" data-v-49ef3924>Tentang Program CALM</div><h3 class="info-title" data-v-49ef3924>Cognitive Awareness &amp; Learning to Manage Emotions</h3><p class="info-p" data-v-49ef3924> Program kelola emosi dari Khazilmu, terutama bagi Muslimah. Membantu Anda mengenali pemicu emosi, mengelola amarah dan <i data-v-49ef3924>overthinking</i>, serta menyampaikan perasaan dengan lebih baik melalui pendekatan psikologi ilmiah dan nilai sunnah. </p><div class="info-features" data-v-49ef3924><div class="feat-item" data-v-49ef3924>`);
 			_push(ssrRenderComponent(_component_Icon, {
 				name: "lucide:calendar",
 				class: "feat-icon"
 			}, null, _parent));
-			_push(`<span data-v-e1a6dc89><b data-v-e1a6dc89>Durasi:</b> 2 bulan, online</span></div><div class="feat-item" data-v-e1a6dc89>`);
+			_push(`<span data-v-49ef3924><b data-v-49ef3924>Durasi:</b> 2 bulan, online</span></div><div class="feat-item" data-v-49ef3924>`);
 			_push(ssrRenderComponent(_component_Icon, {
 				name: "lucide:book-open",
 				class: "feat-icon"
 			}, null, _parent));
-			_push(`<span data-v-e1a6dc89><b data-v-e1a6dc89>Total materi:</b> 32 video pembelajaran, 8 live session, 8 worksheet</span></div><div class="feat-item" data-v-e1a6dc89>`);
+			_push(`<span data-v-49ef3924><b data-v-49ef3924>Total materi:</b> 32 video pembelajaran, 8 live session, 8 worksheet</span></div><div class="feat-item" data-v-49ef3924>`);
 			_push(ssrRenderComponent(_component_Icon, {
 				name: "lucide:clock",
 				class: "feat-icon"
 			}, null, _parent));
-			_push(`<span data-v-e1a6dc89><b data-v-e1a6dc89>Ritme belajar:</b> 4 video + 1 live session + 1 worksheet per pekan</span></div><div class="feat-item" data-v-e1a6dc89>`);
+			_push(`<span data-v-49ef3924><b data-v-49ef3924>Ritme belajar:</b> 4 video + 1 live session + 1 worksheet per pekan</span></div><div class="feat-item" data-v-49ef3924>`);
 			_push(ssrRenderComponent(_component_Icon, {
 				name: "lucide:award",
 				class: "feat-icon"
 			}, null, _parent));
-			_push(`<span data-v-e1a6dc89><b data-v-e1a6dc89>Fasilitas:</b> Rekaman live session &amp; Sertifikat resmi kelulusan</span></div><div class="feat-item" data-v-e1a6dc89>`);
+			_push(`<span data-v-49ef3924><b data-v-49ef3924>Fasilitas:</b> Rekaman live session &amp; Sertifikat resmi kelulusan</span></div><div class="feat-item" data-v-49ef3924>`);
 			_push(ssrRenderComponent(_component_Icon, {
 				name: "lucide:users",
 				class: "feat-icon"
 			}, null, _parent));
-			_push(`<span data-v-e1a6dc89><b data-v-e1a6dc89>Pengajar:</b> Psikolog, Ustadz, dan Dosen International Open University (IOU)</span></div></div><div class="info-target-box" data-v-e1a6dc89><span class="target-title" data-v-e1a6dc89>Program ini sangat cocok untuk Anda yang:</span><ul class="target-list" data-v-e1a6dc89><li data-v-e1a6dc89>Sering emosi “meledak”, lalu menyesal</li><li data-v-e1a6dc89>Mudah cemas atau terus memikirkan hal yang belum terjadi</li><li data-v-e1a6dc89>Lelah menjalani banyak peran sekaligus</li><li data-v-e1a6dc89>Ingin mengelola emosi secara ilmiah sekaligus sesuai syariat &amp; sunnah</li><li data-v-e1a6dc89>Ingin merasakan format belajar kuliah psikologi, tanpa harus kuliah bertahun-tahun</li></ul><small class="disclaimer-note" data-v-e1a6dc89>* Program ini bersifat edukasi, bukan pengganti konseling atau terapi medis.</small></div></div><div class="survey-card" data-v-e1a6dc89><div class="question-group" data-v-e1a6dc89><label class="q-label" data-v-e1a6dc89>4. Seberapa tertarik Anda mengikuti program CALM? <span class="req" data-v-e1a6dc89>*</span></label><div class="radio-options vertical" data-v-e1a6dc89><!--[-->`);
+			_push(`<span data-v-49ef3924><b data-v-49ef3924>Pengajar:</b> Psikolog, Ustadz, dan Dosen International Open University (IOU)</span></div></div><div class="info-target-box" data-v-49ef3924><span class="target-title" data-v-49ef3924>Program ini sangat cocok untuk Anda yang:</span><ul class="target-list" data-v-49ef3924><li data-v-49ef3924>Sering emosi “meledak”, lalu menyesal</li><li data-v-49ef3924>Mudah cemas atau terus memikirkan hal yang belum terjadi</li><li data-v-49ef3924>Lelah menjalani banyak peran sekaligus</li><li data-v-49ef3924>Ingin mengelola emosi secara ilmiah sekaligus sesuai syariat &amp; sunnah</li><li data-v-49ef3924>Ingin merasakan format belajar kuliah psikologi, tanpa harus kuliah bertahun-tahun</li></ul><small class="disclaimer-note" data-v-49ef3924>* Program ini bersifat edukasi, bukan pengganti konseling atau terapi medis.</small></div></div><div class="survey-card" data-v-49ef3924><div class="question-group" data-v-49ef3924><label class="q-label" data-v-49ef3924>4. Seberapa tertarik Anda mengikuti program CALM? <span class="req" data-v-49ef3924>*</span></label><div class="radio-options vertical" data-v-49ef3924><!--[-->`);
 			ssrRenderList([
 				{
 					val: "Sangat tertarik",
@@ -699,38 +699,38 @@ var _sfc_main$3 = {
 					desc: "Saat ini belum membutuhkan program ini"
 				}
 			], (item) => {
-				_push(`<label class="${ssrRenderClass([{ selected: surveyData.value.minat_calm === item.val }, "radio-card block"])}" data-v-e1a6dc89><input type="radio"${ssrIncludeBooleanAttr(ssrLooseEqual(surveyData.value.minat_calm, item.val)) ? " checked" : ""}${ssrRenderAttr("value", item.val)} data-v-e1a6dc89><div class="radio-content-wrap" data-v-e1a6dc89><span class="radio-text font-bold" data-v-e1a6dc89>${ssrInterpolate(item.val)}</span><span class="radio-subtext" data-v-e1a6dc89>${ssrInterpolate(item.desc)}</span></div></label>`);
+				_push(`<label class="${ssrRenderClass([{ selected: surveyData.value.minat_calm === item.val }, "radio-card block"])}" data-v-49ef3924><input type="radio"${ssrIncludeBooleanAttr(ssrLooseEqual(surveyData.value.minat_calm, item.val)) ? " checked" : ""}${ssrRenderAttr("value", item.val)} data-v-49ef3924><div class="radio-content-wrap" data-v-49ef3924><span class="radio-text font-bold" data-v-49ef3924>${ssrInterpolate(item.val)}</span><span class="radio-subtext" data-v-49ef3924>${ssrInterpolate(item.desc)}</span></div></label>`);
 			});
 			_push(`<!--]--></div></div></div>`);
 			if (isInterested.value) {
-				_push(`<div class="survey-branch-section" data-v-e1a6dc89><div class="survey-card" data-v-e1a6dc89><div class="question-group" data-v-e1a6dc89><label class="q-label" data-v-e1a6dc89> 5. Permasalahan apa yang ingin Anda atasi, dan perubahan apa yang Anda harapkan setelah mengikuti CALM? <span class="req" data-v-e1a6dc89>*</span></label><p class="q-hint" data-v-e1a6dc89>Ceritakan secukupnya tanpa perlu membagikan pengalaman pribadi yang sensitif.</p><textarea rows="3" class="survey-textarea" placeholder="Contoh: Saya ingin lebih sabar saat merespons anak, dan mengurangi rasa cemas yang berlebihan..." data-v-e1a6dc89>${ssrInterpolate(surveyData.value.harapan_calm)}</textarea></div></div><div class="class-choice-info-card" data-v-e1a6dc89><h3 class="class-info-title" data-v-e1a6dc89>Pilihan Kelas CALM</h3><div class="class-cards-grid" data-v-e1a6dc89><div class="class-subcard" data-v-e1a6dc89><span class="class-badge blue" data-v-e1a6dc89>Kelas Reguler — Format Kuliah Umum</span><ul class="class-list" data-v-e1a6dc89><li data-v-e1a6dc89>Live session dalam kelas besar bersama seluruh peserta batch</li><li data-v-e1a6dc89>8 sesi live via Zoom + rekaman</li><li data-v-e1a6dc89>32 video pembelajaran</li><li data-v-e1a6dc89>Worksheet dan latihan setiap pekan</li><li data-v-e1a6dc89>Sesi tanya jawab di akhir setiap live session</li><li data-v-e1a6dc89>Dibuka per batch sesuai jadwal Khazilmu</li></ul></div><div class="class-subcard gold" data-v-e1a6dc89><span class="class-badge gold-bg" data-v-e1a6dc89>Kelas Eksklusif — Semi-Private (Maks. 8 Peserta)</span><ul class="class-list" data-v-e1a6dc89><li data-v-e1a6dc89>Live session dalam kelompok kecil, maksimal 8 peserta</li><li data-v-e1a6dc89>Materi, video, dan worksheet sama dengan Kelas Reguler</li><li data-v-e1a6dc89>Diskusi dua arah, setiap peserta mendapat ruang bertanya dan berbagi</li><li data-v-e1a6dc89>Pendampingan lebih personal dari pengajar</li><li data-v-e1a6dc89>Jadwal mulai fleksibel, tanpa menunggu batch reguler</li></ul></div></div></div><div class="survey-card" data-v-e1a6dc89><div class="question-group" data-v-e1a6dc89><label class="q-label" data-v-e1a6dc89>6. Jika kedua kelas tersebut dibuka, mana yang paling mungkin Anda pilih? <span class="req" data-v-e1a6dc89>*</span></label><div class="radio-options grid-2" data-v-e1a6dc89><!--[-->`);
+				_push(`<div class="survey-branch-section" data-v-49ef3924><div class="survey-card" data-v-49ef3924><div class="question-group" data-v-49ef3924><label class="q-label" data-v-49ef3924> 5. Permasalahan apa yang ingin Anda atasi, dan perubahan apa yang Anda harapkan setelah mengikuti CALM? <span class="req" data-v-49ef3924>*</span></label><p class="q-hint" data-v-49ef3924>Ceritakan secukupnya tanpa perlu membagikan pengalaman pribadi yang sensitif.</p><textarea rows="3" class="survey-textarea" placeholder="Contoh: Saya ingin lebih sabar saat merespons anak, dan mengurangi rasa cemas yang berlebihan..." data-v-49ef3924>${ssrInterpolate(surveyData.value.harapan_calm)}</textarea></div></div><div class="class-choice-info-card" data-v-49ef3924><h3 class="class-info-title" data-v-49ef3924>Pilihan Kelas CALM</h3><div class="class-cards-grid" data-v-49ef3924><div class="class-subcard" data-v-49ef3924><span class="class-badge blue" data-v-49ef3924>Kelas Reguler — Format Kuliah Umum</span><ul class="class-list" data-v-49ef3924><li data-v-49ef3924>Live session dalam kelas besar bersama seluruh peserta batch</li><li data-v-49ef3924>8 sesi live via Zoom + rekaman</li><li data-v-49ef3924>32 video pembelajaran</li><li data-v-49ef3924>Worksheet dan latihan setiap pekan</li><li data-v-49ef3924>Sesi tanya jawab di akhir setiap live session</li><li data-v-49ef3924>Dibuka per batch sesuai jadwal Khazilmu</li></ul></div><div class="class-subcard gold" data-v-49ef3924><span class="class-badge gold-bg" data-v-49ef3924>Kelas Eksklusif — Semi-Private (Maks. 8 Peserta)</span><ul class="class-list" data-v-49ef3924><li data-v-49ef3924>Live session dalam kelompok kecil, maksimal 8 peserta</li><li data-v-49ef3924>Materi, video, dan worksheet sama dengan Kelas Reguler</li><li data-v-49ef3924>Diskusi dua arah, setiap peserta mendapat ruang bertanya dan berbagi</li><li data-v-49ef3924>Pendampingan lebih personal dari pengajar</li><li data-v-49ef3924>Jadwal mulai fleksibel, tanpa menunggu batch reguler</li></ul></div></div></div><div class="survey-card" data-v-49ef3924><div class="question-group" data-v-49ef3924><label class="q-label" data-v-49ef3924>6. Jika kedua kelas tersebut dibuka, mana yang paling mungkin Anda pilih? <span class="req" data-v-49ef3924>*</span></label><div class="radio-options grid-2" data-v-49ef3924><!--[-->`);
 				ssrRenderList(["Kelas Reguler", "Kelas Eksklusif"], (item) => {
-					_push(`<label class="${ssrRenderClass([{ selected: surveyData.value.pilihan_kelas === item }, "radio-card"])}" data-v-e1a6dc89><input type="radio"${ssrIncludeBooleanAttr(ssrLooseEqual(surveyData.value.pilihan_kelas, item)) ? " checked" : ""}${ssrRenderAttr("value", item)} data-v-e1a6dc89><span class="radio-text font-bold" data-v-e1a6dc89>${ssrInterpolate(item)}</span></label>`);
+					_push(`<label class="${ssrRenderClass([{ selected: surveyData.value.pilihan_kelas === item }, "radio-card"])}" data-v-49ef3924><input type="radio"${ssrIncludeBooleanAttr(ssrLooseEqual(surveyData.value.pilihan_kelas, item)) ? " checked" : ""}${ssrRenderAttr("value", item)} data-v-49ef3924><span class="radio-text font-bold" data-v-49ef3924>${ssrInterpolate(item)}</span></label>`);
 				});
 				_push(`<!--]--></div></div></div>`);
 				if (surveyData.value.pilihan_kelas) {
-					_push(`<div class="survey-after-q6-section" data-v-e1a6dc89><div class="survey-card" data-v-e1a6dc89><div class="question-group" data-v-e1a6dc89><label class="q-label" data-v-e1a6dc89> 7. Jika biaya total <b data-v-e1a6dc89>Kelas Reguler CALM</b> selama 2 bulan adalah <span class="price-pill-tag" data-v-e1a6dc89>${ssrInterpolate(assignedTier.value?.harga_reguler || "Rp500.000")}</span>, bagaimana kemungkinan Anda mendaftar? <span class="req" data-v-e1a6dc89>*</span></label><div class="radio-options vertical" data-v-e1a6dc89><!--[-->`);
+					_push(`<div class="survey-after-q6-section" data-v-49ef3924><div class="survey-card" data-v-49ef3924><div class="question-group" data-v-49ef3924><label class="q-label" data-v-49ef3924> 7. Jika biaya total <b data-v-49ef3924>Kelas Reguler CALM</b> selama 2 bulan adalah <span class="price-pill-tag" data-v-49ef3924>${ssrInterpolate(assignedTier.value?.harga_reguler || "Rp299.000")}</span>, bagaimana kemungkinan Anda mendaftar? <span class="req" data-v-49ef3924>*</span></label><div class="radio-options vertical" data-v-49ef3924><!--[-->`);
 					ssrRenderList(willingnessOptions, (opt) => {
-						_push(`<label class="${ssrRenderClass([{ selected: surveyData.value.respon_harga_reguler === opt }, "radio-card"])}" data-v-e1a6dc89><input type="radio"${ssrIncludeBooleanAttr(ssrLooseEqual(surveyData.value.respon_harga_reguler, opt)) ? " checked" : ""}${ssrRenderAttr("value", opt)} data-v-e1a6dc89><span class="radio-text" data-v-e1a6dc89>${ssrInterpolate(opt)}</span></label>`);
+						_push(`<label class="${ssrRenderClass([{ selected: surveyData.value.respon_harga_reguler === opt }, "radio-card"])}" data-v-49ef3924><input type="radio"${ssrIncludeBooleanAttr(ssrLooseEqual(surveyData.value.respon_harga_reguler, opt)) ? " checked" : ""}${ssrRenderAttr("value", opt)} data-v-49ef3924><span class="radio-text" data-v-49ef3924>${ssrInterpolate(opt)}</span></label>`);
 					});
-					_push(`<!--]--></div></div></div><div class="survey-card" data-v-e1a6dc89><div class="question-group" data-v-e1a6dc89><label class="q-label" data-v-e1a6dc89> 8. Jika biaya total <b data-v-e1a6dc89>Kelas Eksklusif CALM</b> selama 2 bulan adalah <span class="price-pill-tag gold" data-v-e1a6dc89>${ssrInterpolate(assignedTier.value?.harga_eksklusif || "Rp1.700.000")}</span>, bagaimana kemungkinan Anda mendaftar? <span class="req" data-v-e1a6dc89>*</span></label><div class="radio-options vertical" data-v-e1a6dc89><!--[-->`);
+					_push(`<!--]--></div></div></div><div class="survey-card" data-v-49ef3924><div class="question-group" data-v-49ef3924><label class="q-label" data-v-49ef3924> 8. Jika biaya total <b data-v-49ef3924>Kelas Eksklusif CALM</b> selama 2 bulan adalah <span class="price-pill-tag gold" data-v-49ef3924>${ssrInterpolate(assignedTier.value?.harga_eksklusif || "Rp2.500.000")}</span>, bagaimana kemungkinan Anda mendaftar? <span class="req" data-v-49ef3924>*</span></label><div class="radio-options vertical" data-v-49ef3924><!--[-->`);
 					ssrRenderList(willingnessOptions, (opt) => {
-						_push(`<label class="${ssrRenderClass([{ selected: surveyData.value.respon_harga_eksklusif === opt }, "radio-card"])}" data-v-e1a6dc89><input type="radio"${ssrIncludeBooleanAttr(ssrLooseEqual(surveyData.value.respon_harga_eksklusif, opt)) ? " checked" : ""}${ssrRenderAttr("value", opt)} data-v-e1a6dc89><span class="radio-text" data-v-e1a6dc89>${ssrInterpolate(opt)}</span></label>`);
+						_push(`<label class="${ssrRenderClass([{ selected: surveyData.value.respon_harga_eksklusif === opt }, "radio-card"])}" data-v-49ef3924><input type="radio"${ssrIncludeBooleanAttr(ssrLooseEqual(surveyData.value.respon_harga_eksklusif, opt)) ? " checked" : ""}${ssrRenderAttr("value", opt)} data-v-49ef3924><span class="radio-text" data-v-49ef3924>${ssrInterpolate(opt)}</span></label>`);
 					});
-					_push(`<!--]--></div></div></div><div class="survey-card" data-v-e1a6dc89><div class="question-group" data-v-e1a6dc89><label class="q-label" data-v-e1a6dc89>9. Apakah Anda ingin mendapatkan informasi program dan penawaran promo CALM melalui WhatsApp? <span class="req" data-v-e1a6dc89>*</span></label><div class="radio-options grid-2" data-v-e1a6dc89><!--[-->`);
+					_push(`<!--]--></div></div></div><div class="survey-card" data-v-49ef3924><div class="question-group" data-v-49ef3924><label class="q-label" data-v-49ef3924>9. Apakah Anda ingin mendapatkan informasi program dan penawaran promo CALM melalui WhatsApp? <span class="req" data-v-49ef3924>*</span></label><div class="radio-options grid-2" data-v-49ef3924><!--[-->`);
 					ssrRenderList(["Ya", "Tidak"], (item) => {
-						_push(`<label class="${ssrRenderClass([{ selected: surveyData.value.mau_info_wa === item }, "radio-card"])}" data-v-e1a6dc89><input type="radio"${ssrIncludeBooleanAttr(ssrLooseEqual(surveyData.value.mau_info_wa, item)) ? " checked" : ""}${ssrRenderAttr("value", item)} data-v-e1a6dc89><span class="radio-text font-bold" data-v-e1a6dc89>${ssrInterpolate(item)}</span></label>`);
+						_push(`<label class="${ssrRenderClass([{ selected: surveyData.value.mau_info_wa === item }, "radio-card"])}" data-v-49ef3924><input type="radio"${ssrIncludeBooleanAttr(ssrLooseEqual(surveyData.value.mau_info_wa, item)) ? " checked" : ""}${ssrRenderAttr("value", item)} data-v-49ef3924><span class="radio-text font-bold" data-v-49ef3924>${ssrInterpolate(item)}</span></label>`);
 					});
 					_push(`<!--]--></div>`);
-					if (surveyData.value.mau_info_wa === "Ya") _push(`<div class="wa-consent-box mt-3" data-v-e1a6dc89><label class="sub-label" data-v-e1a6dc89>Nomor WhatsApp Aktif untuk Info CALM:</label><div class="wa-preview-row" data-v-e1a6dc89><input type="tel"${ssrRenderAttr("value", surveyData.value.no_wa_calm)} class="survey-input" placeholder="081234567890" data-v-e1a6dc89></div><small class="wa-hint" data-v-e1a6dc89>Nomor di atas terisi otomatis dari data pendaftaran tiket Anda (bisa disesuaikan jika berbeda).</small><label class="consent-checkbox-row mt-3" data-v-e1a6dc89><input type="checkbox"${ssrIncludeBooleanAttr(Array.isArray(surveyData.value.setuju_dihubungi_wa) ? ssrLooseContain(surveyData.value.setuju_dihubungi_wa, null) : surveyData.value.setuju_dihubungi_wa) ? " checked" : ""} class="custom-chk" data-v-e1a6dc89><span class="consent-text" data-v-e1a6dc89> Saya bersedia dihubungi Khazilmu melalui WhatsApp untuk informasi dan promo program CALM. Saya dapat meminta berhenti menerima pesan kapan saja. </span></label></div>`);
+					if (surveyData.value.mau_info_wa === "Ya") _push(`<div class="wa-consent-box mt-3" data-v-49ef3924><label class="sub-label" data-v-49ef3924>Nomor WhatsApp Aktif untuk Info CALM:</label><div class="wa-preview-row" data-v-49ef3924><input type="tel"${ssrRenderAttr("value", surveyData.value.no_wa_calm)} class="survey-input" placeholder="081234567890" data-v-49ef3924></div><small class="wa-hint" data-v-49ef3924>Nomor di atas terisi otomatis dari data pendaftaran tiket Anda (bisa disesuaikan jika berbeda).</small><label class="consent-checkbox-row mt-3" data-v-49ef3924><input type="checkbox"${ssrIncludeBooleanAttr(Array.isArray(surveyData.value.setuju_dihubungi_wa) ? ssrLooseContain(surveyData.value.setuju_dihubungi_wa, null) : surveyData.value.setuju_dihubungi_wa) ? " checked" : ""} class="custom-chk" data-v-49ef3924><span class="consent-text" data-v-49ef3924> Saya bersedia dihubungi Khazilmu melalui WhatsApp untuk informasi dan promo program CALM. Saya dapat meminta berhenti menerima pesan kapan saja. </span></label></div>`);
 					else _push(`<!---->`);
 					_push(`</div></div></div>`);
 				} else _push(`<!---->`);
 				_push(`</div>`);
 			} else _push(`<!---->`);
-			_push(`<div class="action-buttons-wrap mt-4" data-v-e1a6dc89><button type="button" class="btn-prev" data-v-e1a6dc89> ← KEMBALI KE DATA DIRI </button><button type="button" class="${ssrRenderClass([{ "btn-loading": __props.isSubmitting }, "btn-finish"])}"${ssrIncludeBooleanAttr(__props.isSubmitting) ? " disabled" : ""} data-v-e1a6dc89>`);
-			if (__props.isSubmitting) _push(`<span data-v-e1a6dc89>MEMPROSES PENDAFTARAN...</span>`);
-			else _push(`<span data-v-e1a6dc89>${ssrInterpolate(__props.isTrulyFree ? "SELESAIKAN PENDAFTARAN →" : "LANJUT KE PEMBAYARAN →")}</span>`);
+			_push(`<div class="action-buttons-wrap mt-4" data-v-49ef3924><button type="button" class="btn-prev" data-v-49ef3924> ← KEMBALI KE DATA DIRI </button><button type="button" class="${ssrRenderClass([{ "btn-loading": __props.isSubmitting }, "btn-finish"])}"${ssrIncludeBooleanAttr(__props.isSubmitting) ? " disabled" : ""} data-v-49ef3924>`);
+			if (__props.isSubmitting) _push(`<span data-v-49ef3924>MEMPROSES PENDAFTARAN...</span>`);
+			else _push(`<span data-v-49ef3924>${ssrInterpolate(__props.isTrulyFree ? "SELESAIKAN PENDAFTARAN →" : "LANJUT KE PEMBAYARAN →")}</span>`);
 			_push(`</button></div></div>`);
 		};
 	}
@@ -741,7 +741,7 @@ _sfc_main$3.setup = (props, ctx) => {
 	(ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("components/event/B2BSurveyStep.vue");
 	return _sfc_setup$3 ? _sfc_setup$3(props, ctx) : void 0;
 };
-var B2BSurveyStep_default = /*#__PURE__*/ _plugin_vue_export_helper_default(_sfc_main$3, [["__scopeId", "data-v-e1a6dc89"]]);
+var B2BSurveyStep_default = /*#__PURE__*/ _plugin_vue_export_helper_default(_sfc_main$3, [["__scopeId", "data-v-49ef3924"]]);
 //#endregion
 //#region app/components/event/SuccessStep.vue
 var _sfc_main$2 = {
@@ -1750,4 +1750,4 @@ _sfc_main.setup = (props, ctx) => {
 var _slug__default = /*#__PURE__*/ _plugin_vue_export_helper_default(_sfc_main, [["__scopeId", "data-v-c856af3a"]]);
 
 export { _slug__default as default };
-//# sourceMappingURL=_slug_-DzO1a9Sv.mjs.map
+//# sourceMappingURL=_slug_-hmE3LZBy.mjs.map
