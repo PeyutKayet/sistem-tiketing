@@ -495,6 +495,7 @@ export async function requestEspayVirtualAccount(params: {
   // Fee VA sesuai PKS (+ PPN 11%):
   // Mandiri: 2500 + 275 (PPN 11%) = 2775
   // BRI: 2500 + 275 (PPN 11%) = 2775
+  // BCA: 2500 + 275 (PPN 11%) = 2775
   // BNI: 3000 + 330 (PPN 11%) = 3330
   let fee = 2775
   let bankName = 'Virtual Account'
@@ -507,6 +508,9 @@ export async function requestEspayVirtualAccount(params: {
   } else if (params.bankCode === '002') {
     fee = 2775
     bankName = 'BRI Virtual Account (BRIVA)'
+  } else if (params.bankCode === '014') {
+    fee = 2775
+    bankName = 'BCA Virtual Account'
   }
 
   const totalAmount = params.amount + fee
@@ -684,6 +688,8 @@ export async function requestEspayVirtualAccount(params: {
       let errorMsg = errMsg || `Error code: ${errCode}`
       if (errCode === '0031' || errCode === '31') {
         errorMsg = 'Error 31: Gagal komunikasi dengan Mitra (Timeout 10s). Server Espay tidak dapat menghubungi Webhook Callback Inquiry Anda. Pastikan URL Callback di portal Espay aktif dan dapat diakses publik.'
+      } else if (errCode === '0118' || errCode === '118') {
+        errorMsg = 'Error 0118: Channel pembayaran ini belum diaktifkan (BIN belum terdaftar di sandbox Espay).'
       }
 
       return {

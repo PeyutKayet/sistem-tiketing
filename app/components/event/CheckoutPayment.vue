@@ -135,7 +135,7 @@
 
           <!-- 2. GROUP VIRTUAL ACCOUNT (BANK TRANSFER) ACCORDION -->
           <div 
-            v-if="availableMethods.va_mandiri || availableMethods.va_bri || availableMethods.va_bni" 
+            v-if="availableMethods.va_bca || availableMethods.va_mandiri || availableMethods.va_bri || availableMethods.va_bni" 
             class="method-group-item bank-group-item"
             :class="{ active: selectedMethod.startsWith('va'), expanded: isBankExpanded }"
           >
@@ -177,6 +177,25 @@
 
             <!-- Konten Dropdown Bank (GRID 2 KOLOM RAPI & MODERN) -->
             <div v-show="isBankExpanded" class="bank-grid-dropdown">
+              <!-- BCA VA -->
+              <button 
+                v-if="availableMethods.va_bca" 
+                type="button" 
+                class="bank-grid-card" 
+                :class="{ selected: selectedMethod === 'va_bca' }"
+                @click.stop="selectedMethod = 'va_bca'"
+              >
+                <div class="bank-card-top">
+                  <span class="bank-badge bca">BCA</span>
+                  <div class="bank-radio" :class="{ checked: selectedMethod === 'va_bca' }">
+                    <svg v-if="selectedMethod === 'va_bca'" class="radio-check-svg" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                </div>
+                <span class="bank-card-title">Bank BCA</span>
+              </button>
+
               <!-- Mandiri VA -->
               <button 
                 v-if="availableMethods.va_mandiri" 
@@ -530,7 +549,7 @@ const props = defineProps({
   daftarPeserta: { type: Array, default: () => [] },
   // ESPay Specific Props
   isEspayActive: { type: Boolean, default: false },
-  espayMethods: { type: Object, default: () => ({ qris: true, va_mandiri: true, va_bri: true, va_bni: true }) },
+  espayMethods: { type: Object, default: () => ({ qris: true, va_bca: true, va_mandiri: true, va_bri: true, va_bni: false }) },
   eventData: { type: Object, default: () => ({}) },
   initialPaymentResult: { type: Object, default: null },
   isEmergencyBackup: { type: Boolean, default: false },
@@ -706,9 +725,10 @@ const availableMethods = computed(() => {
   const m = props.espayMethods || {}
   return {
     qris: m.qris !== false,
+    va_bca: m.va_bca !== false,
     va_mandiri: m.va_mandiri !== false,
     va_bri: m.va_bri !== false,
-    va_bni: m.va_bni !== false
+    va_bni: m.va_bni === true // BNI default false di sandbox karena belum aktif BIN-nya
   }
 })
 
@@ -757,6 +777,7 @@ const recommendedMethod = computed(() => {
   if (isQrisCheaper.value && availableMethods.value.qris) {
     return 'qris'
   }
+  if (availableMethods.value.va_bca) return 'va_bca'
   if (availableMethods.value.va_mandiri) return 'va_mandiri'
   if (availableMethods.value.va_bri) return 'va_bri'
   if (availableMethods.value.va_bni) return 'va_bni'
@@ -767,6 +788,7 @@ const recommendedMethod = computed(() => {
 const isBankExpanded = ref(false)
 
 const selectedBankShortName = computed(() => {
+  if (selectedMethod.value === 'va_bca') return 'BCA'
   if (selectedMethod.value === 'va_mandiri') return 'Mandiri'
   if (selectedMethod.value === 'va_bri') return 'BRI'
   if (selectedMethod.value === 'va_bni') return 'BNI'
@@ -776,7 +798,8 @@ const selectedBankShortName = computed(() => {
 const toggleBankAccordion = () => {
   isBankExpanded.value = !isBankExpanded.value
   if (isBankExpanded.value && !selectedMethod.value.startsWith('va')) {
-    if (availableMethods.value.va_mandiri) selectedMethod.value = 'va_mandiri'
+    if (availableMethods.value.va_bca) selectedMethod.value = 'va_bca'
+    else if (availableMethods.value.va_mandiri) selectedMethod.value = 'va_mandiri'
     else if (availableMethods.value.va_bri) selectedMethod.value = 'va_bri'
     else if (availableMethods.value.va_bni) selectedMethod.value = 'va_bni'
   }
@@ -1755,6 +1778,10 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+.bank-badge.bca {
+  background: #0060af;
+  color: #ffffff;
 }
 .bank-badge.mandiri {
   background: #003d79;

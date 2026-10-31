@@ -18,7 +18,7 @@ import 'consola';
 import 'ipx';
 
 const checkout_post = defineEventHandler(async (event) => {
-  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w;
+  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A;
   const body = await readBody(event);
   if (!body || !body.peserta || !body.peserta.length || !body.event_id || !body.kategori_id) {
     throw createError({ statusCode: 400, statusMessage: "Bad Request: Missing required data" });
@@ -307,9 +307,10 @@ const checkout_post = defineEventHandler(async (event) => {
       };
     } else if (chosenMethod.startsWith("va")) {
       let bankCode = "008";
-      if (chosenMethod.includes("bni")) bankCode = "009";
+      if (chosenMethod.includes("bca")) bankCode = "014";
       else if (chosenMethod.includes("bri")) bankCode = "002";
       else if (chosenMethod.includes("mandiri")) bankCode = "008";
+      else if (chosenMethod.includes("bni")) bankCode = "009";
       const vaRes = await requestEspayVirtualAccount({
         orderId: uniqueOrderId,
         amount: netAmount,
@@ -322,6 +323,13 @@ const checkout_post = defineEventHandler(async (event) => {
       if (!vaRes.success) {
         await supabase.from("peserta").update({ status_bayar: "cancelled" }).eq("data_tambahan->>order_id", uniqueOrderId);
         await supabase.from("orders").update({ status_pembayaran: "cancelled" }).eq("id", uniqueOrderId);
+        const isChannelNotActive = ((_t = vaRes.errorMessage) == null ? void 0 : _t.includes("0118")) || ((_u = vaRes.errorMessage) == null ? void 0 : _u.includes("BIN")) || ((_v = vaRes.errorMessage) == null ? void 0 : _v.includes("belum diaktifkan")) || ((_w = vaRes.errorMessage) == null ? void 0 : _w.includes("tidak aktif"));
+        if (isChannelNotActive) {
+          throw createError({
+            statusCode: 400,
+            statusMessage: `Metode ${bankCode === "009" ? "BNI Virtual Account" : "pembayaran ini"} belum diaktifkan pada akun Sandbox Espay. Silakan pilih Bank lain (Mandiri, BRI, BCA) atau QRIS.`
+          });
+        }
         throw createError({ statusCode: 503, statusMessage: `Layanan Virtual Account sedang gangguan: ${vaRes.errorMessage}` });
       }
       gatewayFee = vaRes.fee || gatewayFee;
@@ -354,7 +362,7 @@ const checkout_post = defineEventHandler(async (event) => {
         bank_name: vaRes.bankName,
         expired: vaRes.expired,
         ticket_count: body.peserta.length,
-        ticket_price_per_item: body.peserta.length === 1 ? Number(((_t = categories[0]) == null ? void 0 : _t.harga) || 0) : null,
+        ticket_price_per_item: body.peserta.length === 1 ? Number(((_x = categories[0]) == null ? void 0 : _x.harga) || 0) : null,
         amount: totalPureTicketPrice,
         donasi_amount: infaqNominal,
         admin_fee: adminFee,
@@ -369,7 +377,7 @@ const checkout_post = defineEventHandler(async (event) => {
             const updatedDt = {
               ...row.data_tambahan,
               payment: {
-                ...(_u = row.data_tambahan) == null ? void 0 : _u.payment,
+                ...(_y = row.data_tambahan) == null ? void 0 : _y.payment,
                 admin_fee: adminFee,
                 gateway_fee: gatewayFee,
                 total_amount: totalAmount,
@@ -396,8 +404,8 @@ const checkout_post = defineEventHandler(async (event) => {
       const pesanAdmin = `\u{1F6A8} *NOTIFIKASI PEMBAYARAN CADANGAN (QRIS TYKET)*
 Event: *${eventData.nama_event}*
 Order ID: \`${uniqueOrderId}\`
-Nama Pemesan: *${((_v = body.peserta[0]) == null ? void 0 : _v.nama_lengkap) || "Peserta"}*
-Nomor WhatsApp: *${((_w = body.peserta[0]) == null ? void 0 : _w.no_wa) || "-"}*
+Nama Pemesan: *${((_z = body.peserta[0]) == null ? void 0 : _z.nama_lengkap) || "Peserta"}*
+Nomor WhatsApp: *${((_A = body.peserta[0]) == null ? void 0 : _A.no_wa) || "-"}*
 Kode Unik: *${securityCode}*
 Total Masuk: *Rp ${totalAmount.toLocaleString("id-ID")}*
 ` + (body.bukti_bayar_url ? `Foto Struk: ${body.bukti_bayar_url}

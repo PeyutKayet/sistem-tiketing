@@ -279,6 +279,7 @@ import TicketList from '~/components/event/TicketList.vue'
 import ParticipantForm from '~/components/event/ParticipantForm.vue'
 import CheckoutPayment from '~/components/event/CheckoutPayment.vue'
 import CheckoutStepper from '~/components/event/CheckoutStepper.vue'
+import B2BSurveyStep from '~/components/event/B2BSurveyStep.vue'
 import SuccessStep from '~/components/event/SuccessStep.vue'
 import DonationForm from '~/components/event/DonationForm.vue'
 import TicketPrinterOverlay from '~/components/event/TicketPrinterOverlay.vue'
@@ -869,15 +870,21 @@ const handleEspayPayment = async ({ paymentMethod, onSuccess, onError }) => {
     if (onError) onError(err)
     const errorMsg = err.data?.statusMessage || err.data?.message || err.message || ''
 
-    // Jika error adalah validasi peserta/kuota/anti-calo, tampilkan pesan error spesifik
-    const isValidationErr = errorMsg.includes('Sistem Anti-Calo') || 
+    const statusCode = err.statusCode || err.data?.statusCode || err.status
+    const isValidationErr = statusCode === 400 ||
+                            statusCode === 404 ||
+                            statusCode === 422 ||
+                            errorMsg.includes('Sistem Anti-Calo') || 
                             errorMsg.includes('kuota') || 
                             errorMsg.includes('tidak mencukupi') || 
                             errorMsg.includes('1 Email') || 
-                            errorMsg.includes('1 No WA')
+                            errorMsg.includes('1 No WA') ||
+                            errorMsg.includes('belum diaktifkan') ||
+                            errorMsg.includes('Silakan pilih') ||
+                            errorMsg.includes('Sandbox')
 
     if (isValidationErr) {
-      if (window.Swal) window.Swal.fire({ icon: 'error', title: 'Pendaftaran Ditolak', text: errorMsg, confirmButtonColor: '#E85D5E' })
+      if (window.Swal) window.Swal.fire({ icon: 'warning', title: 'Pemberitahuan', text: errorMsg, confirmButtonColor: '#0c387a' })
       else showToastMsg(errorMsg, 'error')
       return
     }

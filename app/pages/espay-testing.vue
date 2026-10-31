@@ -102,7 +102,7 @@
           :donasiAmount="0"
           :daftarPeserta="daftarPeserta"
           :isEspayActive="true"
-          :espayMethods="{ qris: true, va_mandiri: true, va_bri: true, va_bni: true }"
+          :espayMethods="{ qris: true, va_bca: true, va_mandiri: true, va_bri: true, va_bni: false }"
           :eventData="dummyEventData"
           :initialPaymentResult="activePaymentResult"
           @request-espay="handleRequestEspay"
@@ -613,9 +613,10 @@ const dummyEventData = {
     is_qr_active: true,
     espay_methods: {
       qris: true,
+      va_bca: true,
       va_mandiri: true,
       va_bri: true,
-      va_bni: true
+      va_bni: false
     }
   }
 }

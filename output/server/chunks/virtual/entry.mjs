@@ -1144,7 +1144,7 @@ var virtual_nuxt_node_modules_2F_cache_2Fnuxt_2F_nuxt_2Froutes_default = [
 			{
 				name: "admin-event-slug-edit",
 				path: "event/:slug()/edit",
-				component: () => import('../build/edit-jE0RiAsk.mjs')
+				component: () => import('../build/edit-sKPVS4PX.mjs')
 			},
 			{
 				name: "admin-event-slug-peserta",
@@ -1196,7 +1196,7 @@ var virtual_nuxt_node_modules_2F_cache_2Fnuxt_2F_nuxt_2Froutes_default = [
 	{
 		name: "espay-testing",
 		path: "/espay-testing",
-		component: () => import('../build/espay-testing-67i-vSZM.mjs')
+		component: () => import('../build/espay-testing-Bktte_lE.mjs')
 	},
 	{
 		name: "login",
@@ -1226,7 +1226,7 @@ var virtual_nuxt_node_modules_2F_cache_2Fnuxt_2F_nuxt_2Froutes_default = [
 	{
 		name: "slug",
 		path: "/:slug()",
-		component: () => import('../build/_slug_-CRa3CvVN.mjs')
+		component: () => import('../build/_slug_-BC9y70mf.mjs')
 	},
 	{
 		name: "index",

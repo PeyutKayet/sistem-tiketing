@@ -243,7 +243,7 @@ const renderSSRHeadOptions = {"omitLineBreaks":true};
 
 const entryIds = ["../node_modules/nuxt/dist/app/entry.js"];
 
-const entryFileName = "CWnQ9m_W.js";
+const entryFileName = "C9grAP7v.js";
 
 //#region src/runtime/handlers/renderer.ts
 globalThis.__buildAssetsURL = buildAssetsURL;

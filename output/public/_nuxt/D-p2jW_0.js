@@ -1,0 +1,1 @@
+import{c as e,u as t}from"./MyQEuS6y.js";import{d as n}from"#entry";var r=e((e,r)=>{if(!n().value&&(e.path.startsWith(`/admin`)||e.path.startsWith(`/s1u2p3e4r5`)))return t(`/login`)});export{r as default};

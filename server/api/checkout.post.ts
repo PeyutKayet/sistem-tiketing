@@ -372,9 +372,10 @@ export default defineEventHandler(async (event) => {
       }
     } else if (chosenMethod.startsWith('va')) {
       let bankCode = '008' // Default Mandiri
-      if (chosenMethod.includes('bni')) bankCode = '009'
+      if (chosenMethod.includes('bca')) bankCode = '014'
       else if (chosenMethod.includes('bri')) bankCode = '002'
       else if (chosenMethod.includes('mandiri')) bankCode = '008'
+      else if (chosenMethod.includes('bni')) bankCode = '009'
 
       const vaRes = await requestEspayVirtualAccount({
         orderId: uniqueOrderId,
@@ -390,6 +391,19 @@ export default defineEventHandler(async (event) => {
         // Rollback status pesanan jika gateway gagal
         await supabase.from('peserta').update({ status_bayar: 'cancelled' }).eq('data_tambahan->>order_id', uniqueOrderId)
         await supabase.from('orders').update({ status_pembayaran: 'cancelled' }).eq('id', uniqueOrderId)
+
+        const isChannelNotActive = vaRes.errorMessage?.includes('0118') || 
+                                   vaRes.errorMessage?.includes('BIN') || 
+                                   vaRes.errorMessage?.includes('belum diaktifkan') ||
+                                   vaRes.errorMessage?.includes('tidak aktif')
+
+        if (isChannelNotActive) {
+          throw createError({ 
+            statusCode: 400, 
+            statusMessage: `Metode ${bankCode === '009' ? 'BNI Virtual Account' : 'pembayaran ini'} belum diaktifkan pada akun Sandbox Espay. Silakan pilih Bank lain (Mandiri, BRI, BCA) atau QRIS.` 
+          })
+        }
+
         throw createError({ statusCode: 503, statusMessage: `Layanan Virtual Account sedang gangguan: ${vaRes.errorMessage}` })
       }
 

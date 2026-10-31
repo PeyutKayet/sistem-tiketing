@@ -56,7 +56,7 @@ export default defineCachedEventHandler(async (event) => {
     return null
   }
 }, {
-  maxAge: 60 * 5, // Cache 5 menit
+  maxAge: process.env.NODE_ENV === 'production' ? 60 * 5 : 1, // Dev: 1 detik, Prod: 5 menit
   name: 'seo-data',
   getKey: (event) => getRouterParam(event, 'slug') || 'default'
 })

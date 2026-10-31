@@ -193,13 +193,16 @@
               <input type="checkbox" v-model="formEditEvent.espay_methods.qris" /> <span><strong>QRIS</strong> (MDR 0.63% - Semua Bank & E-Wallet)</span>
             </label>
             <label class="checkbox-item" style="font-size: 0.85rem;">
+              <input type="checkbox" v-model="formEditEvent.espay_methods.va_bca" /> <span><strong>BCA Virtual Account</strong> (Fee Rp 2.500)</span>
+            </label>
+            <label class="checkbox-item" style="font-size: 0.85rem;">
               <input type="checkbox" v-model="formEditEvent.espay_methods.va_mandiri" /> <span><strong>Mandiri Virtual Account</strong> (Fee Rp 2.500)</span>
             </label>
             <label class="checkbox-item" style="font-size: 0.85rem;">
               <input type="checkbox" v-model="formEditEvent.espay_methods.va_bri" /> <span><strong>BRI Virtual Account (BRIVA)</strong> (Fee Rp 2.500)</span>
             </label>
             <label class="checkbox-item" style="font-size: 0.85rem;">
-              <input type="checkbox" v-model="formEditEvent.espay_methods.va_bni" /> <span><strong>BNI Virtual Account</strong> (Fee Rp 3.000)</span>
+              <input type="checkbox" v-model="formEditEvent.espay_methods.va_bni" /> <span><strong>BNI Virtual Account</strong> (Fee Rp 3.000 - Belum aktif di Sandbox)</span>
             </label>
           </div>
         </div>
@@ -451,9 +454,10 @@ watch(selectedEvent, (val) => {
       is_espay_active: s.is_espay_active !== false,
       espay_methods: s.espay_methods || {
         qris: true,
+        va_bca: true,
         va_mandiri: true,
         va_bri: true,
-        va_bni: true
+        va_bni: false
       }
     }
     

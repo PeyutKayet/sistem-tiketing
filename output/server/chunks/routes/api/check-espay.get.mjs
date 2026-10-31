@@ -1,9 +1,9 @@
 import { d as defineEventHandler, e as getQuery, a as createError, u as useRuntimeConfig } from '../../nitro/nitro.mjs';
-import fs from 'fs';
 import { createClient } from '@supabase/supabase-js';
 import 'node:crypto';
 import '@supabase/ssr';
 import 'crypto';
+import 'fs';
 import 'path';
 import 'qrcode';
 import 'node:http';
@@ -17,28 +17,8 @@ import '@iconify/utils';
 import 'consola';
 import 'ipx';
 
-async function checkWebhookLogInRecent(orderId) {
-  try {
-    const logPath = "logs/webhook-debug.log";
-    if (!fs.existsSync(logPath)) return null;
-    const stat = await fs.promises.stat(logPath);
-    const readSize = Math.min(stat.size, 256 * 1024);
-    const buffer = Buffer.alloc(readSize);
-    const fd = await fs.promises.open(logPath, "r");
-    await fd.read(buffer, 0, readSize, stat.size - readSize);
-    await fd.close();
-    const content = buffer.toString("utf-8");
-    if (content.includes(orderId) && (content.includes('"transactionStatus": "S"') || content.includes('"responseCode": "2002500"'))) {
-      const trxMatch = content.match(new RegExp(`"${orderId}"[\\s\\S]*?"trxId":\\s*"([^"]+)"`)) || content.match(new RegExp(`"trxId":\\s*"([^"]+)"[\\s\\S]*?"${orderId}"`)) || content.match(new RegExp(`"${orderId}"[\\s\\S]*?"paymentRef":\\s*"([^"]+)"`)) || content.match(new RegExp(`"paymentRef":\\s*"([^"]+)"[\\s\\S]*?"${orderId}"`));
-      const paymentRef = trxMatch ? trxMatch[1] : `REF-${Date.now()}`;
-      return { isPaid: true, paymentRef };
-    }
-  } catch (e) {
-  }
-  return null;
-}
 const checkEspay_get = defineEventHandler(async (event) => {
-  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
+  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q;
   const query = getQuery(event);
   const orderId = query.order_id;
   if (!orderId) {
@@ -110,28 +90,6 @@ const checkEspay_get = defineEventHandler(async (event) => {
           created_at: orderRow.created_at
         };
       }
-      const healedPayment2 = await checkWebhookLogInRecent(orderId);
-      if (healedPayment2 && healedPayment2.isPaid) {
-        const nowIso = (/* @__PURE__ */ new Date()).toISOString();
-        const paymentRef = healedPayment2.paymentRef || `REF-${Date.now()}`;
-        await supabase.from("orders").update({
-          status_pembayaran: "paid",
-          status_dana: "CAIR",
-          paid_at: nowIso,
-          payment_reference: paymentRef,
-          updated_at: nowIso
-        }).eq("id", orderId);
-        await supabase.from("peserta").update({
-          status_bayar: "paid",
-          status_dana: "CAIR"
-        }).or(`order_id.eq.${orderId},data_tambahan->>order_id.eq.${orderId}`);
-        return {
-          status: "paid",
-          order_id: orderId,
-          payment: orderRow.data_transaksi || null,
-          paid_at: nowIso
-        };
-      }
       const createdTime2 = orderRow.created_at ? new Date(orderRow.created_at).getTime() : Date.now();
       const expiresAt2 = createdTime2 + 15 * 60 * 1e3;
       const isExpired2 = Date.now() > expiresAt2;
@@ -188,30 +146,6 @@ const checkEspay_get = defineEventHandler(async (event) => {
       created_at: perwakilan.created_at
     };
   }
-  const healedPayment = await checkWebhookLogInRecent(orderId);
-  if (healedPayment && healedPayment.isPaid) {
-    const nowIso = (/* @__PURE__ */ new Date()).toISOString();
-    const paymentRef = healedPayment.paymentRef || `REF-${Date.now()}`;
-    await supabase.from("orders").update({
-      status_pembayaran: "paid",
-      status_dana: "CAIR",
-      paid_at: nowIso,
-      payment_reference: paymentRef,
-      updated_at: nowIso
-    }).eq("id", orderId);
-    const ids = pesertas.map((p) => p.id);
-    await supabase.from("peserta").update({
-      status_bayar: "paid",
-      status_dana: "CAIR"
-    }).in("id", ids);
-    return {
-      status: "paid",
-      order_id: orderId,
-      ticket_count: pesertas.length,
-      payment: ((_q = perwakilan.data_tambahan) == null ? void 0 : _q.payment) || null,
-      paid_at: nowIso
-    };
-  }
   const createdTime = perwakilan.created_at ? new Date(perwakilan.created_at).getTime() : Date.now();
   const expiresAt = createdTime + 15 * 60 * 1e3;
   const isExpired = Date.now() > expiresAt;
@@ -229,7 +163,7 @@ const checkEspay_get = defineEventHandler(async (event) => {
     status: "pending",
     order_id: orderId,
     ticket_count: pesertas.length,
-    payment: ((_r = perwakilan.data_tambahan) == null ? void 0 : _r.payment) || null,
+    payment: ((_q = perwakilan.data_tambahan) == null ? void 0 : _q.payment) || null,
     created_at: perwakilan.created_at,
     remaining_seconds: remainingSeconds
   };
