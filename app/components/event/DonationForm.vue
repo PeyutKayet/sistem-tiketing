@@ -14,15 +14,17 @@
     <div v-if="localIsInfaqOn" class="donasi-form-body">
       <div v-if="hasFixedOptions" class="donasi-chips">
         <button 
+          type="button"
           v-for="(opt, idx) in fixedOptionsOnly" 
           :key="idx"
           @click="selectDonasi(opt)"
           class="form-chip"
-          :class="{ 'form-chip-active': selectedDonasiOpt === opt }"
+          :class="{ 'form-chip-active': String(selectedDonasiOpt) === String(opt) }"
         >
           {{ formatPrice(Number(opt)) }}
         </button>
         <button 
+          type="button"
           v-if="hasCustomOption"
           @click="selectDonasi('custom')"
           class="form-chip"
@@ -71,6 +73,21 @@ watch(() => props.isInfaqOn, (newVal) => {
 watch(localIsInfaqOn, (newVal) => {
   emit('update:isInfaqOn', newVal)
 })
+
+watch(() => props.donasiAmount, (val) => {
+  if (val > 0) {
+    const valStr = String(val)
+    if (fixedOptionsOnly.value.includes(valStr)) {
+      selectedDonasiOpt.value = valStr
+    } else if (hasCustomOption.value) {
+      selectedDonasiOpt.value = 'custom'
+      customDonasiValue.value = val
+      customDonasiValueFormatted.value = Number(val).toLocaleString('id-ID')
+    }
+  } else if (val === 0 && !localIsInfaqOn.value) {
+    selectedDonasiOpt.value = ''
+  }
+}, { immediate: true })
 
 const parsedDonasiOptions = computed(() => {
   if (!props.eventData?.settings?.donasi_options) return []
@@ -162,21 +179,64 @@ onMounted(() => {
 .donasi-form-body { margin-left: 24px; margin-top: 10px; }
 .donasi-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .form-chip {
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--border-soft);
-  background: var(--bg-light);
-  color: var(--text-main);
-  font-size: 0.8rem;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 0.2s ease;
+  user-select: none;
+  outline: none;
 }
-.form-chip:hover { background: #f1f5f9; }
-.form-chip-active { background: var(--primary); color: #ffffff; border-color: var(--primary); }
-.form-input-group { display: flex; align-items: center; background: var(--bg-light); border: 1px solid var(--border-soft); border-radius: 8px; overflow: hidden; max-width: 250px; }
-.form-input-prefix { padding: 10px 12px; background: #f1f5f9; color: #64748b; font-weight: 700; font-size: 0.85rem; border-right: 1px solid var(--border-soft); }
-.donasi-input { border: none !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; padding: 10px; width: 100%; outline: none; }
+.form-chip:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+/* KETIKA TERPILIH / AKTIF: Navy Blue (#0C387A) yang solid dengan teks Putih (#ffffff) kontras */
+.form-chip.form-chip-active,
+.form-chip.form-chip-active:hover,
+.form-chip.form-chip-active:focus {
+  background: #0C387A !important;
+  background-color: #0C387A !important;
+  color: #ffffff !important;
+  border-color: #0C387A !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 8px rgba(12, 56, 122, 0.3) !important;
+}
+.form-input-group {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1.5px solid #0C387A;
+  border-radius: 8px;
+  overflow: hidden;
+  max-width: 260px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.form-input-prefix {
+  padding: 10px 12px;
+  background: #f1f5f9;
+  color: #0C387A;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-right: 1.5px solid #0C387A;
+}
+.donasi-input {
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 10px 12px;
+  width: 100%;
+  outline: none;
+  color: #0f172a !important;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
 .switch-small { position: relative; display: inline-block; width: 36px; height: 20px; }
 .switch-small input { opacity: 0; width: 0; height: 0; }
 .switch-small .slider-small { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .3s; }
