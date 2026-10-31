@@ -4,7 +4,7 @@
       <div class="survey-badge">SURVEI RISET MINAT</div>
       <h2 class="survey-title">Survei Program CALM — Khazilmu</h2>
       <p class="survey-desc">
-        Mohon luangkan waktu 1–2 menit untuk mengisi survei singkat ini. Jawaban Anda membantu kami menyempurnakan kurikulum dan format belajar sebelum program resmi dibuka.
+        Khazilmu sedang mengembangkan program pembelajaran psikologi diri berbasis Al-Qur’an dan Sunnah. Agar program ini sesuai dengan kebutuhan Anda, kami ingin mendengar pendapat Anda melalui survei singkat ini (1–2 menit).
       </p>
     </div>
 
@@ -65,11 +65,15 @@
       <div class="info-features">
         <div class="feat-item">
           <Icon name="lucide:calendar" class="feat-icon" />
-          <span><b>Durasi:</b> 8 minggu, online, mulai April 2027</span>
+          <span><b>Durasi:</b> 2 bulan, online</span>
         </div>
         <div class="feat-item">
-          <Icon name="lucide:video" class="feat-icon" />
-          <span><b>Pekan belajar:</b> 4 video pembelajaran, 1 live session, 1 worksheet</span>
+          <Icon name="lucide:book-open" class="feat-icon" />
+          <span><b>Total materi:</b> 32 video pembelajaran, 8 live session, 8 worksheet</span>
+        </div>
+        <div class="feat-item">
+          <Icon name="lucide:clock" class="feat-icon" />
+          <span><b>Ritme belajar:</b> 4 video + 1 live session + 1 worksheet per pekan</span>
         </div>
         <div class="feat-item">
           <Icon name="lucide:award" class="feat-icon" />
@@ -145,23 +149,25 @@
           <h3 class="class-info-title">Pilihan Kelas CALM</h3>
           <div class="class-cards-grid">
             <div class="class-subcard">
-              <span class="class-badge blue">Kelas Reguler</span>
+              <span class="class-badge blue">Kelas Reguler — Format Kuliah Umum</span>
               <ul class="class-list">
-                <li>8 sesi live melalui Zoom</li>
-                <li>32 video pembelajaran & rekaman</li>
+                <li>Live session dalam kelas besar bersama seluruh peserta batch</li>
+                <li>8 sesi live via Zoom + rekaman</li>
+                <li>32 video pembelajaran</li>
                 <li>Worksheet dan latihan setiap pekan</li>
-                <li>Tanya jawab di setiap sesi live</li>
+                <li>Sesi tanya jawab di akhir setiap live session</li>
                 <li>Dibuka per batch sesuai jadwal Khazilmu</li>
               </ul>
             </div>
 
             <div class="class-subcard gold">
-              <span class="class-badge gold-bg">Kelas Eksklusif (Maks. 8 Peserta)</span>
+              <span class="class-badge gold-bg">Kelas Eksklusif — Semi-Private (Maks. 8 Peserta)</span>
               <ul class="class-list">
-                <li>Materi, video, & worksheet sama lengkap</li>
-                <li>Live session dalam grup kecil (maks. 8 peserta)</li>
-                <li>Ruang diskusi & pendampingan intensif personal</li>
-                <li>Jadwal mulai fleksibel tanpa tunggu batch reguler</li>
+                <li>Live session dalam kelompok kecil, maksimal 8 peserta</li>
+                <li>Materi, video, dan worksheet sama dengan Kelas Reguler</li>
+                <li>Diskusi dua arah, setiap peserta mendapat ruang bertanya dan berbagi</li>
+                <li>Pendampingan lebih personal dari pengajar</li>
+                <li>Jadwal mulai fleksibel, tanpa menunggu batch reguler</li>
               </ul>
             </div>
           </div>
@@ -185,83 +191,90 @@
           </div>
         </div>
 
-        <!-- 7. Evaluasi Harga Kelas Reguler (Dynamic Round-Robin) -->
-        <div class="survey-card">
-          <div class="question-group">
-            <label class="q-label">
-              7. Jika biaya total <b>Kelas Reguler CALM</b> selama 8 minggu adalah 
-              <span class="price-pill-tag">{{ assignedTier?.harga_reguler || 'Rp500.000' }}</span>, 
-              bagaimana kemungkinan Anda mendaftar? <span class="req">*</span>
-            </label>
-            <div class="radio-options vertical">
-              <label 
-                v-for="opt in willingnessOptions" 
-                :key="opt" 
-                class="radio-card" 
-                :class="{ selected: surveyData.respon_harga_reguler === opt }"
-              >
-                <input type="radio" v-model="surveyData.respon_harga_reguler" :value="opt" />
-                <span class="radio-text">{{ opt }}</span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <!-- 8. Evaluasi Harga Kelas Eksklusif (Dynamic Round-Robin) -->
-        <div class="survey-card">
-          <div class="question-group">
-            <label class="q-label">
-              8. Jika biaya total <b>Kelas Eksklusif CALM</b> selama 8 minggu adalah 
-              <span class="price-pill-tag gold">{{ assignedTier?.harga_eksklusif || 'Rp1.700.000' }}</span>, 
-              bagaimana kemungkinan Anda mendaftar? <span class="req">*</span>
-            </label>
-            <div class="radio-options vertical">
-              <label 
-                v-for="opt in willingnessOptions" 
-                :key="opt" 
-                class="radio-card" 
-                :class="{ selected: surveyData.respon_harga_eksklusif === opt }"
-              >
-                <input type="radio" v-model="surveyData.respon_harga_eksklusif" :value="opt" />
-                <span class="radio-text">{{ opt }}</span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <!-- 9. WhatsApp Info Promo & Consent -->
-        <div class="survey-card">
-          <div class="question-group">
-            <label class="q-label">9. Apakah Anda ingin mendapatkan informasi program dan penawaran promo CALM melalui WhatsApp? <span class="req">*</span></label>
-            <div class="radio-options grid-2">
-              <label v-for="item in ['Ya', 'Tidak']" :key="item" class="radio-card" :class="{ selected: surveyData.mau_info_wa === item }">
-                <input type="radio" v-model="surveyData.mau_info_wa" :value="item" />
-                <span class="radio-text font-bold">{{ item }}</span>
-              </label>
-            </div>
-
-            <!-- JIKA YA: TAMPILKAN PREVIEW NOMOR WA & CHECKBOX -->
-            <div v-if="surveyData.mau_info_wa === 'Ya'" class="wa-consent-box mt-3">
-              <label class="sub-label">Nomor WhatsApp Aktif untuk Info CALM:</label>
-              <div class="wa-preview-row">
-                <input 
-                  type="tel" 
-                  v-model="surveyData.no_wa_calm" 
-                  class="survey-input" 
-                  placeholder="081234567890" 
-                />
+        <!-- PERCABANGAN: Q7, Q8, Q9 HANYA TAMPIL SETELAH Q6 DIJAWAB -->
+        <transition name="fade">
+          <div v-if="surveyData.pilihan_kelas" class="survey-after-q6-section">
+            
+            <!-- 7. Evaluasi Harga Kelas Reguler (Dynamic Round-Robin) -->
+            <div class="survey-card">
+              <div class="question-group">
+                <label class="q-label">
+                  7. Jika biaya total <b>Kelas Reguler CALM</b> selama 2 bulan adalah 
+                  <span class="price-pill-tag">{{ assignedTier?.harga_reguler || 'Rp500.000' }}</span>, 
+                  bagaimana kemungkinan Anda mendaftar? <span class="req">*</span>
+                </label>
+                <div class="radio-options vertical">
+                  <label 
+                    v-for="opt in willingnessOptions" 
+                    :key="opt" 
+                    class="radio-card" 
+                    :class="{ selected: surveyData.respon_harga_reguler === opt }"
+                  >
+                    <input type="radio" v-model="surveyData.respon_harga_reguler" :value="opt" />
+                    <span class="radio-text">{{ opt }}</span>
+                  </label>
+                </div>
               </div>
-              <small class="wa-hint">Nomor di atas terisi otomatis dari data pendaftaran tiket Anda (bisa disesuaikan jika berbeda).</small>
-
-              <label class="consent-checkbox-row mt-3">
-                <input type="checkbox" v-model="surveyData.setuju_dihubungi_wa" class="custom-chk" />
-                <span class="consent-text">
-                  Saya bersedia dihubungi Khazilmu melalui WhatsApp untuk informasi dan promo program CALM. Saya dapat meminta berhenti menerima pesan kapan saja.
-                </span>
-              </label>
             </div>
+
+            <!-- 8. Evaluasi Harga Kelas Eksklusif (Dynamic Round-Robin) -->
+            <div class="survey-card">
+              <div class="question-group">
+                <label class="q-label">
+                  8. Jika biaya total <b>Kelas Eksklusif CALM</b> selama 2 bulan adalah 
+                  <span class="price-pill-tag gold">{{ assignedTier?.harga_eksklusif || 'Rp1.700.000' }}</span>, 
+                  bagaimana kemungkinan Anda mendaftar? <span class="req">*</span>
+                </label>
+                <div class="radio-options vertical">
+                  <label 
+                    v-for="opt in willingnessOptions" 
+                    :key="opt" 
+                    class="radio-card" 
+                    :class="{ selected: surveyData.respon_harga_eksklusif === opt }"
+                  >
+                    <input type="radio" v-model="surveyData.respon_harga_eksklusif" :value="opt" />
+                    <span class="radio-text">{{ opt }}</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- 9. WhatsApp Info Promo & Consent -->
+            <div class="survey-card">
+              <div class="question-group">
+                <label class="q-label">9. Apakah Anda ingin mendapatkan informasi program dan penawaran promo CALM melalui WhatsApp? <span class="req">*</span></label>
+                <div class="radio-options grid-2">
+                  <label v-for="item in ['Ya', 'Tidak']" :key="item" class="radio-card" :class="{ selected: surveyData.mau_info_wa === item }">
+                    <input type="radio" v-model="surveyData.mau_info_wa" :value="item" />
+                    <span class="radio-text font-bold">{{ item }}</span>
+                  </label>
+                </div>
+
+                <!-- JIKA YA: TAMPILKAN PREVIEW NOMOR WA & CHECKBOX -->
+                <div v-if="surveyData.mau_info_wa === 'Ya'" class="wa-consent-box mt-3">
+                  <label class="sub-label">Nomor WhatsApp Aktif untuk Info CALM:</label>
+                  <div class="wa-preview-row">
+                    <input 
+                      type="tel" 
+                      v-model="surveyData.no_wa_calm" 
+                      class="survey-input" 
+                      placeholder="081234567890" 
+                    />
+                  </div>
+                  <small class="wa-hint">Nomor di atas terisi otomatis dari data pendaftaran tiket Anda (bisa disesuaikan jika berbeda).</small>
+
+                  <label class="consent-checkbox-row mt-3">
+                    <input type="checkbox" v-model="surveyData.setuju_dihubungi_wa" class="custom-chk" />
+                    <span class="consent-text">
+                      Saya bersedia dihubungi Khazilmu melalui WhatsApp untuk informasi dan promo program CALM. Saya dapat meminta berhenti menerima pesan kapan saja.
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
           </div>
-        </div>
+        </transition>
 
       </div>
     </transition>
