@@ -23,23 +23,32 @@ src="https://www.facebook.com/tr?id=2222714938275350&ev=PageView&noscript=1"
 <!-- End Meta Pixel Code -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600;1,700&display=swap" rel="stylesheet">
 <style>
 :root{
-  /* Penyesuaian Palette sesuai Visual Blueprint "Whimsical - Transisi Istri Menjadi Ibu" */
-  --brand: #435119;       /* Olive Green Utama (#435119) */
-  --brand2: #2E3811;      /* Deep Olive untuk gradasi & kedalaman */
-  --brand-light: #5B6D24; /* Olive cerah untuk hover/aksen */
-  --pink-pastel: #FDB5C9; /* Soft Pink / Blush (#FDB5C9) */
-  --pink: #D25C7E;        /* Pink kontras tinggi untuk teks & border */
-  --pink-soft: #FDF1F4;   /* Tint pink lembut untuk card / tag */
-  --bg: #FFF8F1;          /* Warm Cream Background (#FFF8F1) */
-  --card: #FFFFFF;        /* Surface putih bersih */
-  --ink: #3C342E;         /* Espresso Brown untuk teks utama (#3C342E) */
-  --mute: #74675E;        /* Warm Taupe untuk teks sekunder */
-  --mint: #DDE3C9;        /* Sage / Soft Green (#DDE3C9) */
-  --mint-soft: #EEF2E3;   /* Tint sage lembut untuk latar section */
-  --line: #E8DDCF;        /* Garis pembatas hangat yang selaras */
+  /* Palette Resmi Key Visual (KV) Khazilmu Academy x International Open University (IOU) */
+  --brand: #0284C7;          /* Sky Blue Vibrant (Aksen Biru Utama) */
+  --brand2: #0C387A;         /* Royal Navy Deep (Warna Brand Utama IOU / Khazilmu) */
+  --brand-light: #38BDF8;    /* Sky Blue Cerah untuk Gradasi & Aksen */
+  --brand-glow: rgba(2, 132, 199, 0.16);
+  
+  --accent-gold: #F5BA42;    /* Golden Amber / Sunflower Yellow (Tombol CTA Sesuai KV) */
+  --accent-gold-hover: #EAB308;
+  --accent-gold-text: #0C387A; /* Teks Navy Kontras Tinggi pada Tombol Kuning */
+  
+  --accent-red: #C62828;     /* Wax Seal Stamp Red ("GRATIS" Badge) */
+  --accent-green: #65A30D;   /* Fresh Leaf Green (Aksen Daun Segar) */
+  --accent-green-soft: #ECFCCB;
+
+  --bg: #F4F9FF;             /* Latar Belakang Bersih Nuansa Ice Sky Blue */
+  --card: #FFFFFF;           /* Surface Putih Bersih */
+  --ink: #0F2D59;            /* Deep Navy Teks Utama (Sangat Tajam & Mudah Dibaca) */
+  --mute: #475569;           /* Slate Muted untuk Teks Sekunder */
+  
+  --mint: #BAE6FD;           /* Soft Sky Blue untuk Border & Highlight */
+  --mint-soft: #EBF5FF;      /* Tint Biru Langit Lembut untuk Latar Section */
+  --line: #BAE6FD;           /* Garis Pembatas Biru Halus */
+  --line-subtle: #E2E8F0;
 
   box-sizing: border-box;
   padding-top: env(safe-area-inset-top, 0px);
@@ -48,36 +57,40 @@ src="https://www.facebook.com/tr?id=2222714938275350&ev=PageView&noscript=1"
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #1C1714;
-    --card: #27211C;
-    --ink: #F7EFE8;
-    --mute: #B8ACA3;
-    --brand: #8FA848;
-    --brand2: #B5CE69;
-    --brand-light: #A4BE58;
-    --pink: #FDB5C9;
-    --pink-pastel: #FDB5C9;
-    --pink-soft: #38222A;
-    --mint: #2D361B;
-    --mint-soft: #202713;
-    --line: #3D322B;
+    --bg: #0B192C;
+    --card: #13243B;
+    --ink: #F0F6FC;
+    --mute: #94A3B8;
+    --brand: #38BDF8;
+    --brand2: #0284C7;
+    --brand-light: #7DD3FC;
+    --brand-glow: rgba(56, 189, 248, 0.2);
+    --accent-gold: #F5BA42;
+    --accent-gold-hover: #FBBF24;
+    --accent-gold-text: #0C387A;
+    --accent-red: #EF4444;
+    --mint-soft: #0E2038;
+    --line: #1E3A5F;
+    --line-subtle: #233852;
   }
 }
 
 :root[data-theme="dark"] {
-  --bg: #1C1714;
-  --card: #27211C;
-  --ink: #F7EFE8;
-  --mute: #B8ACA3;
-  --brand: #8FA848;
-  --brand2: #B5CE69;
-  --brand-light: #A4BE58;
-  --pink: #FDB5C9;
-  --pink-pastel: #FDB5C9;
-  --pink-soft: #38222A;
-  --mint: #2D361B;
-  --mint-soft: #202713;
-  --line: #3D322B;
+  --bg: #0B192C;
+  --card: #13243B;
+  --ink: #F0F6FC;
+  --mute: #94A3B8;
+  --brand: #38BDF8;
+  --brand2: #0284C7;
+  --brand-light: #7DD3FC;
+  --brand-glow: rgba(56, 189, 248, 0.2);
+  --accent-gold: #F5BA42;
+  --accent-gold-hover: #FBBF24;
+  --accent-gold-text: #0C387A;
+  --accent-red: #EF4444;
+  --mint-soft: #0E2038;
+  --line: #1E3A5F;
+  --line-subtle: #233852;
 }
 
 html {
@@ -91,15 +104,17 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   line-height: 1.68;
   overflow-x: hidden;
 }
 h1, h2, h3 {
-  font-family: 'Fraunces', Georgia, serif;
-  line-height: 1.25;
-  margin: 0 0 .6em;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 800;
+  line-height: 1.28;
+  margin: 0 0 .5em;
   color: var(--ink);
+  letter-spacing: -0.02em;
 }
 .wrap {
   max-width: 1040px;
@@ -108,105 +123,238 @@ h1, h2, h3 {
 }
 section {
   padding: 76px 0;
+  position: relative;
 }
+
+/* TOP CO-BRANDING HEADER */
+.top-branding-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 18px 20px 8px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+.brand-pair {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  padding: 8px 24px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  box-shadow: 0 4px 16px -4px rgba(2, 132, 199, 0.08);
+}
+.brand-logo-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--brand2);
+  letter-spacing: -0.01em;
+}
+.brand-logo-item svg {
+  flex-shrink: 0;
+}
+.brand-logo-item small {
+  display: block;
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  font-weight: 800;
+  color: var(--brand);
+  margin-top: -3px;
+}
+.brand-divider {
+  width: 1.5px;
+  height: 24px;
+  background: var(--line);
+}
+.brand-logo-item .iou-text {
+  font-size: 0.68rem;
+  line-height: 1.15;
+  letter-spacing: 0.06em;
+  font-weight: 800;
+  color: var(--brand2);
+  text-transform: uppercase;
+}
+
+/* TYPOGRAPHY ACCENTS */
 .eyebrow {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: .75rem;
-  font-weight: 700;
-  letter-spacing: .15em;
+  font-weight: 800;
+  letter-spacing: .14em;
   color: var(--brand);
   text-transform: uppercase;
-  margin-bottom: 14px;
-}
-.btn {
-  display: inline-block;
-  background: linear-gradient(135deg, var(--brand), var(--brand-light));
-  color: #FFF8F1;
-  padding: 14px 30px;
+  margin-bottom: 12px;
+  background: var(--mint-soft);
+  padding: 5px 14px;
   border-radius: 999px;
-  font-weight: 700;
+  border: 1px solid var(--line);
+}
+
+/* TOMBOL CTA - MENYESUAIKAN DENGAN KV WARNA GOLD / AMBER */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(180deg, #F9CF6E 0%, var(--accent-gold) 100%);
+  color: var(--accent-gold-text);
+  padding: 15px 32px;
+  border-radius: 999px;
+  font-weight: 800;
   text-decoration: none;
-  font-size: .92rem;
-  letter-spacing: .03em;
-  box-shadow: 0 8px 24px -8px rgba(67, 81, 25, 0.45);
-  transition: all .25s ease;
+  font-size: .95rem;
+  letter-spacing: .02em;
+  box-shadow: 0 10px 24px -6px rgba(245, 186, 66, 0.48), 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: all .25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #F0B33A;
+  cursor: pointer;
 }
 .btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px -6px rgba(67, 81, 25, 0.55);
+  background: linear-gradient(180deg, #FBD985 0%, var(--accent-gold-hover) 100%);
+  box-shadow: 0 14px 28px -4px rgba(245, 186, 66, 0.58), 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 .btn.ghost {
-  background: transparent;
-  color: var(--brand);
+  background: #FFFFFF;
+  color: var(--brand2);
   border: 1.5px solid var(--brand);
-  box-shadow: none;
+  box-shadow: 0 4px 12px -2px rgba(2, 132, 199, 0.12);
 }
 .btn.ghost:hover {
   background: var(--mint-soft);
+  color: var(--brand);
+  border-color: var(--brand);
   transform: translateY(-2px);
+  box-shadow: 0 8px 18px -4px rgba(2, 132, 199, 0.2);
 }
+
+/* HERO SECTION SESUAI DENGAN GRID MESH & KV STYLE */
 .hero {
   position: relative;
   overflow: hidden;
   text-align: center;
-  padding: 104px 0 88px;
-  background: 
-    radial-gradient(circle at 12% 15%, var(--pink-soft), transparent 45%),
-    radial-gradient(circle at 88% 85%, var(--mint-soft), transparent 50%),
-    var(--bg);
+  padding: 60px 0 84px;
+  background-color: var(--bg);
+  background-image: 
+    linear-gradient(to right, rgba(2, 132, 199, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(2, 132, 199, 0.07) 1px, transparent 1px),
+    radial-gradient(circle at 50% 10%, rgba(56, 189, 248, 0.15) 0%, transparent 70%);
+  background-size: 32px 32px, 32px 32px, 100% 100%;
 }
 .hero::before {
   content: "";
   position: absolute;
-  top: 0; left: 0; right: 0; height: 6px;
-  background: linear-gradient(90deg, var(--brand), var(--pink-pastel), var(--mint));
+  top: 0; left: 0; right: 0; height: 5px;
+  background: linear-gradient(90deg, var(--brand2), var(--brand), var(--brand-light), var(--accent-gold));
 }
+
+/* DEKORASI DAUN SEGAR MELAYANG KHAS KV */
+.leaf-deco {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.85;
+  filter: drop-shadow(0 8px 16px rgba(101, 163, 13, 0.22));
+}
+.leaf-top-left {
+  top: 40px;
+  left: -20px;
+  width: 90px;
+  transform: rotate(25deg);
+}
+.leaf-top-right {
+  top: 80px;
+  right: -15px;
+  width: 100px;
+  transform: rotate(-30deg);
+}
+.leaf-mid-right {
+  bottom: 60px;
+  right: 20px;
+  width: 75px;
+  transform: rotate(45deg);
+}
+
 .hero h1 {
-  font-size: clamp(2.1rem, 5.6vw, 3.6rem);
-  max-width: 820px;
-  margin: 0 auto 22px;
-  font-weight: 700;
+  font-size: clamp(2.1rem, 5.2vw, 3.4rem);
+  max-width: 860px;
+  margin: 0 auto 20px;
+  font-weight: 800;
+  color: var(--brand2);
+  position: relative;
+  z-index: 2;
 }
 .hero h1 em {
   color: var(--brand);
-  font-style: italic;
+  font-style: normal;
+  display: inline-block;
+  background: linear-gradient(135deg, var(--brand2) 0%, var(--brand) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 .hero p {
-  max-width: 660px;
-  margin: 0 auto 20px;
+  max-width: 680px;
+  margin: 0 auto 24px;
   color: var(--mute);
-  font-size: 1.05rem;
+  font-size: 1.08rem;
+  line-height: 1.7;
+  position: relative;
+  z-index: 2;
 }
+
+/* PILL BADGE KHAS KV */
 .pill {
-  display: inline-block;
-  background: var(--card);
-  border: 1px solid var(--line);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #0284C7 0%, var(--brand2) 100%);
+  color: #FFFFFF;
   border-radius: 999px;
-  padding: 6px 18px;
-  font-size: .78rem;
+  padding: 8px 24px;
+  font-size: .84rem;
   font-weight: 700;
-  letter-spacing: .14em;
-  color: var(--brand);
+  font-style: italic;
+  letter-spacing: .02em;
   margin-bottom: 24px;
-  box-shadow: 0 2px 8px rgba(60, 52, 46, 0.04);
+  box-shadow: 0 8px 20px -4px rgba(2, 132, 199, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  position: relative;
+  z-index: 2;
 }
 .tag {
-  font-weight: 600;
-  color: var(--brand);
-  margin: 28px 0 24px;
-  font-size: 1rem;
+  display: inline-block;
+  font-weight: 700;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #0284C7 0%, var(--brand2) 100%);
+  padding: 9px 24px;
+  border-radius: 999px;
+  box-shadow: 0 6px 18px -4px rgba(2, 132, 199, 0.3);
+  margin: 22px 0 24px;
+  font-size: 0.94rem;
+  position: relative;
+  z-index: 2;
 }
 .note {
-  font-size: .84rem;
+  font-size: .88rem;
   color: var(--mute);
-  margin-top: 14px;
+  margin-top: 16px;
+  position: relative;
+  z-index: 2;
 }
 .center {
   text-align: center;
 }
 .grid {
   display: grid;
-  gap: 20px;
+  gap: 22px;
 }
 .g2 {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -215,62 +363,73 @@ section {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 .benefit-grid h3 {
-  font-size: 1.1rem;
+  font-size: 1.12rem;
+  color: var(--brand2);
 }
+
+/* CARDS STYLING SESUAI KV (PUTIH BERSIH DENGAN BORDER BIRU HALUS) */
 .card {
   background: var(--card);
-  border: 1px solid var(--line);
+  border: 1.5px solid var(--line);
   border-radius: 22px;
   padding: 28px;
-  box-shadow: 0 4px 16px -4px rgba(60, 52, 46, 0.04);
-  transition: transform .2s ease, box-shadow .2s ease;
+  box-shadow: 0 10px 28px -6px rgba(2, 132, 199, 0.07);
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  position: relative;
 }
 .card:hover {
-  box-shadow: 0 8px 24px -6px rgba(60, 52, 46, 0.08);
+  transform: translateY(-3px);
+  border-color: #7DD3FC;
+  box-shadow: 0 16px 36px -6px rgba(2, 132, 199, 0.14);
 }
 .feel .card {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: 16px;
+  background: var(--card);
+  border: 1.5px solid var(--line);
 }
 .feel .num {
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
   border-radius: 50%;
-  background: var(--pink-soft);
-  color: var(--pink);
+  background: linear-gradient(135deg, var(--brand), var(--brand2));
+  color: #FFFFFF;
   display: grid;
   place-items: center;
-  font-weight: 700;
-  font-size: 0.76rem;
+  font-weight: 800;
+  font-size: 0.82rem;
   margin-bottom: 0;
   margin-top: 2px;
-  border: 1px solid var(--pink-pastel);
+  box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
 }
 .feel h3 {
-  font-size: 1rem;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 600;
+  font-size: 1.02rem;
+  font-weight: 700;
   line-height: 1.55;
   margin: 0;
+  color: var(--ink);
 }
 .card p {
   color: var(--mute);
   margin: 0;
-  font-size: .94rem;
+  font-size: .95rem;
+  line-height: 1.62;
 }
 .lead {
-  max-width: 700px;
+  max-width: 720px;
   margin: 0 auto 40px;
   color: var(--mute);
-  font-size: 1.02rem;
+  font-size: 1.05rem;
 }
 .band {
   background: var(--mint-soft);
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  border-top: 1.5px solid var(--line);
+  border-bottom: 1.5px solid var(--line);
 }
+
+/* LIST DENGAN CHECKMARK BIRU */
 .list {
   list-style: none;
   padding: 0;
@@ -280,16 +439,28 @@ section {
   text-align: left;
 }
 .list li {
-  padding-left: 30px;
+  padding-left: 28px;
   position: relative;
   font-size: .95rem;
   color: var(--ink);
+  line-height: 1.55;
 }
 .list li:before {
-  content: "🌸";
+  content: "✔";
   position: absolute;
   left: 0;
-  font-size: .88rem;
+  top: 1px;
+  font-size: .8rem;
+  font-weight: 900;
+  color: #FFFFFF;
+  background: var(--brand);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
 }
 .list-num {
   list-style: none;
@@ -308,50 +479,58 @@ section {
   line-height: 1.55;
 }
 .list-num .n {
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
   border-radius: 50%;
-  background: var(--pink-soft);
-  color: var(--pink);
+  background: linear-gradient(135deg, var(--brand), var(--brand2));
+  color: #FFFFFF;
   display: grid;
   place-items: center;
-  font-weight: 700;
-  font-size: 0.76rem;
-  border: 1px solid var(--pink-pastel);
+  font-weight: 800;
+  font-size: 0.8rem;
+  box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
   margin-top: 2px;
 }
+
+/* WEBINAR SESSION CARDS */
 .wb {
   display: grid;
   gap: 28px;
   grid-template-columns: 160px 1fr;
   align-items: start;
   margin-bottom: 24px;
+  background: var(--card);
+  border: 1.5px solid var(--line);
 }
 .badge {
-  background: linear-gradient(160deg, var(--brand), var(--brand2));
-  color: #FFF8F1;
+  background: linear-gradient(145deg, #0284C7 0%, var(--brand2) 100%);
+  color: #FFFFFF;
   border-radius: 20px;
-  padding: 22px 16px;
+  padding: 24px 16px;
   text-align: center;
-  box-shadow: 0 6px 18px -4px rgba(67, 81, 25, 0.35);
+  box-shadow: 0 8px 22px -4px rgba(2, 132, 199, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 .badge b {
   display: block;
-  font-family: 'Fraunces', serif;
-  font-size: 2.6rem;
+  font-size: 2.8rem;
+  font-weight: 900;
   line-height: 1;
-  margin: 4px 0;
+  margin: 6px 0;
+  color: #FFFFFF;
 }
 .badge span {
-  font-size: .7rem;
+  font-size: .72rem;
   letter-spacing: .12em;
-  font-weight: 700;
-  opacity: .92;
+  font-weight: 800;
+  opacity: .95;
+  text-transform: uppercase;
 }
 .wb h3 {
-  font-size: 1.5rem;
+  font-size: 1.45rem;
   margin-bottom: 6px;
+  color: var(--brand2);
 }
 .sub {
   color: var(--brand);
@@ -368,27 +547,35 @@ section {
 }
 .meta div {
   color: var(--mute);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .meta strong {
-  color: var(--ink);
+  color: var(--brand2);
 }
 .ph {
-  background: var(--pink-soft);
-  border: 1px dashed var(--pink);
+  background: var(--mint-soft);
+  border: 1px dashed var(--brand);
   border-radius: 8px;
   padding: 2px 8px;
   font-size: .88em;
-  color: var(--ink);
+  color: var(--brand2);
 }
+
+/* TIKET PACKAGES (PRICING) */
 .tix {
   text-align: center;
   position: relative;
   display: flex;
   flex-direction: column;
+  background: var(--card);
+  border: 1.5px solid var(--line);
 }
 .tix h3 {
   font-size: 1.35rem;
   margin-bottom: 6px;
+  color: var(--brand2);
 }
 .tix .price {
   font-weight: 700;
@@ -397,70 +584,85 @@ section {
   color: var(--mute);
 }
 .tix .price .val {
-  font-family: 'Fraunces', serif;
-  font-size: 1.45rem;
-  color: var(--brand);
-  font-weight: 700;
+  font-size: 1.65rem;
+  color: var(--brand2);
+  font-weight: 900;
   display: block;
   margin-top: 4px;
+  letter-spacing: -0.02em;
 }
 .tix.best {
   border: 2px solid var(--brand);
-  box-shadow: 0 20px 40px -20px rgba(67, 81, 25, 0.3);
+  box-shadow: 0 20px 48px -12px rgba(2, 132, 199, 0.25);
+  background: linear-gradient(180deg, #FFFFFF 0%, #F0F8FF 100%);
 }
 .tix .ribbon {
   position: absolute;
   top: -14px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--brand);
-  color: #FFF8F1;
+  background: linear-gradient(135deg, var(--brand2), var(--brand));
+  color: #FFFFFF;
   font-size: .72rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: .12em;
-  padding: 4px 16px;
+  padding: 5px 18px;
   border-radius: 999px;
-  box-shadow: 0 4px 12px rgba(67, 81, 25, 0.25);
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 .tix .btn {
   margin-top: auto;
   width: 100%;
 }
+
+/* SPEAKERS / NARASUMBER */
 .spk {
   text-align: center;
+  background: var(--card);
+  border: 1.5px solid var(--line);
 }
 .spk .ava {
-  width: 90px;
-  height: 90px;
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--pink-soft), var(--mint));
+  background: linear-gradient(135deg, var(--mint-soft), #BAE6FD);
   display: grid;
   place-items: center;
-  font-size: .72rem;
-  color: var(--mute);
+  font-size: .75rem;
+  color: var(--brand2);
   margin: 0 auto 16px;
   border: 3px solid var(--card);
-  outline: 2px solid var(--pink-pastel);
+  outline: 2px solid var(--brand);
+  box-shadow: 0 6px 18px -4px rgba(2, 132, 199, 0.25);
+  font-weight: 700;
 }
 .spk h3 {
-  font-size: 1.05rem;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 700;
+  font-size: 1.1rem;
+  font-weight: 800;
   margin-bottom: 6px;
+  color: var(--brand2);
 }
 .spk small {
   color: var(--brand);
-  font-weight: 700;
-  font-size: .74rem;
+  font-weight: 800;
+  font-size: .76rem;
   letter-spacing: .08em;
 }
+
+/* FAQ ACCORDION */
 details {
   background: var(--card);
-  border: 1px solid var(--line);
+  border: 1.5px solid var(--line);
   border-radius: 18px;
   padding: 20px 24px;
   margin-bottom: 14px;
-  box-shadow: 0 2px 8px rgba(60, 52, 46, 0.03);
+  box-shadow: 0 4px 16px -4px rgba(2, 132, 199, 0.05);
+  transition: all .2s ease;
+}
+details[open] {
+  border-color: var(--brand);
+  box-shadow: 0 8px 24px -4px rgba(2, 132, 199, 0.12);
 }
 summary {
   cursor: pointer;
@@ -469,79 +671,114 @@ summary {
   display: flex;
   justify-content: space-between;
   gap: 14px;
-  color: var(--ink);
+  color: var(--brand2);
+  font-size: 1.02rem;
 }
 summary:after {
   content: "+";
-  color: var(--brand);
-  font-size: 1.4rem;
+  color: #FFFFFF;
+  background: var(--brand);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
   line-height: 1;
-  font-weight: 400;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);
+  flex-shrink: 0;
 }
 details[open] summary:after {
   content: "–";
+  background: var(--brand2);
 }
 details p {
   color: var(--mute);
   margin: 14px 0 0;
   font-size: .95rem;
+  line-height: 1.65;
 }
+
+/* FINAL CTA SECTION */
 .final {
-  background: linear-gradient(140deg, var(--brand2), var(--brand));
-  color: #FFF8F1;
+  background: linear-gradient(140deg, var(--brand2) 0%, #084B96 50%, var(--brand) 100%);
+  color: #FFFFFF;
   text-align: center;
   border-radius: 32px;
   padding: 64px 30px;
   margin: 0 auto;
-  box-shadow: 0 20px 48px -12px rgba(46, 56, 17, 0.4);
+  box-shadow: 0 24px 56px -12px rgba(12, 56, 122, 0.45);
+  position: relative;
+  overflow: hidden;
+}
+.final::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
 }
 .final h2 {
   font-size: clamp(1.8rem, 4.2vw, 2.6rem);
   max-width: 660px;
   margin: 0 auto 20px;
-  color: #FFF8F1;
+  color: #FFFFFF;
+  position: relative;
+  z-index: 2;
 }
 .final p {
   max-width: 620px;
   margin: 0 auto 16px;
   opacity: .94;
-  color: #FFF8F1;
+  color: #F0F8FF;
+  position: relative;
+  z-index: 2;
 }
 .final .btn {
-  background: #FFF8F1;
-  color: var(--brand2);
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.25);
   margin: 18px 0 24px;
-}
-.final .btn:hover {
-  background: #FFFFFF;
-  transform: translateY(-2px);
+  position: relative;
+  z-index: 2;
 }
 .final .brand {
-  font-family: 'Fraunces', serif;
-  font-size: 1.15rem;
+  font-size: 1.18rem;
+  font-weight: 800;
   letter-spacing: .02em;
+  color: #F8FAFC;
+  position: relative;
+  z-index: 2;
 }
 .final .note {
-  color: #FFF8F1;
-  opacity: .8;
+  color: #E2E8F0;
+  opacity: .85;
+  position: relative;
+  z-index: 2;
 }
+
+/* FOOTER */
 footer {
   padding: 48px 0;
   text-align: center;
   font-size: .88rem;
   color: var(--mute);
+  background: var(--card);
+  border-top: 1.5px solid var(--line);
 }
 footer a {
   color: var(--brand);
   text-decoration: none;
   margin: 0 10px;
-  font-weight: 600;
+  font-weight: 700;
 }
 footer a:hover {
   text-decoration: underline;
 }
 
+/* RESPONSIVE DESIGN */
 @media (max-width: 768px) {
   .wrap {
     padding: 0 18px;
@@ -549,8 +786,21 @@ footer a:hover {
   section {
     padding: 46px 0;
   }
+  .top-branding-bar {
+    padding: 14px 12px 4px;
+  }
+  .brand-pair {
+    padding: 6px 16px;
+    gap: 14px;
+  }
+  .brand-logo-item {
+    font-size: 0.8rem;
+  }
+  .brand-logo-item .iou-text {
+    font-size: 0.58rem;
+  }
   .hero {
-    padding: 68px 0 52px;
+    padding: 48px 0 46px;
   }
   .hero h1 {
     font-size: clamp(1.8rem, 7.2vw, 2.4rem);
@@ -561,9 +811,13 @@ footer a:hover {
     margin-bottom: 16px;
   }
   .pill {
-    padding: 5px 14px;
-    font-size: 0.74rem;
+    padding: 6px 16px;
+    font-size: 0.76rem;
     margin-bottom: 18px;
+  }
+  .tag {
+    font-size: 0.84rem;
+    padding: 8px 18px;
   }
   .lead {
     font-size: 0.95rem;
@@ -637,14 +891,14 @@ footer a:hover {
     border-radius: 16px;
   }
   .feel .num {
-    width: 22px;
-    height: 22px;
-    min-width: 22px;
-    font-size: 0.72rem;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    font-size: 0.74rem;
     margin-top: 1px;
   }
   .feel h3 {
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     line-height: 1.45;
   }
 
@@ -658,24 +912,93 @@ footer a:hover {
   .btn {
     padding: 13px 26px;
   }
+  .leaf-top-left, .leaf-top-right, .leaf-mid-right {
+    opacity: 0.45;
+  }
 }
 </style>
 </head>
 <body>
 
-<header class="hero"><div class="wrap">
-<div class="pill">KHAZILMU PRESENTS</div>
-<h1>Webinar Series <em>“Aku Sedang Belajar Menjadi Ibu”</em></h1>
-<p>Rangkaian webinar bersama psikolog terpercaya untuk membekali masa transisi seorang istri menjadi seorang ibu.</p>
-<div class="tag">Empat topik. Empat ruang belajar. Satu perjalanan untuk terus bertumbuh.</div>
-<a class="btn" href="#tiket">PILIH WEBINAR DAN DAFTAR</a>
-<div class="note">Pilih satu sesi yang paling kamu butuhkan atau ikuti rangkaian lengkapnya.</div>
-</div></header>
+<header class="hero">
+  <!-- DEKORASI DAUN SEGAR SESUAI KEY VISUAL -->
+  <svg class="leaf-deco leaf-top-left" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10 90C10 90 20 20 85 10C85 10 90 75 25 85C20 86 10 90 10 90Z" fill="url(#leaf-grad-1)"/>
+    <path d="M10 90C35 65 60 40 85 10" stroke="#84CC16" stroke-width="2" stroke-linecap="round"/>
+    <defs>
+      <linearGradient id="leaf-grad-1" x1="10" y1="90" x2="85" y2="10" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#65A30D"/>
+        <stop offset="1" stop-color="#A3E635"/>
+      </linearGradient>
+    </defs>
+  </svg>
+  <svg class="leaf-deco leaf-top-right" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M90 90C90 90 80 20 15 10C15 10 10 75 75 85C80 86 90 90 90 90Z" fill="url(#leaf-grad-2)"/>
+    <path d="M90 90C65 65 40 40 15 10" stroke="#84CC16" stroke-width="2" stroke-linecap="round"/>
+    <defs>
+      <linearGradient id="leaf-grad-2" x1="90" y1="90" x2="15" y2="10" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#4D7C0F"/>
+        <stop offset="1" stop-color="#84CC16"/>
+      </linearGradient>
+    </defs>
+  </svg>
+  <svg class="leaf-deco leaf-mid-right" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10 70C10 70 20 15 70 10C70 10 75 60 25 68C20 69 10 70 10 70Z" fill="url(#leaf-grad-3)"/>
+    <defs>
+      <linearGradient id="leaf-grad-3" x1="10" y1="70" x2="70" y2="10" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#65A30D"/>
+        <stop offset="1" stop-color="#BEF264"/>
+      </linearGradient>
+    </defs>
+  </svg>
 
-<section style="padding-top: 32px"><div class="wrap">
+  <!-- TOP CO-BRANDING BAR -->
+  <div class="top-branding-bar">
+    <div class="brand-pair">
+      <div class="brand-logo-item">
+        <svg width="24" height="24" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="18" cy="18" r="16" stroke="#0284C7" stroke-width="2.5" fill="none"/>
+          <path d="M18 7L21.5 14.5L29 18L21.5 21.5L18 29L14.5 21.5L7 18L14.5 14.5L18 7Z" fill="#F5BA42"/>
+          <circle cx="18" cy="18" r="4" fill="#0C387A"/>
+        </svg>
+        <div>
+          <span>khazilmu</span>
+          <small>ACADEMY</small>
+        </div>
+      </div>
+      <div class="brand-divider"></div>
+      <div class="brand-logo-item">
+        <svg width="24" height="24" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="6" y="6" width="24" height="24" rx="4" transform="rotate(45 18 18)" stroke="#0C387A" stroke-width="2.5" fill="#EBF5FF"/>
+          <path d="M18 10L24 18L18 26L12 18L18 10Z" fill="#0284C7"/>
+        </svg>
+        <span class="iou-text"><b>INTERNATIONAL</b><br/>OPEN UNIVERSITY</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap" style="margin-top: 14px;">
+    <div class="pill">
+      <span>★</span>
+      <span>Learning Journey Muslimah : Dari Istri Menuju Ibu</span>
+      <span>★</span>
+    </div>
+    <h1>Webinar Series <em>“Aku Sedang Belajar Menjadi Ibu”</em></h1>
+    <p>Rangkaian webinar bersama psikolog terpercaya untuk membekali masa transisi seorang istri menjadi seorang ibu.</p>
+    <div class="tag">Empat topik. Empat ruang belajar. Satu perjalanan untuk terus bertumbuh.</div>
+    <div style="margin-top: 8px;">
+      <a class="btn" href="#tiket">PILIH WEBINAR DAN DAFTAR</a>
+    </div>
+    <div class="note">Pilih satu sesi yang paling kamu butuhkan atau ikuti rangkaian lengkapnya.</div>
+  </div>
+</header>
+
+<section style="padding-top: 48px"><div class="wrap">
 <div class="center">
-<h2>Pernah Mengalami Hal Ini?</h2>
-<p class="lead" style="margin-bottom:28px">Mungkin kamu sedang berada di salah satu situasi ini:</p></div>
+  <span class="eyebrow">Refleksi Bersama</span>
+  <h2>Pernah Mengalami Hal Ini?</h2>
+  <p class="lead" style="margin-bottom:28px">Mungkin kamu sedang berada di salah satu situasi ini:</p>
+</div>
 <div class="grid g2 feel">
 <div class="card"><div class="num">1</div><h3 style="margin-bottom:0">Ternyata pasangan yang kamu pilih tidak sesuai dengan ekspektasi.</h3></div>
 <div class="card"><div class="num">2</div><h3 style="margin-bottom:0">Lelah dengan tuntutan pekerjaan rumah tangga.</h3></div>
@@ -686,6 +1009,7 @@ footer a:hover {
 </div></section>
 
 <section class="band"><div class="wrap" style="max-width:760px;text-align:center">
+<span class="eyebrow">Silabus Pembelajaran</span>
 <h2>Materi yang Akan Dipelajari</h2>
 <div class="card" style="margin-top:24px">
 <ul class="list-num">
@@ -705,6 +1029,7 @@ footer a:hover {
 
 <section class="band"><div class="wrap">
 <div class="center">
+<span class="eyebrow">Fasilitas Peserta</span>
 <h2>Benefit yang Kamu Dapatkan</h2>
 <p class="lead">Setiap peserta mendapatkan fasilitas pembelajaran yang dirancang untuk mendukung pemahaman dan penerapan materi dalam kehidupan sehari-hari.</p></div>
 <div class="grid g3 benefit-grid">
@@ -748,7 +1073,7 @@ footer a:hover {
 </div></div></section>
 
 <footer><div class="wrap">
-<div style="font-family:'Fraunces',serif;font-size:1.15rem;color:var(--ink);margin-bottom:10px">Khazilmu | Bertumbuh Bersama Ilmu</div>
+<div style="font-size:1.15rem;font-weight:800;color:var(--brand2);margin-bottom:10px">Khazilmu | Bertumbuh Bersama Ilmu</div>
 <div><a href="https://www.instagram.com/khazilmuacademy/" target="_blank" rel="noopener">Instagram Khazilmu</a><a href="#">Kontak Admin</a><a href="#">Kebijakan Privasi</a><a href="#">Syarat dan Ketentuan</a></div>
 <div style="margin-top:14px">© Khazilmu — 2027</div>
 </div></footer>
@@ -759,7 +1084,7 @@ var W=[
 ["02","AKU DAN EMOSIKU","Adaptasi Seorang Ibu Dengan Anak Pertamanya","Mengelola Emosi dan Transisi Menjadi Ibu Baru",["Mengenali situasi yang memicu kemarahan.","Memahami tanda-tanda ketika emosi mulai meningkat.","Mempelajari cara mengambil jeda sebelum merespons.","Merefleksikan langkah untuk memperbaiki interaksi setelah konflik."],"Aisyah Dahlan / Ummu Yunengsih","21 Januari 2027"],
 ["03","AKU DAN KELUARGAKU","Menjadi Istri dan Ibu Sekaligus","Mengelola Emosi dalam Relasi Keluarga",["Mengenali bagaimana tekanan dalam satu relasi dapat memengaruhi relasi lain.","Memahami respons diri ketika menghadapi konflik.","Mempelajari cara mengambil jeda dan memulihkan komunikasi.","Menyusun langkah untuk menjaga interaksi dengan anak ketika menghadapi tekanan."],"Silmy Risman / Dwita Priyanti","27 Januari 2027"],
 ["04","AKU DAN DIRIKU","Bukan Ibu yang Sempurna","Menjadi Perempuan yang Terus Bertumbuh",["Mengenali ekspektasi yang membebani diri.","Membedakan evaluasi diri dari kebiasaan menyalahkan diri.","Menyusun langkah pertumbuhan yang realistis.","Memberi ruang bagi proses belajar dalam menjalani peran sebagai ibu."],"Ummu Balqis / Ummu Ihsan","28 Januari 2027"]];
-document.getElementById('wbs').innerHTML=W.map(function(w){return '<div class="card wb"><div class="badge"><span>WEBINAR</span><b>'+w[0]+'</b><span>'+w[1]+'</span></div><div><h3>'+w[2]+'</h3><div class="sub">'+w[3]+'</div><strong style="font-size:.9rem;color:var(--ink)">Yang akan dipelajari:</strong><ul class="list" style="margin-top:10px">'+w[4].map(function(i){return '<li>'+i+'</li>'}).join('')+'</ul><div class="meta"><div><strong>Narasumber:</strong> '+w[5]+'</div><div><strong>Tanggal:</strong> '+w[6]+'</div></div><a class="btn" href="#tiket">DAFTAR WEBINAR '+w[0]+'</a></div></div>'}).join('');
+document.getElementById('wbs').innerHTML=W.map(function(w){return '<div class="card wb"><div class="badge"><span>WEBINAR</span><b>'+w[0]+'</b><span>'+w[1]+'</span></div><div><h3>'+w[2]+'</h3><div class="sub">'+w[3]+'</div><strong style="font-size:.9rem;color:var(--brand2)">Yang akan dipelajari:</strong><ul class="list" style="margin-top:10px">'+w[4].map(function(i){return '<li>'+i+'</li>'}).join('')+'</ul><div class="meta"><div><strong>Narasumber:</strong> '+w[5]+'</div><div><strong>Tanggal:</strong> '+w[6]+'</div></div><a class="btn" href="#tiket" style="padding:10px 22px; font-size:0.86rem;">DAFTAR WEBINAR '+w[0]+'</a></div></div>'}).join('');
 function trackTicket(name, price) {
   if (typeof window.fbq === 'function') {
     window.fbq('track', 'InitiateCheckout', {
