@@ -74,21 +74,6 @@ watch(localIsInfaqOn, (newVal) => {
   emit('update:isInfaqOn', newVal)
 })
 
-watch(() => props.donasiAmount, (val) => {
-  if (val > 0) {
-    const valStr = String(val)
-    if (fixedOptionsOnly.value.includes(valStr)) {
-      selectedDonasiOpt.value = valStr
-    } else if (hasCustomOption.value) {
-      selectedDonasiOpt.value = 'custom'
-      customDonasiValue.value = val
-      customDonasiValueFormatted.value = Number(val).toLocaleString('id-ID')
-    }
-  } else if (val === 0 && !localIsInfaqOn.value) {
-    selectedDonasiOpt.value = ''
-  }
-}, { immediate: true })
-
 const parsedDonasiOptions = computed(() => {
   if (!props.eventData?.settings?.donasi_options) return []
   return props.eventData.settings.donasi_options.split(',').map(s => s.trim()).filter(s => s)
@@ -105,6 +90,21 @@ const hasFixedOptions = computed(() => {
 const hasCustomOption = computed(() => {
   return props.eventData?.settings?.is_donasi_custom === true || parsedDonasiOptions.value.some(opt => opt.toLowerCase() === 'custom')
 })
+
+watch(() => props.donasiAmount, (val) => {
+  if (val > 0) {
+    const valStr = String(val)
+    if (fixedOptionsOnly.value.includes(valStr)) {
+      selectedDonasiOpt.value = valStr
+    } else if (hasCustomOption.value) {
+      selectedDonasiOpt.value = 'custom'
+      customDonasiValue.value = val
+      customDonasiValueFormatted.value = Number(val).toLocaleString('id-ID')
+    }
+  } else if (val === 0 && !localIsInfaqOn.value) {
+    selectedDonasiOpt.value = ''
+  }
+}, { immediate: true })
 
 const initDefaultDonasi = () => {
   if (!props.eventData?.settings?.is_donasi_active) return
