@@ -20,6 +20,7 @@
             <input type="text" v-model="formBaru.harga" placeholder="0" class="form-control" style="padding-left:42px;" @input="formatRupiahInput" />
           </div>
           <div v-else class="form-control" style="background:#f8fafc; color:#10b981; font-weight:600; text-align:center;">Gratis</div>
+          <small v-if="!formBaru.is_gratis" style="font-size:11px; color:#15803d; margin-top:4px; display:block;">✨ Harga tiket masuk ke saldo Anda tanpa biaya tersembunyi. Biaya transaksi ditanggung pembeli.</small>
         </div>
         <div class="col">
           <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
@@ -30,27 +31,33 @@
           <div v-else class="form-control" style="background:#f8fafc; color:#8a9aa8; text-align:center; font-style:italic;">Tidak Terbatas</div>
         </div>
       </div>
-      <div class="row">
-        <div class="col">
-          <label class="form-label">Buka</label>
-          <div style="position:relative; display:flex; align-items:center; cursor:pointer;">
-            <Icon name="lucide:calendar-clock" style="position:absolute; left:12px; color:#8a9aa8; font-size:14px; z-index:2; pointer-events:none;" />
-            <div class="form-control" style="padding-left:34px; display:flex; align-items:center; font-size:12px;">
-              <span v-if="!formBaru.buka" style="color:#8a9aa8;">Pilih waktu buka...</span>
-              <span v-else style="color:#0f172a; font-weight:500;">{{ formatDateTimeKustom(formBaru.buka) }}</span>
+      <div class="row mb-3">
+        <div class="col" style="flex:1;">
+          <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Waktu Penjualan</span>
+            <label style="font-size:11px; cursor:pointer; font-weight:normal; margin:0;"><input type="checkbox" v-model="formBaru.is_no_time_limit" style="margin:0 4px 0 0;" /> Bebas (Tanpa Batas)</label>
+          </label>
+          
+          <div v-if="!formBaru.is_no_time_limit" style="display:flex; gap:12px;">
+            <div style="flex:1; position:relative; display:flex; align-items:center; cursor:pointer;">
+              <Icon name="lucide:calendar-clock" style="position:absolute; left:12px; color:#8a9aa8; font-size:14px; z-index:2; pointer-events:none;" />
+              <div class="form-control" style="padding-left:34px; display:flex; align-items:center; font-size:12px;">
+                <span v-if="!formBaru.buka" style="color:#8a9aa8;">Waktu Buka...</span>
+                <span v-else style="color:#0f172a; font-weight:500;">{{ formatDateTimeKustom(formBaru.buka) }}</span>
+              </div>
+              <input type="datetime-local" v-model="formBaru.buka" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:3;" />
             </div>
-            <input type="datetime-local" v-model="formBaru.buka" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:3;" />
+            <div style="flex:1; position:relative; display:flex; align-items:center; cursor:pointer;">
+              <Icon name="lucide:calendar-clock" style="position:absolute; left:12px; color:#8a9aa8; font-size:14px; z-index:2; pointer-events:none;" />
+              <div class="form-control" style="padding-left:34px; display:flex; align-items:center; font-size:12px;">
+                <span v-if="!formBaru.tutup" style="color:#8a9aa8;">Waktu Tutup...</span>
+                <span v-else style="color:#0f172a; font-weight:500;">{{ formatDateTimeKustom(formBaru.tutup) }}</span>
+              </div>
+              <input type="datetime-local" v-model="formBaru.tutup" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:3;" />
+            </div>
           </div>
-        </div>
-        <div class="col">
-          <label class="form-label">Tutup</label>
-          <div style="position:relative; display:flex; align-items:center; cursor:pointer;">
-            <Icon name="lucide:calendar-clock" style="position:absolute; left:12px; color:#8a9aa8; font-size:14px; z-index:2; pointer-events:none;" />
-            <div class="form-control" style="padding-left:34px; display:flex; align-items:center; font-size:12px;">
-              <span v-if="!formBaru.tutup" style="color:#8a9aa8;">Pilih waktu tutup...</span>
-              <span v-else style="color:#0f172a; font-weight:500;">{{ formatDateTimeKustom(formBaru.tutup) }}</span>
-            </div>
-            <input type="datetime-local" v-model="formBaru.tutup" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:3;" />
+          <div v-else class="form-control" style="background:#f8fafc; color:#8a9aa8; text-align:center; font-style:italic; font-size:12px;">
+            Tiket bebas dibeli kapan saja tanpa dibatasi waktu buka/tutup.
           </div>
         </div>
       </div>
@@ -125,7 +132,7 @@
     </div>
 
     <div class="panel">
-      <h4 style="margin-bottom:10px;font-weight:600;color:#0a1929;"><Icon name="lucide:bar-chart-2" style="margin-right:6px; color:#2563EB;" /> Statistik Tiket</h4>
+      <h4 style="margin-bottom:10px;font-weight:600;color:#0a1929;"><Icon name="lucide:bar-chart-2" style="margin-right:6px; color:var(--primary);" /> Statistik Tiket</h4>
       <div class="stats-grid" style="margin:0;">
         <div class="stat-card"><div class="label">Total Tiket</div><div class="value">{{ totalKapasitas }}</div></div>
         <div class="stat-card"><div class="label">Terjual</div><div class="value">{{ totalTerjual }}</div></div>
@@ -143,11 +150,12 @@
           <span>Harga</span>
           <label style="font-size:11px; cursor:pointer; font-weight:normal; margin:0;"><input type="checkbox" v-model="formEdit.is_gratis" style="margin:0 4px 0 0;" /> Gratis</label>
         </label>
-        <div v-if="!formEdit.is_gratis" style="position:relative; display:flex; align-items:center; margin-bottom:10px;">
+        <div v-if="!formEdit.is_gratis" style="position:relative; display:flex; align-items:center; margin-bottom:6px;">
           <span style="position:absolute; left:14px; color:#8a9aa8; font-weight:600;">Rp</span>
           <input type="text" v-model="formEdit.harga" placeholder="0" class="form-control" style="padding-left:42px;" @input="formatRupiahInputEdit" />
         </div>
         <div v-else class="form-control" style="background:#f8fafc; color:#10b981; font-weight:600; text-align:center; margin-bottom:10px;">Gratis</div>
+        <small v-if="!formEdit.is_gratis" style="font-size:11px; color:#15803d; margin-top:-2px; margin-bottom:10px; display:block;">✨ Harga tiket masuk ke saldo Anda tanpa biaya tersembunyi. Biaya transaksi ditanggung pembeli.</small>
         
         <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
           <span>Kuota</span>
@@ -155,30 +163,36 @@
         </label>
         <input v-if="!formEdit.is_unlimited" type="number" v-model="formEdit.kuota" class="form-control" style="margin-bottom:10px;" />
         <div v-else class="form-control" style="background:#f8fafc; color:#8a9aa8; text-align:center; font-style:italic; margin-bottom:10px;">Tidak Terbatas</div>
-        <div class="row">
-          <div class="col">
-            <label class="form-label">Buka</label>
-            <div style="position:relative; display:flex; align-items:center; cursor:pointer;">
+        <div class="row mb-3">
+        <div class="col" style="flex:1;">
+          <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Waktu Penjualan</span>
+            <label style="font-size:11px; cursor:pointer; font-weight:normal; margin:0;"><input type="checkbox" v-model="formEdit.is_no_time_limit" style="margin:0 4px 0 0;" /> Bebas (Tanpa Batas)</label>
+          </label>
+          
+          <div v-if="!formEdit.is_no_time_limit" style="display:flex; gap:12px;">
+            <div style="flex:1; position:relative; display:flex; align-items:center; cursor:pointer;">
               <Icon name="lucide:calendar-clock" style="position:absolute; left:12px; color:#8a9aa8; font-size:14px; z-index:2; pointer-events:none;" />
               <div class="form-control" style="padding-left:34px; display:flex; align-items:center; font-size:12px;">
-                <span v-if="!formEdit.buka" style="color:#8a9aa8;">Pilih waktu buka...</span>
+                <span v-if="!formEdit.buka" style="color:#8a9aa8;">Waktu Buka...</span>
                 <span v-else style="color:#0f172a; font-weight:500;">{{ formatDateTimeKustom(formEdit.buka) }}</span>
               </div>
               <input type="datetime-local" v-model="formEdit.buka" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:3;" />
             </div>
-          </div>
-          <div class="col">
-            <label class="form-label">Tutup</label>
-            <div style="position:relative; display:flex; align-items:center; cursor:pointer;">
+            <div style="flex:1; position:relative; display:flex; align-items:center; cursor:pointer;">
               <Icon name="lucide:calendar-clock" style="position:absolute; left:12px; color:#8a9aa8; font-size:14px; z-index:2; pointer-events:none;" />
               <div class="form-control" style="padding-left:34px; display:flex; align-items:center; font-size:12px;">
-                <span v-if="!formEdit.tutup" style="color:#8a9aa8;">Pilih waktu tutup...</span>
+                <span v-if="!formEdit.tutup" style="color:#8a9aa8;">Waktu Tutup...</span>
                 <span v-else style="color:#0f172a; font-weight:500;">{{ formatDateTimeKustom(formEdit.tutup) }}</span>
               </div>
               <input type="datetime-local" v-model="formEdit.tutup" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:3;" />
             </div>
           </div>
+          <div v-else class="form-control" style="background:#f8fafc; color:#8a9aa8; text-align:center; font-style:italic; font-size:12px;">
+            Tiket bebas dibeli kapan saja tanpa dibatasi waktu buka/tutup.
+          </div>
         </div>
+      </div>
         
         <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer; font-weight:600; color:#4a5a6e; margin-top:16px;">
           <input type="checkbox" v-model="formEdit.is_hidden" style="width:16px; height:16px;" />
@@ -225,8 +239,8 @@ const isSaving = ref(false)
 const isSavingEdit = ref(false)
 const showEditPopup = ref(false)
 
-const formBaru = ref({ nama: '', harga: '', is_gratis: false, kuota: '', is_unlimited: false, is_hidden: false, is_active: true, buka: '', tutup: '' })
-const formEdit = ref({ id: null, nama: '', harga: '', is_gratis: false, kuota: '', is_unlimited: false, is_hidden: false, is_active: true, buka: '', tutup: '' })
+const formBaru = ref({ nama: '', harga: '', is_gratis: true, kuota: '', is_unlimited: false, is_hidden: false, is_active: true, buka: '', tutup: '', is_no_time_limit: false })
+const formEdit = ref({ id: null, nama: '', harga: '', is_gratis: false, kuota: '', is_unlimited: false, is_hidden: false, is_active: true, buka: '', tutup: '', is_no_time_limit: false })
 
 const totalKapasitas = computed(() => daftarTiket.value.reduce((acc, t) => acc + (parseInt(t.kuota_maksimal) || 0), 0))
 const totalTerjual = computed(() => daftarTiket.value.reduce((acc, t) => acc + (t.terjual || 0), 0))
@@ -259,7 +273,7 @@ const formatDateTimeKustom = (dateStr) => {
     hour: '2-digit', minute: '2-digit' 
   }).format(date).replace(/\./g, ':');
 }
-const resetFormBaru = () => { formBaru.value = { nama: '', harga: '', kuota: '', buka: '', tutup: '' } }
+const resetFormBaru = () => { formBaru.value = { nama: '', harga: '', is_gratis: true, kuota: '', is_unlimited: false, is_hidden: false, is_active: true, buka: '', tutup: '', is_no_time_limit: false } }
 
 const muatDaftarTiket = async () => {
   if (!selectedEvent.value) return
@@ -268,10 +282,11 @@ const muatDaftarTiket = async () => {
     const { data: tiketData, error } = await supabase.from('kategori_tiket').select('*').eq('event_id', selectedEvent.value.id).order('created_at', { ascending: true })
     if (error) throw error
     
-    const { data: pesertaData } = await supabase.from('peserta').select('nama_tiket').eq('event_id', selectedEvent.value.id).eq('status_bayar', 'paid')
+    const { data: salesData } = await supabase.rpc('get_ticket_sales', { p_event_id: selectedEvent.value.id })
     
     daftarTiket.value = (tiketData || []).map(t => {
-      const terjual = (pesertaData || []).filter(p => p.nama_tiket === t.nama_kategori).length
+      const sales = salesData?.find(s => s.kategori_id === t.id)
+      const terjual = sales ? sales.terjual : 0
       return { ...t, terjual }
     })
   } catch (err) {
@@ -290,11 +305,19 @@ const simpanTiketBaru = async () => {
     showToast('Nama tiket wajib diisi!', 'error')
     return
   }
+  if (!formBaru.value.is_gratis && (!formBaru.value.harga || parseInt(formBaru.value.harga.replace(/\./g, '')) === 0)) {
+    showToast('Harga tiket berbayar wajib diisi dan lebih dari 0!', 'error')
+    return
+  }
   if (!formBaru.value.is_unlimited && !formBaru.value.kuota) {
     showToast('Kuota wajib diisi jika tidak unlimited!', 'error')
     return
   }
-  if (formBaru.value.buka && formBaru.value.tutup) {
+  if (!formBaru.value.is_no_time_limit) {
+    if (!formBaru.value.buka || !formBaru.value.tutup) {
+      showToast('Waktu buka dan tutup wajib diisi jika ada batas waktu!', 'error')
+      return
+    }
     if (new Date(formBaru.value.tutup) < new Date(formBaru.value.buka)) {
       showToast('Waktu tutup tidak boleh sebelum waktu buka!', 'error')
       return
@@ -312,8 +335,8 @@ const simpanTiketBaru = async () => {
       is_active: formBaru.value.is_active !== false,
       is_hidden: formBaru.value.is_hidden,
       secret_token: formBaru.value.is_hidden ? Math.random().toString(36).substring(2, 10) : null,
-      tanggal_mulai_penjualan: formBaru.value.buka ? formBaru.value.buka + ':00' : null,
-      tanggal_selesai_penjualan: formBaru.value.tutup ? formBaru.value.tutup + ':00' : null
+      tanggal_mulai_penjualan: (!formBaru.value.is_no_time_limit && formBaru.value.buka) ? formBaru.value.buka + ':00' : null,
+      tanggal_selesai_penjualan: (!formBaru.value.is_no_time_limit && formBaru.value.tutup) ? formBaru.value.tutup + ':00' : null
     }
     const { error } = await supabase.from('kategori_tiket').insert([payload])
     if (error) throw error
@@ -340,7 +363,8 @@ const bukaEditTiket = (t) => {
     is_hidden: !!t.is_hidden,
     secret_token: t.secret_token || '',
     buka: t.tanggal_mulai_penjualan ? t.tanggal_mulai_penjualan.substring(0, 16) : '',
-    tutup: t.tanggal_selesai_penjualan ? t.tanggal_selesai_penjualan.substring(0, 16) : ''
+    tutup: t.tanggal_selesai_penjualan ? t.tanggal_selesai_penjualan.substring(0, 16) : '',
+    is_no_time_limit: !t.tanggal_mulai_penjualan && !t.tanggal_selesai_penjualan
   }
   showEditPopup.value = true
 }
@@ -350,11 +374,19 @@ const simpanEditTiket = async () => {
     showToast('Nama tiket wajib diisi!', 'error')
     return
   }
+  if (!formEdit.value.is_gratis && (!formEdit.value.harga || parseInt(formEdit.value.harga.replace(/\./g, '')) === 0)) {
+    showToast('Harga tiket berbayar wajib diisi dan lebih dari 0!', 'error')
+    return
+  }
   if (!formEdit.value.is_unlimited && !formEdit.value.kuota) {
     showToast('Kuota wajib diisi jika tidak unlimited!', 'error')
     return
   }
-  if (formEdit.value.buka && formEdit.value.tutup) {
+  if (!formEdit.value.is_no_time_limit) {
+    if (!formEdit.value.buka || !formEdit.value.tutup) {
+      showToast('Waktu buka dan tutup wajib diisi jika ada batas waktu!', 'error')
+      return
+    }
     if (new Date(formEdit.value.tutup) < new Date(formEdit.value.buka)) {
       showToast('Waktu tutup tidak boleh sebelum waktu buka!', 'error')
       return
@@ -371,8 +403,8 @@ const simpanEditTiket = async () => {
       is_active: formEdit.value.is_active !== false,
       is_hidden: formEdit.value.is_hidden,
       secret_token: formEdit.value.is_hidden ? (formEdit.value.secret_token || Math.random().toString(36).substring(2, 10)) : null,
-      tanggal_mulai_penjualan: formEdit.value.buka ? formEdit.value.buka + ':00' : null,
-      tanggal_selesai_penjualan: formEdit.value.tutup ? formEdit.value.tutup + ':00' : null
+      tanggal_mulai_penjualan: (!formEdit.value.is_no_time_limit && formEdit.value.buka) ? formEdit.value.buka + ':00' : null,
+      tanggal_selesai_penjualan: (!formEdit.value.is_no_time_limit && formEdit.value.tutup) ? formEdit.value.tutup + ':00' : null
     }
     const { error } = await supabase.from('kategori_tiket').update(payload).eq('id', formEdit.value.id)
     if (error) throw error

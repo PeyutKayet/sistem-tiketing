@@ -98,9 +98,13 @@
         <h4 style="font-weight:600;color:#0a1929;margin:0;"><Icon name="lucide:banknote" style="margin-right:4px; color:#15803d;" /> Ringkasan Keuangan (Lunas)</h4>
       </div>
       <div class="stats-grid" style="margin:0;">
-        <div class="stat-card" style="background:#eff6ff; border-color:#bfdbfe;"><div class="label" style="color:#1e3a8a;">Pendapatan Tiket</div><div class="value" style="color:#1d4ed8;">{{ formatRupiah(totalPendapatanTiket, true) }}</div></div>
+        <div class="stat-card" style="background:#eff6ff; border-color:#bfdbfe;"><div class="label" style="color:var(--text-main);">Pendapatan Tiket</div><div class="value" style="color:var(--primary);">{{ formatRupiah(totalPendapatanTiket, true) }}</div></div>
         <div class="stat-card" style="background:#f0fdf4; border-color:#bbf7d0;"><div class="label" style="color:#14532d;">Pendapatan Donasi</div><div class="value" style="color:#15803d;">{{ formatRupiah(totalPendapatanDonasi, true) }}</div></div>
         <div class="stat-card" style="background:#f8fafc; border-color:#e2e8f0;"><div class="label" style="color:#0f172a;">Total Keseluruhan</div><div class="value" style="color:#0a1929;">{{ formatRupiah(totalPendapatanTiket + totalPendapatanDonasi, true) }}</div></div>
+      </div>
+      <div style="margin-top: 14px; font-size: 12px; color: #15803d; background: #f0fdf4; padding: 10px 14px; border-radius: 8px; border: 1px solid #bbf7d0; display: flex; align-items: center; gap: 8px;">
+        <Icon name="lucide:shield-check" style="font-size: 18px; flex-shrink: 0; color: #16a34a;" />
+        <span><strong>Pendapatan Transparan:</strong> Hasil penjualan tiket dicairkan sesuai harga tiket yang Anda tentukan tanpa biaya tersembunyi. Biaya transaksi digital ditanggung pembeli saat checkout.</span>
       </div>
     </div>
 
@@ -119,7 +123,7 @@
             <div style="display: flex; border-left: 1px solid #cbd5e1; background: #f8fafc;">
               <button class="btn-icon" style="padding: 6px 12px; border: none; border-radius: 0; border-right: 1px solid #cbd5e1;" @click="copyText(`${baseUrl}/${selectedEvent.slug}`, 'Link Pendaftaran')" title="Salin"><Icon name="lucide:copy" style="font-size: 13px;" /></button>
               <button class="btn-icon" style="padding: 6px 12px; border: none; border-radius: 0; border-right: 1px solid #cbd5e1;" @click="kirimWaVolunteer(`${baseUrl}/${selectedEvent.slug}`)" title="Kirim via WhatsApp"><Icon name="lucide:send" style="font-size: 13px; color: #16a34a;" /></button>
-              <a :href="`${baseUrl}/${selectedEvent.slug}`" target="_blank" class="btn-icon" style="padding: 6px 12px; border: none; border-radius: 0; color: #3b82f6; display: flex; align-items: center;" title="Buka di tab baru"><Icon name="lucide:external-link" style="font-size: 13px;" /></a>
+              <a :href="`${baseUrl}/${selectedEvent.slug}`" target="_blank" class="btn-icon" style="padding: 6px 12px; border: none; border-radius: 0; color: var(--primary); display: flex; align-items: center;" title="Buka di tab baru"><Icon name="lucide:external-link" style="font-size: 13px;" /></a>
             </div>
           </div>
 
@@ -132,7 +136,7 @@
             <div style="display: flex; border-left: 1px solid #cbd5e1; background: #f8fafc;">
               <button class="btn-icon" style="padding: 6px 12px; border: none; border-radius: 0; border-right: 1px solid #cbd5e1;" @click="copyText(`${baseUrl}/scanner/${selectedEvent.slug}`, 'Link Scanner')" title="Salin"><Icon name="lucide:copy" style="font-size: 13px;" /></button>
               <button class="btn-icon" style="padding: 6px 12px; border: none; border-radius: 0; border-right: 1px solid #cbd5e1;" @click="kirimWaVolunteer(`${baseUrl}/scanner/${selectedEvent.slug}`)" title="Kirim via WhatsApp"><Icon name="lucide:send" style="font-size: 13px; color: #16a34a;" /></button>
-              <a :href="`${baseUrl}/scanner/${selectedEvent.slug}`" target="_blank" class="btn-icon" style="padding: 6px 12px; border: none; border-radius: 0; color: #3b82f6; display: flex; align-items: center;" title="Buka di tab baru"><Icon name="lucide:external-link" style="font-size: 13px;" /></a>
+              <a :href="`${baseUrl}/scanner/${selectedEvent.slug}`" target="_blank" class="btn-icon" style="padding: 6px 12px; border: none; border-radius: 0; color: var(--primary); display: flex; align-items: center;" title="Buka di tab baru"><Icon name="lucide:external-link" style="font-size: 13px;" /></a>
             </div>
           </div>
 
@@ -145,7 +149,7 @@
             <div style="display: flex; border-left: 1px solid #cbd5e1; background: #f8fafc;">
               <button class="btn-icon" style="padding: 6px 12px; border: none; border-radius: 0; border-right: 1px solid #cbd5e1;" @click="copyText(`${baseUrl}/absen/${selectedEvent.slug}`, 'Link Absen')" title="Salin"><Icon name="lucide:copy" style="font-size: 13px;" /></button>
               <button class="btn-icon" style="padding: 6px 12px; border: none; border-radius: 0; border-right: 1px solid #cbd5e1;" @click="kirimWaVolunteer(`${baseUrl}/absen/${selectedEvent.slug}`)" title="Kirim via WhatsApp"><Icon name="lucide:send" style="font-size: 13px; color: #16a34a;" /></button>
-              <a :href="`${baseUrl}/absen/${selectedEvent.slug}`" target="_blank" class="btn-icon" style="padding: 6px 12px; border: none; border-radius: 0; color: #3b82f6; display: flex; align-items: center;" title="Buka di tab baru"><Icon name="lucide:external-link" style="font-size: 13px;" /></a>
+              <a :href="`${baseUrl}/absen/${selectedEvent.slug}`" target="_blank" class="btn-icon" style="padding: 6px 12px; border: none; border-radius: 0; color: var(--primary); display: flex; align-items: center;" title="Buka di tab baru"><Icon name="lucide:external-link" style="font-size: 13px;" /></a>
             </div>
           </div>
 
@@ -183,12 +187,12 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 
-const { isLoading, selectedEvent, activeTab, formatDate, totalPeserta, totalLunas, totalPending, totalHadir, persenHadir, showToast, showConfirm, supabase, muatDaftarEvent, currentUser } = useAdmin()
+const { isLoading, selectedEvent, activeTab, formatDate, totalPeserta, totalLunas, totalPending, totalHadir, persenHadir, totalPendapatanTiket, totalPendapatanDonasi, showToast, showConfirm, supabase, muatDaftarEvent, currentUser } = useAdmin()
 
 // Fungsi untuk me-replace IP lokal ke URL https baru
 const fixPosterUrl = (url) => {
   if (!url) return ''
-  return url.replace('http://192.168.1.7:8000', 'https://supabase.e-tiket.web.id')
+  return url.replace('http://192.168.1.7:8000', 'https://supabase.tyket.id').replace('http://localhost:8000', 'https://supabase.tyket.id')
 }
 
 const baseUrl = ref('')
@@ -199,8 +203,6 @@ const isArchived = computed(() => selectedEvent.value && (selectedEvent.value.st
 
 const daftarTiket = ref([])
 const isLoadingDaftarTiket = ref(false)
-const totalPendapatanTiket = ref(0)
-const totalPendapatanDonasi = ref(0)
 
 const formatRupiah = (angka, forceNumber = false) => {
   if (angka === 0 && !forceNumber) return 'GRATIS'
@@ -214,27 +216,13 @@ const muatTiketStatistik = async () => {
     const { data, error } = await supabase.from('kategori_tiket').select('*').eq('event_id', selectedEvent.value.id)
     if (error) throw error
     
-    const { data: peserta } = await supabase.from('peserta').select('nama_tiket, data_tambahan').eq('event_id', selectedEvent.value.id).eq('status_bayar', 'paid')
-    
-    let tiketRev = 0
-    let donasiRev = 0
+    const { data: salesData } = await supabase.rpc('get_ticket_sales', { p_event_id: selectedEvent.value.id })
 
     daftarTiket.value = (data || []).map(t => {
-      const terjual = (peserta || []).filter(p => p.nama_tiket === t.nama_kategori).length
-      tiketRev += (terjual * t.harga)
+      const sales = salesData?.find(s => s.kategori_id === t.id)
+      const terjual = sales ? sales.terjual : 0
       return { ...t, terjual }
     })
-
-    ;(peserta || []).forEach(p => {
-      if (p.data_tambahan && p.data_tambahan.donasi) {
-        // Hapus titik/koma jika user input Rp 50.000 (disimpan string) -> lalu parse Int
-        const donasiStr = String(p.data_tambahan.donasi).replace(/\D/g, '')
-        donasiRev += parseInt(donasiStr) || 0
-      }
-    })
-
-    totalPendapatanTiket.value = tiketRev
-    totalPendapatanDonasi.value = donasiRev
   } catch (err) {
     showToast('Gagal memuat tiket: ' + err.message, 'error')
   } finally {

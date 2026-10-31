@@ -1,14 +1,13 @@
 <template>
   <div class="ticket-wrapper">
     <div class="ticket-container">
-      
+    <ClientOnly>
       <div v-if="loading" class="state-msg">⏳ Mengambil Data Tiket...</div>
       <div v-else-if="error" class="state-msg error">{{ error }}</div>
       
       <div v-else class="content-box">
-        <!-- Status Pembayaran -->
         <!-- Status Pembayaran (Hanya muncul jika Pending) -->
-        <div v-if="tiketData.status_bayar === 'pending' && !isBypassLock" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px;">
+        <div v-if="tiketData[0].status_bayar === 'pending' && !isBypassLock" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px;">
           <div class="status-badge pending" style="margin-bottom: 0;">
             ⏳ MENUNGGU PEMBAYARAN
           </div>
@@ -27,102 +26,171 @@
         
         <!-- Judul Halaman -->
         <h2 class="page-title">
-          <Icon name="lucide:ticket" style="color: #2563EB;" /> E-Ticket Anda
+          <Icon name="lucide:ticket" style="color: var(--primary);" /> E-Ticket Anda
         </h2>
 
         <!-- AREA TIKET (Hanya muncul penuh jika lunas atau tiket gratis) -->
-        <div v-if="tiketData.status_bayar === 'paid' || isBypassLock" class="ticket-card-wrapper" style="margin-bottom: 25px;">
+        <div v-if="tiketData[0].status_bayar === 'paid' || isBypassLock" class="ticket-scroll-container">
           <!-- Elemen ini yang akan di-screenshot -->
-          <div id="ticketCard" class="ticket-card">
-            <!-- Header (Kategori) -->
-            <div class="ticket-header">
-               <div class="ticket-category">{{ tiketData.nama_tiket }}</div>
-               <div class="ticket-label" style="display:flex; align-items:center;"><Icon name="lucide:check-circle-2" style="font-size:14px; margin-right:4px; margin-bottom:1px;" /> LUNAS</div>
-            </div>
+          <div v-for="(tiket, index) in tiketData" :key="index" :id="'ticketCard-' + index" class="ticket-card-wrapper" style="margin-bottom: 25px;">
+            <div class="ticket-card">
+              <!-- Header (Kategori) -->
+              <div class="ticket-header">
+                 <div>
+                   <div class="ticket-category">{{ tiket.nama_tiket }}</div>
+                   <div v-if="tiketData.length > 1" class="ticket-count-badge">Tiket #{{ index + 1 }} dari {{ tiketData.length }}</div>
+                 </div>
+                 <div class="ticket-label" style="display:flex; align-items:center;"><Icon name="lucide:check-circle-2" style="font-size:14px; margin-right:4px; margin-bottom:1px;" /> LUNAS</div>
+              </div>
 
-            <!-- Pemisah Melengkung (Sobekan) -->
-            <div class="ticket-divider">
-                <div class="dash"></div>
-            </div>
+              <!-- Pemisah Melengkung (Sobekan) -->
+              <div class="ticket-divider">
+                  <div class="dash"></div>
+              </div>
 
-            <!-- Body Utama -->
-            <div class="ticket-body">
-               <div class="ticket-details">
-                  <div class="detail-box" style="margin-bottom: 15px;">
-                     <span class="detail-label">NAMA PESERTA</span>
-                     <span class="detail-value nama">{{ tiketData.nama_lengkap }}</span>
-                  </div>
-                  
-                  <div class="detail-row">
-                      <div class="detail-box">
-                         <span class="detail-label">EVENT</span>
-                         <span class="detail-value event">{{ tiketData.event?.nama_event }}</span>
-                      </div>
+              <!-- Body Utama -->
+              <div class="ticket-body">
+                 <div class="ticket-details">
+                    <div class="detail-box" style="margin-bottom: 15px;">
+                       <span class="detail-label">NAMA PESERTA</span>
+                       <span class="detail-value nama">{{ tiket.nama_lengkap }}</span>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-box">
+                           <span class="detail-label">EVENT</span>
+                           <span class="detail-value event">{{ tiket.event?.nama_event }}</span>
+                        </div>
 
-                      <div class="detail-box" style="text-align: right;">
-                         <span class="detail-label">TANGGAL</span>
-                         <span class="detail-value date">{{ new Date(tiketData.created_at).toLocaleDateString('id-ID', {day: '2-digit', month: 'short', year: 'numeric'}) }}</span>
-                      </div>
-                  </div>
-               </div>
+                        <div class="detail-box" style="text-align: right;">
+                           <span class="detail-label">TANGGAL</span>
+                           <span class="detail-value date">{{ new Date(tiket.created_at).toLocaleDateString('id-ID', {day: '2-digit', month: 'short', year: 'numeric'}) }}</span>
+                        </div>
+                    </div>
+                 </div>
 
-               <!-- QR Code & ID -->
-               <div v-if="tiketData.event?.settings?.is_qr_active !== false" class="ticket-qr-section">
-                   <div class="qr-box">
-                       <img :src="`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${tiketData.data_tambahan?.ticket_id || ticketId}`" alt="QR Code" crossorigin="anonymous" />
-                   </div>
-                   <div class="ticket-id">{{ tiketData.data_tambahan?.ticket_id || ticketId }}</div>
-               </div>
-               <div v-else class="ticket-qr-section" style="padding-bottom: 20px;">
-                   <div class="ticket-id" style="font-size: 1.2rem; margin-top: 10px;">{{ tiketData.data_tambahan?.ticket_id || ticketId }}</div>
-               </div>
+                 <!-- QR Code & ID -->
+                 <div v-if="tiket.event?.settings?.is_qr_active !== false" class="ticket-qr-section">
+                     <div class="qr-box">
+                         <img 
+                           v-if="qrMap[tiket.data_tambahan?.ticket_id || ticketId]" 
+                           :src="qrMap[tiket.data_tambahan?.ticket_id || ticketId]" 
+                           alt="QR Code" 
+                         />
+                         <div v-else style="width: 150px; height: 150px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #8a9aa8;">
+                           Membuat Barcode...
+                         </div>
+                     </div>
+                     <div class="ticket-id">{{ tiket.data_tambahan?.ticket_id || ticketId }}</div>
+
+                     <!-- Tombol Unduh Satuan jika lebih dari 1 tiket -->
+                     <button 
+                       v-if="tiketData.length > 1" 
+                       type="button" 
+                       @click="unduhSatuTiket(index)" 
+                       class="btn-download-single"
+                     >
+                       <Icon name="lucide:download" style="font-size:13px;" />
+                       <span>Simpan Tiket Ini (PNG)</span>
+                     </button>
+                 </div>
+                 <div v-else class="ticket-qr-section" style="padding-bottom: 20px;">
+                     <div class="ticket-id" style="font-size: 1.2rem; margin-top: 10px;">{{ tiket.data_tambahan?.ticket_id || ticketId }}</div>
+                     <button 
+                       v-if="tiketData.length > 1" 
+                       type="button" 
+                       @click="unduhSatuTiket(index)" 
+                       class="btn-download-single"
+                     >
+                       <Icon name="lucide:download" style="font-size:13px;" />
+                       <span>Simpan Tiket Ini (PNG)</span>
+                     </button>
+                 </div>
+              </div>
             </div>
           </div>
         </div>
-        <div v-if="tiketData.status_bayar === 'pending' && isBypassLock" class="state-msg" style="margin-bottom: 25px; padding: 15px; border-radius: 12px; background: #FFFBEB; border: 1px dashed #FCD34D; color: #D97706; font-size: 0.85rem; text-align: center;">
-          Tiket Anda sudah aktif! Terima kasih atas sedekah Infaq Anda, tim kami sedang memverifikasi transfer donasi Anda.
+        <div v-if="tiketData[0].status_bayar === 'pending' && isBypassLock" class="state-msg" style="margin-bottom: 20px; padding: 14px; border-radius: 12px; background: #FFFBEB; border: 1px dashed #FCD34D; color: #D97706; font-size: 0.85rem; text-align: center;">
+          Tiket Anda sudah aktif! Tim kami sedang memverifikasi transfer donasi/infaq Anda.
         </div>
 
-        <div v-else-if="tiketData.status_bayar === 'pending'" class="locked-box">
+        <div v-else-if="tiketData[0].status_bayar === 'pending'" class="locked-box">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0110 0v4"></path></svg>
-          <p style="margin-bottom: 20px;">Data dan bukti transfer Anda sedang <strong>ditinjau oleh Admin</strong>. E-Ticket akan otomatis terbuka di halaman ini setelah diverifikasi.</p>
-          
-          <div v-if="organizerData" style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
-            <a v-if="organizerData.no_wa" :href="formatWaLink(organizerData.no_wa)" target="_blank" class="social-link wa" title="Hubungi WhatsApp Admin">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-            </a>
-            <a v-if="organizerData.link_ig" :href="organizerData.link_ig" target="_blank" class="social-link ig" title="Instagram Resmi">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-            </a>
-            <a v-if="organizerData.link_web" :href="organizerData.link_web" target="_blank" class="social-link web" title="Website Resmi">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-            </a>
+          <p style="margin-bottom: 6px; font-weight: 700; color: #1e293b;">Menunggu Verifikasi Pembayaran</p>
+          <p style="margin-bottom: 12px; font-size: 0.82rem; color: #64748b;">
+            E-Ticket akan otomatis aktif di halaman ini setelah transfer Anda diverifikasi oleh Admin.
+          </p>
+        </div>
+
+        <!-- Tombol Simpan E-Ticket Bersih di Bawah Kartu -->
+        <div v-if="tiketData[0].status_bayar === 'paid' || isBypassLock" class="ticket-inline-actions">
+           <button @click="unduhTiket" :disabled="isDownloading" class="btn btn-secondary-download">
+             <span v-if="isDownloading" style="display:flex; align-items:center; gap:8px;"><Icon name="lucide:loader-2" class="spin" /> Memproses Gambar...</span>
+             <span v-else style="display:flex; align-items:center; gap:8px;">
+               <Icon name="lucide:download" /> 
+               {{ tiketData.length > 1 ? `Unduh Semua Tiket (${tiketData.length} PNG)` : 'Unduh Gambar E-Ticket (PNG)' }}
+             </span>
+           </button>
+        </div>
+
+        <!-- KARTU AJAKAN EO (VIRAL FLYWHEEL) -->
+        <div v-if="tiketData[0].status_bayar === 'paid' || isBypassLock" class="viral-eo-card">
+          <div class="viral-eo-badge">
+            <Icon name="lucide:sparkles" style="font-size: 13px; color: #d97706;" />
+            <span>Punya Komunitas atau Acara?</span>
           </div>
-        </div>
-
-        <!-- Tombol Tambahan -->
-        <div class="action-buttons">
-           <button v-if="tiketData.status_bayar === 'paid' || isBypassLock" @click="unduhTiket" :disabled="isDownloading" class="btn btn-download">
-             <span v-if="isDownloading" style="display:flex; align-items:center; gap:8px;"><Icon name="lucide:loader-2" class="spin" /> Memproses...</span>
-             <span v-else style="display:flex; align-items:center; gap:8px;"><Icon name="lucide:download" /> Simpan E-Ticket</span>
-           </button>
-           
-           <button v-if="(tiketData.status_bayar === 'paid' || isBypassLock) && linkGrupWa" @click="bukaGrupWa" class="btn btn-wa">
-             <Icon name="lucide:message-circle" style="font-size:1.2rem; margin-right:4px;" /> Bergabung ke Grup WhatsApp
-           </button>
-
-           <button v-if="organizerData?.no_wa" @click="kabariAdmin" class="btn" style="background: #e2e8f0; color: #475569;">
-             <Icon name="lucide:send" style="font-size:1.2rem; margin-right:4px;" /> Kabari Admin via WA
-           </button>
+          <p class="viral-eo-text">
+            Bikin formulir pendaftaran, pembayaran QRIS, dan tiket barcode otomatis di <b>tyket.id</b>
+          </p>
+          <NuxtLink to="/admin" class="viral-eo-btn">
+            <span>Coba Buat Event Gratis</span>
+            <Icon name="lucide:arrow-right" style="font-size: 13px;" />
+          </NuxtLink>
         </div>
 
       </div>
 
-      <!-- PROMO FOOTER -->
-      <div v-if="!loading" class="promo-footer">
-        Punya acara sendiri? <NuxtLink to="/login" class="promo-link">Buat Sistem Tiket</NuxtLink>
+      <!-- STICKY FLOATING BOTTOM BAR (MENEMPEL DI JEMPOL, 0 EFFORT SCROLL) -->
+      <div v-if="!loading && tiketData && tiketData.length > 0 && organizerData?.no_wa" class="floating-cta-bar">
+        <div class="floating-cta-inner">
+          <!-- JIKA LUNAS / GRATIS -->
+          <button v-if="tiketData[0].status_bayar === 'paid' || isBypassLock" @click="kabariAdmin" class="btn-floating-wa">
+            <div class="cta-left">
+              <div class="cta-icon-circle">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                  <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M8.53 7.33C8.37 7.33 8.1 7.39 7.87 7.64C7.65 7.89 7 8.5 7 9.71C7 10.93 7.89 12.1 8 12.27C8.14 12.44 9.76 14.94 12.25 16C12.84 16.27 13.3 16.42 13.66 16.53C14.25 16.72 14.79 16.69 15.22 16.63C15.7 16.56 16.68 16.03 16.89 15.45C17.1 14.87 17.1 14.38 17.04 14.27C16.97 14.17 16.81 14.11 16.56 14C16.32 13.86 15.12 13.28 14.9 13.19C14.67 13.11 14.5 13.06 14.34 13.31C14.18 13.56 13.71 14.11 13.56 14.27C13.42 14.44 13.27 14.46 13.03 14.34C12.78 14.21 11.74 13.87 10.5 12.77C9.54 11.91 8.89 10.86 8.77 10.65C8.65 10.45 8.76 10.33 8.88 10.22C8.99 10.11 9.13 9.93 9.26 9.78C9.39 9.63 9.43 9.53 9.5 9.36C9.6 9.2 9.56 9.06 9.5 8.94C9.43 8.81 8.86 7.42 8.53 7.33Z"/>
+                </svg>
+              </div>
+              <div class="cta-text-wrap">
+                <span class="cta-title">{{ linkGrupWa ? 'KABARI ADMIN & MASUK GRUP' : 'KABARI ADMIN PANITIA VIA WA' }}</span>
+                <span class="cta-subtitle">1x Klik Langsung Terhubung ke WhatsApp</span>
+              </div>
+            </div>
+            <Icon name="lucide:arrow-right" class="cta-arrow" />
+          </button>
+
+          <!-- JIKA MENUNGGU VERIFIKASI (MANUAL TRANSFER PENDING) -->
+          <button v-else-if="tiketData[0].status_bayar === 'pending'" @click="kabariAdmin" class="btn-floating-wa btn-floating-pending">
+            <div class="cta-left">
+              <div class="cta-icon-circle">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                  <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M8.53 7.33C8.37 7.33 8.1 7.39 7.87 7.64C7.65 7.89 7 8.5 7 9.71C7 10.93 7.89 12.1 8 12.27C8.14 12.44 9.76 14.94 12.25 16C12.84 16.27 13.3 16.42 13.66 16.53C14.25 16.72 14.79 16.69 15.22 16.63C15.7 16.56 16.68 16.03 16.89 15.45C17.1 14.87 17.1 14.38 17.04 14.27C16.97 14.17 16.81 14.11 16.56 14C16.32 13.86 15.12 13.28 14.9 13.19C14.67 13.11 14.5 13.06 14.34 13.31C14.18 13.56 13.71 14.11 13.56 14.27C13.42 14.44 13.27 14.46 13.03 14.34C12.78 14.21 11.74 13.87 10.5 12.77C9.54 11.91 8.89 10.86 8.77 10.65C8.65 10.45 8.76 10.33 8.88 10.22C8.99 10.11 9.13 9.93 9.26 9.78C9.39 9.63 9.43 9.53 9.5 9.36C9.6 9.2 9.56 9.06 9.5 8.94C9.43 8.81 8.86 7.42 8.53 7.33Z"/>
+                </svg>
+              </div>
+              <div class="cta-text-wrap">
+                <span class="cta-title">KIRIM BUKTI TRANSFER KE ADMIN</span>
+                <span class="cta-subtitle">Percepat Verifikasi Tiket Anda via WA</span>
+              </div>
+            </div>
+            <Icon name="lucide:arrow-right" class="cta-arrow" />
+          </button>
+        </div>
       </div>
 
+      <template #fallback>
+        <div class="state-msg">⏳ Mengambil Data Tiket...</div>
+      </template>
+    </ClientOnly>
     </div>
   </div>
 </template>
@@ -131,6 +199,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useHead } from '#imports'
+import QRCode from 'qrcode'
 
 useHead({
   script: [
@@ -148,15 +217,38 @@ const loading = ref(true)
 const error = ref('')
 const tiketData = ref(null)
 const isDownloading = ref(false)
+const qrMap = ref({})
+
+const generateAllQRCodes = async () => {
+  if (!tiketData.value || tiketData.value.length === 0) return
+  for (const t of tiketData.value) {
+    const code = t.data_tambahan?.ticket_id || ticketId
+    if (code && !qrMap.value[code]) {
+      try {
+        const url = await QRCode.toDataURL(code, {
+          width: 240,
+          margin: 1,
+          color: {
+            dark: '#0f172a',
+            light: '#ffffff'
+          }
+        })
+        qrMap.value[code] = url
+      } catch (e) {
+        console.error('Error generating QR code:', e)
+      }
+    }
+  }
+}
 
 const isBypassLock = computed(() => {
-  return tiketData.value?.kategori_tiket?.harga === 0 && tiketData.value?.event?.settings?.is_infaq_wajib !== true
+  return tiketData.value?.[0]?.kategori_tiket?.harga === 0 && tiketData.value?.[0]?.event?.settings?.is_infaq_wajib !== true
 })
 
 const supabase = useSupabaseClient()
 
 const linkGrupWa = computed(() => {
-  return tiketData.value?.event?.settings?.link_grup_wa || null
+  return tiketData.value?.[0]?.event?.settings?.link_grup_wa || null
 })
 
 const bukaGrupWa = () => {
@@ -167,44 +259,94 @@ const bukaGrupWa = () => {
 
 const kabariAdmin = () => {
   if (!organizerData.value?.no_wa) return
-  const noAdmin = organizerData.value.no_wa
+  let hp = organizerData.value.no_wa.replace(/\D/g, '')
+  if (hp.startsWith('0')) hp = '62' + hp.substring(1)
   const domain = window.location.origin
+  const namaPeserta = tiketData.value?.[0]?.nama_lengkap || ''
+  const namaEvent = tiketData.value?.[0]?.event?.nama_event || 'Event'
+  const groupUrl = linkGrupWa.value || ''
   
   let rawText = ''
-  if (isBypassLock.value) {
-    rawText = `Hai Admin,\nSaya sudah mendaftar untuk acara *${tiketData.value?.event?.nama_event || 'Event'}*.\n\nIni adalah link tiket saya:\n${domain}/tiket/${ticketId}\n\nTerima kasih! 🙏`
+  if (isBypassLock.value || tiketData.value?.[0]?.status_bayar === 'paid') {
+    rawText = `Halo Admin Panitia,\nSaya sudah menyelesaikan pendaftaran acara *${namaEvent}*:\n` +
+      (namaPeserta ? `• Nama: *${namaPeserta}*\n` : '') +
+      `• Order ID: *${ticketId}*\n` +
+      `• Link E-Ticket: ${domain}/tiket/${ticketId}\n\n`
+      
+    if (groupUrl) {
+      rawText += `👉 Tautan Masuk Grup WhatsApp Peserta:\n${groupUrl}\n\n` +
+        `Mohon dicatat dan di-approve di grup ya min. Terima kasih! 🙏`
+    } else {
+      rawText += `Mohon dicatat dan dikonfirmasi kehadiran saya. Terima kasih! 🙏`
+    }
   } else {
-    rawText = `Hai Admin,\nSaya sudah mendaftar dan mentransfer pembayaran untuk acara *${tiketData.value?.event?.nama_event || 'Event'}*.\n\nIni adalah link tiket saya:\n${domain}/tiket/${ticketId}\n\nSaya akan cek link tersebut secara berkala sampai dikonfirmasi. Terima kasih! 🙏`
+    rawText = `Halo Admin Panitia,\nSaya sudah mendaftar dan mentransfer pembayaran untuk acara *${namaEvent}*.\n\n` +
+      (namaPeserta ? `• Nama: *${namaPeserta}*\n` : '') +
+      `• Order ID: *${ticketId}*\n` +
+      `• Link Tiket: ${domain}/tiket/${ticketId}\n\n` +
+      `Berikut saya lampirkan bukti transfer pembayaran saya. Mohon bantuannya untuk diverifikasi. Terima kasih! 🙏`
   }
   
-  window.open(`https://api.whatsapp.com/send?phone=${noAdmin}&text=${encodeURIComponent(rawText)}`, "_blank")
+  window.open(`https://api.whatsapp.com/send?phone=${hp}&text=${encodeURIComponent(rawText)}`, "_blank")
 }
 
 const unduhTiket = async () => {
-  const el = document.getElementById('ticketCard')
-  if (!el) return
-  
   isDownloading.value = true
   try {
     if (!window.html2canvas) {
-      alert("Fitur unduh sedang dimuat, coba beberapa detik lagi.")
+      if (window.Swal) window.Swal.fire('Mohon Tunggu', 'Fitur unduh sedang dimuat, coba beberapa detik lagi.', 'info')
+      isDownloading.value = false
       return
     }
+
+    for (let i = 0; i < tiketData.value.length; i++) {
+      const el = document.getElementById('ticketCard-' + i)
+      if (!el) continue
+
+      const canvas = await window.html2canvas(el, { 
+        scale: 3, 
+        useCORS: true, 
+        backgroundColor: '#F8FAFC' 
+      })
+      
+      const link = document.createElement('a')
+      link.download = `Tiket-${tiketData.value[i].nama_lengkap}-${i+1}.png`
+      link.href = canvas.toDataURL('image/png')
+      link.click()
+      
+      // Kasih jeda sedikit supaya browser tidak freeze jika tiket banyak
+      await new Promise(r => setTimeout(r, 500))
+    }
+  } catch (err) {
+    console.error('Gagal unduh tiket', err)
+    if (window.Swal) window.Swal.fire('Gagal', 'Gagal mengunduh tiket. Pastikan browser Anda mendukung.', 'error')
+  } finally {
+    isDownloading.value = false
+  }
+}
+
+const unduhSatuTiket = async (index) => {
+  try {
+    if (!window.html2canvas) {
+      if (window.Swal) window.Swal.fire('Mohon Tunggu', 'Fitur unduh sedang dimuat, coba beberapa detik lagi.', 'info')
+      return
+    }
+
+    const el = document.getElementById('ticketCard-' + index)
+    if (!el) return
+
     const canvas = await window.html2canvas(el, { 
-      scale: 3, // Resolusi tinggi
+      scale: 3, 
       useCORS: true, 
       backgroundColor: '#F8FAFC' 
     })
     
     const link = document.createElement('a')
-    link.download = `Tiket-${tiketData.value.nama_lengkap}.png`
+    link.download = `Tiket-${tiketData.value[index]?.nama_lengkap || 'Peserta'}-${index+1}.png`
     link.href = canvas.toDataURL('image/png')
     link.click()
   } catch (err) {
-    console.error('Gagal unduh tiket', err)
-    alert('Gagal mengunduh tiket. Pastikan browser Anda mendukung.')
-  } finally {
-    isDownloading.value = false
+    console.error('Gagal unduh tiket satuan', err)
   }
 }
 
@@ -233,30 +375,34 @@ const refreshStatus = async (isSilent = false) => {
   if (!isSilent) lastRefreshTime = now
 
   try {
-    const orderIdInduk = tiketData.value.data_tambahan?.order_id
+    const orderIdInduk = tiketData.value[0]?.order_id || tiketData.value[0]?.data_tambahan?.order_id || ticketId
     if (!orderIdInduk) throw new Error('Order ID tidak ditemukan')
     
-    const response = await $fetch(`/api/check-kasera?order_id=${orderIdInduk}`)
+    const response = await $fetch(`/api/check-espay?order_id=${orderIdInduk}`)
+    if (response && response.status === 'paid') {
+      response.payment_status = 'paid'
+    }
     
-    if (response.payment_status === 'paid' || response.status === 'already_paid') {
-      tiketData.value.status_bayar = 'paid'
-      if (!isSilent) alert('Pembayaran berhasil dikonfirmasi! Tiketmu sudah aktif.')
+    if (response.payment_status === 'paid' || response.status === 'already_paid' || response.status === 'paid') {
+      tiketData.value.forEach(t => t.status_bayar = 'paid')
+      generateAllQRCodes()
+      if (!isSilent && window.Swal) window.Swal.fire('Berhasil!', 'Pembayaran berhasil dikonfirmasi! Tiketmu sudah aktif.', 'success')
       isRefreshing.value = false
     } else {
       // Jika pembayaran belum lunas
-      if (isSilent && autoPollCount < 4) {
-        // Coba lagi secara rahasia setiap 3 detik (maksimal 4 kali)
+      if (isSilent && autoPollCount < 8) {
+        // Coba lagi secara rahasia setiap 3 detik (maksimal 8 kali = 24 detik)
         autoPollCount++
         setTimeout(() => refreshStatus(true), 3000)
       } else {
         isRefreshing.value = false
-        if (!isSilent) alert('Pembayaran belum diterima oleh Kasera. Coba beberapa saat lagi.')
+        if (!isSilent && window.Swal) window.Swal.fire('Tertunda', 'Pembayaran belum diterima oleh sistem pusat. Coba beberapa saat lagi.', 'warning')
       }
     }
   } catch (err) {
     console.error('Gagal mengecek status:', err)
     isRefreshing.value = false
-    if (!isSilent) alert('Terjadi kesalahan saat mengecek status atau pesanan bukan dari Kasera.')
+    if (!isSilent && window.Swal) window.Swal.fire('Kesalahan', 'Terjadi kesalahan saat mengecek status atau pesanan bukan dari gateway pusat.', 'error')
   }
 }
 
@@ -266,48 +412,96 @@ let realtimeChannel = null
 
 onMounted(async () => {
   try {
-    const { data, error: sbErr } = await supabase
-      .from('peserta')
-      .select('*, event(nama_event, settings, organizer_id), kategori_tiket(harga)')
-      .eq('data_tambahan->>order_id', ticketId)
-      .limit(1)
-      .single()
+    let data = null
 
-    if (sbErr) throw sbErr
+    // 0. Cek data preloaded dari sesi checkout / bayar
+    if (typeof window !== 'undefined') {
+      try {
+        const cachedStr = sessionStorage.getItem(`tyket_preloaded_${ticketId}`)
+        if (cachedStr) {
+          const parsed = JSON.parse(cachedStr)
+          if (parsed.data && parsed.data.length > 0) {
+            data = parsed.data
+            tiketData.value = data
+            if (parsed.qrMap) {
+              qrMap.value = { ...parsed.qrMap }
+            }
+            loading.value = false
+            sessionStorage.removeItem(`tyket_preloaded_${ticketId}`)
+          }
+        }
+      } catch (cacheErr) {
+        console.warn('Gagal membaca preloaded ticket cache:', cacheErr)
+      }
+    }
+
+    // Jika belum ada data dari cache (misal dibuka langsung dari link bookmark / WA)
+    if (!data) {
+      const { data: sbData, error: sbErr } = await supabase
+        .from('peserta')
+        .select('*, event(nama_event, settings, organizer_id), kategori_tiket(harga)')
+        .or(`order_id.eq.${ticketId},data_tambahan->>order_id.eq.${ticketId}`)
+        .order('id', { ascending: true })
+
+      if (sbErr) throw sbErr
+      data = sbData
+      if (data) {
+        tiketData.value = data || []
+        await generateAllQRCodes()
+      }
+    }
     
-    if (data) {
-      tiketData.value = data
+    if (data && data.length > 0) {
+      // Pastikan semua QR code ter-generate jika ada yang belum
+      generateAllQRCodes()
       
-      if (data.event?.organizer_id) {
+      if (data[0]?.event?.organizer_id) {
         const { data: org } = await supabase
           .from('organizer_profile')
           .select('no_wa, link_ig, link_web')
-          .eq('id', data.event.organizer_id)
+          .eq('id', data[0].event.organizer_id)
           .maybeSingle()
         if (org) organizerData.value = org
       }
 
-      // 1. Cek parameter URL dari balikan Kasera
-      if (route.query.status === 'succeeded' && tiketData.value.status_bayar === 'pending') {
+      // 1. Cek parameter URL status pembayaran
+      if ((route.query.status === 'succeeded' || route.query.status === 'paid') && tiketData.value[0]?.status_bayar === 'pending') {
         // Cek secara diam-diam tanpa alert
         refreshStatus(true)
       }
 
       // 2. Berlangganan Supabase Realtime agar ter-update ajaib
-      if (tiketData.value.status_bayar === 'pending') {
+      if (tiketData.value[0]?.status_bayar === 'pending') {
+        const orderIdTarget = tiketData.value[0]?.order_id || tiketData.value[0]?.data_tambahan?.order_id || ticketId
         realtimeChannel = supabase
-          .channel('tiket-lunas-listener')
+          .channel(`tiket-lunas-listener-${ticketId}`)
+          .on(
+            'postgres_changes',
+            { 
+              event: 'UPDATE', 
+              schema: 'public', 
+              table: 'orders',
+              filter: `id=eq.${orderIdTarget}` 
+            },
+            (payload) => {
+              if (payload.new.status_pembayaran === 'paid') {
+                tiketData.value.forEach(t => t.status_bayar = 'paid')
+                generateAllQRCodes()
+              }
+            }
+          )
           .on(
             'postgres_changes',
             { 
               event: 'UPDATE', 
               schema: 'public', 
               table: 'peserta',
-              filter: `id=eq.${tiketData.value.id}` 
+              filter: `order_id=eq.${orderIdTarget}` 
             },
             (payload) => {
               if (payload.new.status_bayar === 'paid') {
-                tiketData.value.status_bayar = 'paid'
+                tiketData.value.forEach(t => t.status_bayar = 'paid')
+                generateAllQRCodes()
               }
             }
           )
@@ -338,8 +532,7 @@ onUnmounted(() => {
 
 <style scoped>
 .ticket-wrapper {
-  --primary: #0F172A;
-  --accent: #2563EB;
+
   --bg-color: #F8FAFC;
   --text-main: #1E293B;
   --text-muted: #64748B;
@@ -405,7 +598,7 @@ onUnmounted(() => {
 }
 
 .ticket-header {
-  background: linear-gradient(135deg, #2563EB, #1D4ED8);
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
   color: white;
   padding: 20px 20px;
   border-radius: 20px 20px 0 0;
@@ -496,7 +689,7 @@ onUnmounted(() => {
 }
 .detail-value.nama {
   font-size: 1.25rem;
-  color: #2563EB;
+  color: var(--primary);
   text-transform: uppercase;
 }
 
@@ -529,26 +722,96 @@ onUnmounted(() => {
   border-radius: 10px;
 }
 
-/* Promo Link Minimalis */
-.promo-footer {
-  margin-top: 30px;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  font-weight: 600;
+.ticket-count-badge {
+  font-size: 0.7rem;
+  opacity: 0.85;
+  font-weight: 700;
+  margin-top: 2px;
+  letter-spacing: 0.5px;
 }
-.promo-footer .promo-link {
+
+.btn-download-single {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  touch-action: manipulation;
+}
+.btn-download-single:hover {
+  background: #f1f5f9;
   color: var(--primary);
-  font-weight: 800;
-  text-decoration: underline;
-  text-decoration-color: #CBD5E1;
-  text-underline-offset: 3px;
-  margin-left: 4px;
-  transition: 0.2s;
+  border-color: var(--primary);
 }
-.promo-footer .promo-link:hover {
-  color: var(--accent);
-  text-decoration-color: var(--accent);
+.btn-download-single:active {
+  transform: scale(0.96);
+}
+
+/* Kartu Ajakan EO (Viral Flywheel) */
+.viral-eo-card {
+  margin-top: 24px;
+  background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
+  border: 1px solid #DBEAFE;
+  border-radius: 16px;
+  padding: 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+}
+.viral-eo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #FEF3C7;
+  color: #92400E;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+.viral-eo-text {
+  font-size: 0.78rem;
+  color: #334155;
+  margin: 0;
+  line-height: 1.45;
+  max-width: 320px;
+}
+.viral-eo-text b {
+  color: var(--primary, #0C387A);
+}
+.viral-eo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--primary, #0C387A);
+  color: var(--accent-yellow, #FCEB9C);
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  margin-top: 2px;
+  box-shadow: 0 4px 12px rgba(12, 56, 122, 0.15);
+  touch-action: manipulation;
+}
+.viral-eo-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(12, 56, 122, 0.25);
+}
+.viral-eo-btn:active {
+  transform: scale(0.97);
 }
 
 /* Elemen Lainnya */
@@ -563,13 +826,157 @@ onUnmounted(() => {
 .social-link.ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); box-shadow: 0 4px 10px rgba(220, 39, 67, 0.2); }
 .social-link.web { background: var(--primary); box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2); }
 
-.action-buttons { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
-.btn { width: 100%; padding: 16px; border-radius: 14px; border: none; font-weight: 800; cursor: pointer; font-family: 'Nunito', sans-serif; font-size: 0.9rem; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.btn-download { background: var(--primary); color: white; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2); }
-.btn-download:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(15, 23, 42, 0.3); }
-.btn-download:disabled { opacity: 0.7; cursor: not-allowed; }
-.btn-wa { background: #25D366; color: white; box-shadow: 0 8px 20px rgba(37, 211, 102, 0.2); }
-.btn-wa:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(37, 211, 102, 0.3); }
+/* TICKET INLINE ACTIONS */
+.ticket-inline-actions {
+  margin-top: 15px;
+  margin-bottom: 5px;
+}
+.btn-secondary-download {
+  width: 100%;
+  background: #F1F5F9;
+  color: #334155;
+  border: 1px solid #CBD5E1;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  font-family: 'Nunito', sans-serif;
+}
+.btn-secondary-download:hover:not(:disabled) {
+  background: #E2E8F0;
+  color: #0F172A;
+}
+.btn-secondary-download:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* STICKY FLOATING BOTTOM BAR (MENEMPEL DI JEMPOL, 0 EFFORT SCROLL) */
+.floating-cta-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(226, 232, 240, 0.9);
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.08);
+  animation: slideUpFloating 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes slideUpFloating {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.floating-cta-inner {
+  max-width: 440px;
+  margin: 0 auto;
+}
+.btn-floating-wa {
+  width: 100%;
+  background: linear-gradient(135deg, #128C7E 0%, #075E54 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 16px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(7, 94, 84, 0.38), 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: 'Nunito', sans-serif;
+  text-align: left;
+}
+.btn-floating-wa:hover {
+  background: linear-gradient(135deg, #0e786c 0%, #054840 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(7, 94, 84, 0.48), 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+.btn-floating-wa:active {
+  transform: scale(0.98);
+}
+.btn-floating-pending {
+  background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
+  box-shadow: 0 6px 20px rgba(180, 83, 9, 0.38), 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+.btn-floating-pending:hover {
+  background: linear-gradient(135deg, #b45309 0%, #92400e 100%);
+  box-shadow: 0 8px 24px rgba(180, 83, 9, 0.48), 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+.cta-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+.cta-icon-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #075E54;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+.btn-floating-pending .cta-icon-circle {
+  color: #B45309;
+}
+.cta-text-wrap {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  min-width: 0;
+  flex: 1;
+}
+.cta-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.1px;
+  color: #ffffff;
+  line-height: 1.2;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  word-break: break-word;
+}
+.cta-subtitle {
+  font-size: 0.72rem;
+  color: #DCFCE7;
+  font-weight: 600;
+  line-height: 1.2;
+  margin-top: 1px;
+}
+.btn-floating-pending .cta-subtitle {
+  color: #FEF3C7;
+}
+.cta-arrow {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  color: #ffffff;
+  opacity: 0.95;
+  transition: transform 0.2s ease;
+  margin-left: 4px;
+}
+.btn-floating-wa:hover .cta-arrow {
+  transform: translateX(3px);
+}
+
+.content-box {
+  padding-bottom: 80px; /* Ruang agar tidak tertutup floating bar */
+}
 
 /* Scrollbar styling untuk card yang overflow di HP kecil */
 .ticket-card-wrapper::-webkit-scrollbar { height: 6px; }
@@ -588,7 +995,7 @@ onUnmounted(() => {
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 4px 10px rgba(18, 56, 96, 0.2);
 }
 .refresh-btn:hover {
   transform: scale(1.05);

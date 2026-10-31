@@ -80,6 +80,7 @@ import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const orderId = route.query.id
+const token = route.query.token
 
 const loading = ref(true)
 const isSubmitting = ref(false)
@@ -130,7 +131,7 @@ const loadData = async () => {
         kelas: pesertaData.event?.nama_event || 'Event',
         paket: pesertaData.nama_tiket || '-',
         waktu: new Date(pesertaData.created_at).toLocaleString('id-ID'),
-        totalBayar: pesertaData.data_tambahan?.infaqNominal || 0,
+        totalBayar: pesertaData.data_tambahan?.payment?.total_amount || pesertaData.data_tambahan?.infaqNominal || 0,
         status: pesertaData.status_bayar === 'paid' ? 'Paid' : 'Pending',
         linkBukti: pesertaData.bukti_bayar_url,
         email: pesertaData.email
@@ -145,25 +146,47 @@ const loadData = async () => {
 }
 
 const konfirmasiPesanan = async () => {
+  if (!token) {
+    if (window.Swal) {
+      window.Swal.fire({
+        icon: 'error',
+        title: 'Token Keamanan Hilang',
+        text: 'Link verifikasi ini tidak memiliki token keamanan. Harap buka link resmi yang dikirimkan ke WhatsApp Admin.',
+        confirmButtonColor: '#EF4444'
+      })
+    } else {
+      alert('Akses Ditolak: Token keamanan tidak ditemukan pada link ini.')
+    }
+    return
+  }
+
   isSubmitting.value = true
   try {
-    const { error: updateErr } = await supabase
-      .from('peserta')
-      .update({ status_bayar: 'paid' })
-      .eq('data_tambahan->>order_id', orderId)
+    const res = await $fetch('/api/admin-verify-order', {
+      method: 'POST',
+      body: {
+        orderId,
+        token
+      }
+    })
 
-    if (updateErr) throw updateErr
-    
     if (window.Swal) {
-      window.Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Pembayaran dikonfirmasi. Barcode E-Ticket telah aktif.', confirmButtonColor: '#10B981' })
-    } else {
-      alert("Berhasil! Pembayaran dikonfirmasi.")
+      window.Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: res.message || 'Pembayaran dikonfirmasi. Barcode E-Ticket telah aktif.',
+        confirmButtonColor: '#10B981'
+      })
     }
     
     orderData.value.status = "Paid"
   } catch (err) {
-    if (window.Swal) window.Swal.fire({ icon: 'error', title: 'Gagal', text: 'Jaringan terputus.', confirmButtonColor: '#EF4444' })
-    else alert("Jaringan terputus.")
+    const msg = err.data?.statusMessage || err.message || 'Verifikasi gagal atau token sudah tidak valid.'
+    if (window.Swal) {
+      window.Swal.fire({ icon: 'error', title: 'Verifikasi Gagal', text: msg, confirmButtonColor: '#EF4444' })
+    } else {
+      alert(msg)
+    }
   } finally {
     isSubmitting.value = false
   }
@@ -180,8 +203,7 @@ onMounted(() => {
 
 <style scoped>
 .admin-wrapper {
-  --primary: #0F172A;
-  --accent: #2563EB;
+  --accent: var(--accent-yellow);
   --bg-color: #F8FAFC;
   --text-main: #1E293B;
   --text-muted: #64748B;
@@ -252,8 +274,8 @@ onMounted(() => {
 .status-pill.paid { background: #DCFCE7; color: #16A34A; }
 .status-pill.paid svg { width: 16px; height: 16px; }
 
-.btn-confirm { width: 100%; padding: 16px; border-radius: 14px; font-size: 0.9rem; font-weight: 800; border: none; cursor: pointer; transition: 0.2s; color: white; background: var(--accent); box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25); letter-spacing: 0.5px; }
-.btn-confirm:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(37, 99, 235, 0.35); }
+.btn-confirm { width: 100%; padding: 16px; border-radius: 14px; font-size: 0.9rem; font-weight: 800; border: none; cursor: pointer; transition: 0.2s; color: var(--accent-yellow); background: var(--primary); box-shadow: 0 8px 20px rgba(18, 56, 96, 0.25); letter-spacing: 0.5px; }
+.btn-confirm:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(18, 56, 96, 0.35); }
 .btn-confirm:disabled { cursor: not-allowed; opacity: 0.7; transform: none; }
 .btn-confirm.btn-success { background: #10B981; box-shadow: none; pointer-events: none; }
 </style>

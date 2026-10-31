@@ -38,7 +38,7 @@ definePageMeta({
 })
 
 useHead({
-  title: 'EventHub · Organizer',
+  title: 'tyket.id · Organizer Creator',
   bodyAttrs: { style: 'margin: 0; background: #f8fafc; overflow: hidden; font-family: Inter, sans-serif;' }
 })
 
@@ -55,6 +55,43 @@ onMounted(async () => {
   window.addEventListener('offline', setOffline)
   if (!navigator.onLine) setOffline()
 
+  // STRICT SESSION CHECK (Tutup Browser = Logout)
+  if (localStorage.getItem('ingat_saya') === 'false' && !sessionStorage.getItem('browser_session_active')) {
+    // Sesi tidak diingat, dan session storage kosong (artinya browser/tab baru dibuka)
+    await useSupabaseClient().auth.signOut()
+    router.push('/login')
+    return // Stop rendering dashboard
+  }
+
+  // Jika aman, tandai tab ini aktif (jika ditarik jadi new tab)
+  sessionStorage.setItem('browser_session_active', 'true')
+
+  // Auto Logout Idle Timer
+  let idleTimer;
+  const resetIdleTimer = () => {
+    clearTimeout(idleTimer)
+    
+    // Cek apakah user mencentang 'Ingat saya' di halaman login
+    const isRemembered = localStorage.getItem('ingat_saya') !== 'false'
+    
+    // Jika ingat saya (true) = 3 Jam. Jika tidak ingat = 30 Menit.
+    const timeoutDuration = isRemembered ? (3 * 60 * 60 * 1000) : (30 * 60 * 1000)
+    const timeoutText = isRemembered ? '3 jam' : '30 menit'
+
+    idleTimer = setTimeout(async () => {
+      showToast(`Sesi berakhir karena tidak ada aktivitas selama ${timeoutText}.`, 'error')
+      await useSupabaseClient().auth.signOut()
+      router.push('/login')
+    }, timeoutDuration)
+  }
+
+  // Monitor aktivitas user
+  window.addEventListener('mousemove', resetIdleTimer)
+  window.addEventListener('keydown', resetIdleTimer)
+  window.addEventListener('click', resetIdleTimer)
+  window.addEventListener('scroll', resetIdleTimer)
+  resetIdleTimer()
+
   watch(user, async (u) => {
     if (u) {
       await muatProfilOrganizer()
@@ -67,22 +104,28 @@ onMounted(async () => {
       router.push('/login')
     }
   }, { immediate: true })
-})
 
-onUnmounted(() => {
-  window.removeEventListener('online', setOnline)
-  window.removeEventListener('offline', setOffline)
+  onUnmounted(() => {
+    window.removeEventListener('online', setOnline)
+    window.removeEventListener('offline', setOffline)
+    window.removeEventListener('mousemove', resetIdleTimer)
+    window.removeEventListener('keydown', resetIdleTimer)
+    window.removeEventListener('click', resetIdleTimer)
+    window.removeEventListener('scroll', resetIdleTimer)
+    clearTimeout(idleTimer)
+  })
 })
 </script>
 
 <style>
 /* ── CSS VARIABLES (PALET WARNA) ── */
 :root {
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --primary-shadow: rgba(37, 99, 235, 0.35);
-  --bg-body: #f8fafc;
-  --text-main: #0f172a;
+  --primary: #123860;
+  --primary-hover: #1C5490;
+  --primary-shadow: rgba(18, 56, 96, 0.35);
+  --accent-yellow: #FCEB9C;
+  --bg-body: #F6F8FA;
+  --text-main: #123860;
 }
 
 * { box-sizing: border-box; }
@@ -102,14 +145,14 @@ body { letter-spacing: -0.01em; }
 
 /* ── SIDEBAR ── */
 .sidebar { width: 248px; background: #ffffff; border-right: 1px solid #e6edf5; display: flex; flex-direction: column; flex-shrink: 0; padding: 28px 18px 24px 18px; height: 100vh; position: sticky; top: 0; overflow-y: auto; box-shadow: 2px 0 12px rgba(0, 0, 0, 0.02); }
-.sidebar .logo { font-size: 22px; font-weight: 700; padding: 0 6px 32px 6px; display: flex; align-items: center; gap: 10px; color: #0a1929; letter-spacing: -0.5px; }
+.sidebar .logo { font-size: 22px; font-weight: 700; padding: 0 6px 16px 6px; display: flex; align-items: center; gap: 10px; color: #0a1929; letter-spacing: -0.5px; }
 .sidebar .logo span { background: #1a3a5c; color: white; font-size: 11px; font-weight: 600; padding: 2px 12px; border-radius: 40px; letter-spacing: 0.3px; }
 .sidebar nav { flex: 1; }
 .sidebar nav .menu-label { font-size: 11px; font-weight: 600; color: #8a9aa8; text-transform: uppercase; letter-spacing: 0.6px; padding: 4px 6px 8px 6px; }
 .sidebar nav a { display: flex; align-items: center; gap: 14px; padding: 10px 14px; margin: 2px 0; border-radius: 12px; font-size: 14px; font-weight: 500; color: #4a5a6e; text-decoration: none; transition: all 0.2s ease; cursor: pointer; }
 .sidebar nav a:hover { background: #f0f4fa; color: #0a1929; }
-.sidebar nav a.router-link-active { background: var(--primary); color: white; box-shadow: 0 4px 14px -4px var(--primary-shadow); }
-.sidebar nav a.router-link-active .icon { filter: brightness(10); }
+.sidebar nav a.router-link-active { background: var(--accent-yellow); color: var(--primary); box-shadow: 0 4px 14px -4px rgba(252, 235, 156, 0.6); font-weight: 700; }
+.sidebar nav a.router-link-active .icon { color: var(--primary); filter: none; }
 .sidebar nav a.disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
 .sidebar .bottom { padding: 16px 6px 0 6px; border-top: 1px solid #e6edf5; margin-top: 8px; }
 .sidebar .bottom a { display: flex; align-items: center; gap: 14px; padding: 8px 0; font-size: 14px; font-weight: 500; color: #4a5a6e; cursor: pointer; transition: 0.2s; }
@@ -122,7 +165,7 @@ body { letter-spacing: -0.01em; }
 .topbar .greeting { font-size: 17px; font-weight: 600; color: #0a1929; letter-spacing: -0.3px; }
 .topbar .greeting small { font-weight: 400; font-size: 14px; color: #8a9aa8; margin-left: 8px; }
 .topbar .right { display: flex; align-items: center; gap: 20px; position: relative; }
-.avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600; color: white; cursor: pointer; transition: 0.2s; font-size: 16px; border: 2px solid transparent; box-shadow: 0 2px 8px var(--primary-shadow); }
+.avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--accent-yellow); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--primary); cursor: pointer; transition: 0.2s; font-size: 16px; border: 2px solid transparent; box-shadow: 0 2px 8px rgba(252, 235, 156, 0.4); }
 .avatar:hover { border-color: var(--primary); box-shadow: 0 4px 14px var(--primary-shadow); }
 
 /* DROPDOWN */
@@ -139,8 +182,8 @@ body { letter-spacing: -0.01em; }
 .btn-outline:hover { background: #f0f4fa; border-color: #b8c8d8; }
 .btn-outline.danger { border-color: #f0c8c8; color: #b83228; }
 .btn-outline.danger:hover { background: #fde8e6; border-color: #b83228; }
-.btn-primary { background: var(--primary); color: white; border: none; padding: 8px 22px; border-radius: 40px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; font-family: 'Inter', sans-serif; letter-spacing: 0.2px; }
-.btn-primary:hover { background: var(--primary-hover); box-shadow: 0 4px 14px -4px var(--primary-shadow); }
+.btn-primary { background: var(--primary); color: var(--accent-yellow); border: none; padding: 8px 22px; border-radius: 40px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; font-family: 'Inter', sans-serif; letter-spacing: 0.2px; }
+.btn-primary:hover { background: var(--primary-hover); color: white; box-shadow: 0 4px 14px -4px var(--primary-shadow); }
 .btn-success { background: #1a6a4a; color: white; border: none; padding: 8px 20px; border-radius: 40px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; font-family: 'Inter', sans-serif; }
 .btn-success:hover { background: #2a7a5a; box-shadow: 0 4px 14px -4px rgba(26, 106, 74, 0.3); }
 .btn-sm { padding: 4px 14px !important; font-size: 11px !important; }
@@ -175,7 +218,7 @@ textarea.form-control { resize: vertical; min-height: 60px; }
 .event-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; margin-bottom: 28px; }
 .event-card { background: #ffffff; border-radius: 18px; border: 1px solid #e6edf5; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02); transition: all 0.25s ease; cursor: pointer; position: relative; }
 .event-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px -10px rgba(26, 58, 92, 0.12); border-color: #c8d6e8; }
-.event-card .thumb { height: 110px; background: linear-gradient(145deg, var(--primary), #3b82f6); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 32px; position: relative; }
+.event-card .thumb { height: 110px; background: linear-gradient(145deg, var(--primary), var(--primary-hover)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 32px; position: relative; }
 .event-card .thumb.gray { background: linear-gradient(145deg, #5a6a7a, #7a8a9a); opacity: 0.8; }
 .event-card .body { padding: 16px 18px 18px 18px; }
 .event-card .body .title { font-weight: 600; font-size: 15px; color: #0a1929; letter-spacing: -0.2px; }

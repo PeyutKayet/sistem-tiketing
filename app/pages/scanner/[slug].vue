@@ -29,10 +29,10 @@
           <h2 style="margin: 0 0 10px; font-weight: 800; font-size: 1.2rem;">Masukkan PIN Scanner</h2>
           <p style="color: #94a3b8; font-size: 0.8rem; margin: 0 0 20px; line-height: 1.4;">Minta PIN dari pengelola event untuk menyalakan kamera.</p>
           
-          <input type="password" v-model="inputPin" placeholder="******" style="width: 100%; box-sizing: border-box; text-align: center; font-size: 1.5rem; letter-spacing: 10px; padding: 12px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; outline: none; margin-bottom: 15px;" />
+          <input type="password" v-model="inputPin" @keyup.enter="verifyPin" placeholder="******" style="width: 100%; box-sizing: border-box; text-align: center; font-size: 1.5rem; letter-spacing: 10px; padding: 12px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; outline: none; margin-bottom: 15px;" />
           
-          <button @click="verifyPin" style="width: 100%; padding: 14px; border-radius: 10px; background: var(--primary); color: white; border: none; font-weight: 700; font-size: 1rem; cursor: pointer;">
-            BUKA SCANNER
+          <button @click="verifyPin" :disabled="isVerifying" style="width: 100%; padding: 14px; border-radius: 10px; background: var(--primary); color: white; border: none; font-weight: 700; font-size: 1rem; cursor: pointer;">
+            {{ isVerifying ? 'MEMERIKSA...' : 'BUKA SCANNER' }}
           </button>
           <p v-if="pinError" style="color: #ef4444; font-size: 0.8rem; margin: 10px 0 0;">{{ pinError }}</p>
         </div>
@@ -64,13 +64,20 @@
         </div>
 
         <!-- Control Bar -->
-        <div style="padding: 15px 20px; background: #1e293b; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #334155;">
-          <button @click="toggleCamera" style="padding: 10px 15px; border-radius: 10px; background: #334155; color: white; border: none; font-weight: 600; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
-            <Icon name="lucide:switch-camera" style="font-size: 18px;" />
-            Balik Kamera
+        <div style="padding: 12px 16px; background: #1e293b; display: flex; align-items: center; justify-content: space-between; gap: 8px; border-top: 1px solid #334155;">
+          <button @click="toggleCamera" style="padding: 8px 12px; border-radius: 10px; background: #334155; color: white; border: none; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.8rem;">
+            <Icon name="lucide:switch-camera" style="font-size: 16px;" />
+            Kamera
           </button>
-          <div style="font-size: 0.75rem; color: #94a3b8; text-align: right; line-height: 1.3;">
-            Mode Check-in:<br/>
+          
+          <!-- Toggle Mode Cepat (Auto-Scan) -->
+          <button @click="isFastMode = !isFastMode" :style="{ padding: '8px 12px', borderRadius: '10px', background: isFastMode ? '#16a34a' : '#475569', color: 'white', border: isFastMode ? '1px solid #22c55e' : '1px solid #64748b', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.8rem', transition: 'all 0.2s ease' }">
+            <Icon :name="isFastMode ? 'lucide:zap' : 'lucide:zap-off'" style="font-size: 16px;" />
+            <span>{{ isFastMode ? 'Mode Cepat (1.5s)' : 'Mode Biasa' }}</span>
+          </button>
+
+          <div style="font-size: 0.7rem; color: #94a3b8; text-align: right; line-height: 1.2;">
+            <span style="opacity:0.7">Sistem:</span><br/>
             <strong style="color: white;">{{ modeText }}</strong>
           </div>
         </div>
@@ -101,10 +108,13 @@ const html5QrCode = ref(null)
 const facingMode = ref('environment') // 'environment' = belakang, 'user' = depan
 const isScanning = ref(false)
 
+const isFastMode = ref(false)
+let autoResumeTimer = null
+
 const isUnlocked = ref(false)
 const inputPin = ref('')
-const correctPin = ref('')
 const pinError = ref('')
+const isVerifying = ref(false)
 
 const scanResult = ref(null) // null | { success: bool, title: string, message: string, pesertaName: string }
 
@@ -134,34 +144,53 @@ onMounted(async () => {
     const { data, error } = await supabase.from('event').select('*').eq('slug', slug).single()
     if (error) throw error
     eventData.value = data
-    
-    // Ambil PIN dari organizer_profile
-    if (data.organizer_id) {
-      const { data: orgData } = await supabase.from('organizer_profile').select('pin_scanner').eq('id', data.organizer_id).single()
-      if (orgData) {
-        correctPin.value = orgData.pin_scanner || '123456'
-      }
-    }
   } catch (err) {
     console.error('Error memuat event:', err)
   }
 })
 
-const verifyPin = () => {
-  if (inputPin.value === correctPin.value || inputPin.value === '123456') { // Fallback aman
-    isUnlocked.value = true
-    if (eventData.value?.settings?.is_qr_active !== false) {
-      setTimeout(() => {
-        initScanner()
-      }, 300)
+const verifyPin = async () => {
+  if (!inputPin.value) {
+    pinError.value = 'Masukkan PIN terlebih dahulu!'
+    return
+  }
+  if (!eventData.value?.id) {
+    pinError.value = 'Data event belum siap, coba sesaat lagi.'
+    return
+  }
+
+  isVerifying.value = true
+  pinError.value = ''
+  try {
+    const res = await $fetch('/api/verify-scanner-pin', {
+      method: 'POST',
+      body: {
+        event_id: eventData.value.id,
+        pin: inputPin.value.trim()
+      }
+    })
+
+    if (res && res.valid) {
+      isUnlocked.value = true
+      if (eventData.value?.settings?.is_qr_active !== false) {
+        setTimeout(() => {
+          initScanner()
+        }, 300)
+      }
     }
-  } else {
-    pinError.value = 'PIN yang Anda masukkan salah!'
-    setTimeout(() => { pinError.value = '' }, 3000)
+  } catch (err) {
+    pinError.value = err.data?.statusMessage || err.message || 'PIN yang Anda masukkan salah!'
+    setTimeout(() => { pinError.value = '' }, 3500)
+  } finally {
+    isVerifying.value = false
   }
 }
 
 onBeforeUnmount(async () => {
+  if (autoResumeTimer) {
+    clearTimeout(autoResumeTimer)
+    autoResumeTimer = null
+  }
   if (html5QrCode.value && html5QrCode.value.isScanning) {
     await html5QrCode.value.stop()
   }
@@ -183,7 +212,8 @@ const startCamera = async () => {
     isScanning.value = true
   } catch (err) {
     console.error("Gagal menyalakan kamera:", err)
-    alert("Gagal menyalakan kamera. Pastikan izin kamera diberikan.")
+    if (window.Swal) window.Swal.fire('Gagal', 'Gagal menyalakan kamera. Pastikan izin kamera diberikan di browser Anda.', 'error')
+    else alert("Gagal menyalakan kamera. Pastikan izin kamera diberikan.")
   }
 }
 
@@ -206,74 +236,27 @@ const onScanSuccess = async (decodedText, decodedResult) => {
     await html5QrCode.value.pause(true)
   }
   
-  // Isi QR bisa berupa Ticket ID atau Order ID (tergantung dari data_tambahan)
   const qrData = decodedText.trim()
   
   try {
-    // Kita mencari tiket berdasarkan ticket_id atau order_id
-    const { data: peserta, error } = await supabase
-      .from('peserta')
-      .select('*')
-      .or(`data_tambahan->>ticket_id.eq.${qrData},data_tambahan->>order_id.eq.${qrData}`)
-      .eq('event_id', eventData.value.id)
-      .single()
-      
-    if (error || !peserta) {
-      throw new Error("Tiket ini BUKAN untuk event ini, atau QR Code palsu.")
-    }
+    const res = await $fetch('/api/scan', {
+      method: 'POST',
+      body: {
+        event_id: eventData.value.id,
+        qr_data: qrData,
+        pin: inputPin.value
+      }
+    })
 
-    if (peserta.status_bayar !== 'paid') {
-      throw new Error(`Tiket belum lunas (Status: ${peserta.status_bayar})`)
-    }
+    playBeep(res.success)
+    scanResult.value = res
 
-    const checkinMode = eventData.value.settings?.sistem_checkin || 'scanner'
-
-    if (checkinMode === 'scanner') {
-      // Logika 1x Datang (Hangus)
-      if (peserta.is_scanned) {
-        playBeep(false)
-        scanResult.value = {
-          success: false,
-          title: 'DITOLAK!',
-          message: 'Tiket ini sudah pernah di-scan dan di-check-in sebelumnya.',
-          pesertaName: peserta.nama_lengkap
-        }
-      } else {
-        // Update database
-        await supabase.from('peserta').update({ is_scanned: true }).eq('id', peserta.id)
-        playBeep(true)
-        scanResult.value = {
-          success: true,
-          title: 'AKSES DITERIMA',
-          message: 'Check-in berhasil dicatat.',
-          pesertaName: peserta.nama_lengkap
-        }
-      }
-    } else if (checkinMode === 'none') {
-      // Logika Tanpa Batas Keluar Masuk
-      // Boleh update is_scanned kalau belum, tapi tidak ditolak kalau sudah
-      if (!peserta.is_scanned) {
-        await supabase.from('peserta').update({ is_scanned: true }).eq('id', peserta.id)
-      }
-      playBeep(true)
-      scanResult.value = {
-        success: true,
-        title: 'SILAKAN MASUK',
-        message: 'Akses tanpa batas keluar-masuk (Pameran).',
-        pesertaName: peserta.nama_lengkap
-      }
-    } else if (checkinMode === 'portal') {
-      // Logika Multi Hari (Asumsi sederhana: tidak pernah menolak di level ini, butuh tabel log harian untuk limit)
-      if (!peserta.is_scanned) {
-        await supabase.from('peserta').update({ is_scanned: true }).eq('id', peserta.id)
-      }
-      playBeep(true)
-      scanResult.value = {
-        success: true,
-        title: 'AKSES MULTI-HARI',
-        message: 'Log kehadiran berhasil dicatat.',
-        pesertaName: peserta.nama_lengkap
-      }
+    // Jika Mode Cepat aktif dan scan sukses, otomatis lanjut scan dalam 1.5 detik
+    if (res.success && isFastMode.value) {
+      if (autoResumeTimer) clearTimeout(autoResumeTimer)
+      autoResumeTimer = setTimeout(() => {
+        resumeScanner()
+      }, 1500)
     }
 
   } catch (err) {
@@ -281,13 +264,17 @@ const onScanSuccess = async (decodedText, decodedResult) => {
     scanResult.value = {
       success: false,
       title: 'TIDAK VALID',
-      message: err.message || 'Gagal membaca tiket.',
+      message: err.data?.statusMessage || err.message || 'Gagal membaca tiket.',
       pesertaName: 'Tidak Diketahui'
     }
   }
 }
 
 const resumeScanner = () => {
+  if (autoResumeTimer) {
+    clearTimeout(autoResumeTimer)
+    autoResumeTimer = null
+  }
   scanResult.value = null
   if (html5QrCode.value) {
     html5QrCode.value.resume()

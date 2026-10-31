@@ -1,13 +1,14 @@
-version: '3.8'
 services:
-  web-tiket:
-    build: .
-    container_name: web-tiket
+  tyket-app:
+    image: node:22-alpine
+    container_name: tyket-app
     restart: unless-stopped
-    ports:
-      - "3000:3000"
+    network_mode: "host"
     environment:
-      - SUPABASE_URL=${SUPABASE_URL}
-      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
-      - FONNTE_TOKEN=${FONNTE_TOKEN}
-      - ADMIN_PHONE=${ADMIN_PHONE}
+      - PORT=3001
+    volumes:
+      - ./output:/app/.output
+    working_dir: /app
+    command: ["node", ".output/server/index.mjs"]
+    env_file:
+      - .env

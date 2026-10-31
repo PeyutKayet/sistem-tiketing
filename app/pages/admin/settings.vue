@@ -51,7 +51,7 @@
       <div class="row mb-3">
         <div class="col">
           <label class="form-label" style="margin-bottom:4px;">Nama Organizer</label>
-          <input type="text" v-model="profil.nama_organizer" class="form-control" placeholder="Contoh: EventHub Organizer" />
+          <input type="text" v-model="profil.nama_organizer" class="form-control" placeholder="Contoh: Nama EO / BEM Kampus" />
         </div>
         <div class="col">
           <label class="form-label" style="margin-bottom:4px;">No. WhatsApp Utama</label>
@@ -98,8 +98,16 @@
     <div class="panel">
       <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;"><Icon name="lucide:key" style="margin-right:6px; color: var(--primary);" /> Akses Crew (Scanner QR)</h4>
       <div class="flex" style="flex-wrap:wrap;align-items:center;">
-        <label style="font-weight:500;font-size:14px;">PIN Global:</label>
-        <input :type="showPin ? 'text' : 'password'" v-model="profil.pin_scanner" class="filter-control" style="width:140px;" />
+        <input 
+          :type="showPin ? 'text' : 'password'" 
+          v-model="profil.pin_scanner" 
+          maxlength="6"
+          inputmode="numeric"
+          placeholder="6 digit"
+          @input="profil.pin_scanner = (profil.pin_scanner || '').replace(/\D/g, '')"
+          class="filter-control" 
+          style="width:140px; text-align:center; letter-spacing:3px;" 
+        />
         <button class="btn-outline" @click="showPin = !showPin"><Icon name="lucide:eye" /></button>
         <button class="btn-primary" @click="simpanProfilOrganizer" :disabled="isSavingProfil"><Icon name="lucide:save" style="margin-right:4px;" /> Simpan</button>
       </div>
@@ -124,8 +132,10 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useImageCompress } from '~/composables/useImageCompress'
 
-const { userEmail, currentUser, supabase, showToast, organizerProfile, muatProfilOrganizer } = useAdmin()
+const { userEmail, currentUser, supabase, showToast, showConfirm, organizerProfile, muatProfilOrganizer } = useAdmin()
+const { compressImageFile } = useImageCompress()
 
 const route = useRoute()
 const isHighlightBank = ref(false)
@@ -136,7 +146,7 @@ const isLoadingProfil = ref(true)
 const scannerLink = computed(() => `${baseUrl.value}/scanner?email=${encodeURIComponent(userEmail.value)}`)
 const pass = ref({ old: '', new: '', confirm: '' })
 const isSavingPass = ref(false)
-const profil = ref({ nama_organizer: '', no_wa: '', link_ig: '', link_web: '', pin_scanner: '123456', logo_url: '' })
+const profil = ref({ nama_organizer: '', no_wa: '', link_ig: '', link_web: '', pin_scanner: '', logo_url: '' })
 const isSavingProfil = ref(false)
 const showPin = ref(false)
 const isUploadingLogo = ref(false)
@@ -191,7 +201,7 @@ onMounted(async () => {
           no_wa: loadedWa,
           link_ig: data.link_ig || '',
           link_web: data.link_web || '',
-          pin_scanner: data.pin_scanner || '123456',
+          pin_scanner: data.pin_scanner || '',
           logo_url: data.logo_url || '',
           bank_nama: data.bank_nama || '',
           bank_rekening: data.bank_rekening || '',
@@ -221,25 +231,38 @@ onMounted(async () => {
 
 const fixPosterUrl = (url) => {
   if (!url) return ''
-  return url.replace('http://192.168.1.7:8000', 'https://supabase.e-tiket.web.id')
+  return url.replace('http://192.168.1.7:8000', 'https://supabase.tyket.id').replace('http://localhost:8000', 'https://supabase.tyket.id')
 }
 
 const uploadLogo = async (e) => {
   const file = e.target.files[0]
   if (!file) return
-  if (file.size > 2 * 1024 * 1024) {
-    showToast('Ukuran logo maksimal 2MB!', 'error')
+  if (!file.type || !file.type.startsWith('image/')) {
+    showToast('File yang diunggah harus berupa gambar!', 'error')
+    e.target.value = ''
+    return
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    showToast('Ukuran logo maksimal 10MB!', 'error')
     e.target.value = ''
     return
   }
   
   isUploadingLogo.value = true
   try {
-    const fileExt = file.name.split('.').pop()
+    // Kompresi logo ke WebP (maks lebar 400px, kualitas 0.85)
+    let uploadFile = file
+    try {
+      uploadFile = await compressImageFile(file, 400, 0.85)
+    } catch (cErr) {
+      console.warn('Kompresi logo gagal, memakai file asli:', cErr)
+    }
+
+    const fileExt = uploadFile.name.split('.').pop()
     const fileName = `logo_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`
     
     // Upload file to Supabase storage 'logos'
-    const { error: uploadErr } = await supabase.storage.from('logos').upload(fileName, file)
+    const { error: uploadErr } = await supabase.storage.from('logos').upload(fileName, uploadFile)
     if (uploadErr) throw uploadErr
     
     // Get public URL
@@ -257,9 +280,41 @@ const uploadLogo = async (e) => {
 }
 
 const hapusLogo = async () => {
-  if (!confirm('Apakah Anda yakin ingin menghapus logo organizer?')) return
-  profil.value.logo_url = ''
-  await simpanProfilOrganizer()
+  showConfirm(
+    'Hapus Logo',
+    'Apakah Anda yakin ingin menghapus logo organizer?',
+    'Ya, Hapus',
+    'danger',
+    async () => {
+      try {
+        if (profil.value.logo_url) {
+          const fileNameRaw = profil.value.logo_url.split('/logos/').pop()
+          if (fileNameRaw) {
+            const fileName = fileNameRaw.split('?')[0] // Buang query parameter jika ada
+            const decodedName = decodeURIComponent(fileName)
+            console.log('Mencoba menghapus file:', decodedName)
+            
+            const { data, error } = await supabase.storage.from('logos').remove([decodedName])
+            console.log('Hasil hapus:', data, error)
+            
+            if (error) {
+              console.error('Error dari Supabase storage:', error)
+              showToast('Gagal hapus file storage: ' + error.message, 'error')
+            } else if (!data || data.length === 0) {
+              showToast('File tidak ditemukan di storage atau akses DITOLAK (cek RLS)', 'error')
+            } else {
+              showToast('File logo berhasil dihapus dari storage', 'success')
+            }
+          }
+        }
+        profil.value.logo_url = ''
+        await simpanProfilOrganizer()
+      } catch (err) {
+        console.error('Gagal menghapus file logo dari storage:', err)
+        showToast('Gagal menghapus file dari storage', 'error')
+      }
+    }
+  )
 }
 
 const ubahPassword = async () => {
@@ -285,6 +340,23 @@ const ubahPassword = async () => {
 }
 
 const simpanProfilOrganizer = async () => {
+  if (profil.value.pin_scanner) {
+    const cleanPin = String(profil.value.pin_scanner).replace(/\D/g, '')
+    if (cleanPin.length !== 6) {
+      showToast('PIN Scanner wajib tepat 6 digit angka!', 'error')
+      return
+    }
+    if (cleanPin === '123456' || cleanPin === '654321') {
+      showToast('PIN terlalu mudah ditebak! Gunakan kombinasi angka lain.', 'error')
+      return
+    }
+    if (/^(\d)\1{5}$/.test(cleanPin)) {
+      showToast('PIN tidak boleh angka kembar berulang (misal 000000 atau 111111)!', 'error')
+      return
+    }
+    profil.value.pin_scanner = cleanPin
+  }
+
   isSavingProfil.value = true
   try {
     const payload = {

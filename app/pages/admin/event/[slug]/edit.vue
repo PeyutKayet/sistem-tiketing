@@ -106,8 +106,8 @@
              </label>
              <div v-if="formEditEvent.is_online_absen_active" style="margin-left: 24px; margin-top: 10px;">
                <label class="form-label" style="font-size: 0.75rem; color: #1e40af;">Bagikan link ini saat acara berlangsung:</label>
-               <input type="text" readonly :value="'https://e-tiket.web.id/absen/' + formEditEvent.slug" class="form-control" style="background: white; font-size: 0.8rem; padding: 8px; color: #1d4ed8; font-weight: 600;" />
-               <small style="font-size: 10px; color: #3b82f6; margin-top: 4px; display: block;">Peserta klik link ini > masukkan Email/WA > Absen sukses!</small>
+               <input type="text" readonly :value="'https://tyket.id/absen/' + formEditEvent.slug" class="form-control" style="background: white; font-size: 0.8rem; padding: 8px; color: var(--primary); font-weight: 600;" />
+               <small style="font-size: 10px; color: var(--primary); margin-top: 4px; display: block;">Peserta klik link ini > masukkan Email/WA > Absen sukses!</small>
              </div>
           </div>
         </div>
@@ -136,15 +136,23 @@
         </div>
 
         <div class="panel">
-          <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;display:flex;align-items:center;gap:6px;"><Icon name="lucide:shield-check" style="font-size:16px;color:var(--primary);" /> Sistem Anti-Calo</h4>
+          <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;display:flex;align-items:center;gap:6px;"><Icon name="lucide:shield-check" style="font-size:16px;color:var(--primary);" /> Sistem Anti-Calo & Batasan</h4>
           <label class="checkbox-item mb-1">
             <input type="checkbox" v-model="formEditEvent.is_anti_calo_email" /> 1 Email = 1 Tiket 
-            
           </label>
-          <label class="checkbox-item mb-1">
+          <label class="checkbox-item mb-3">
             <input type="checkbox" v-model="formEditEvent.is_anti_calo_wa" /> 1 No. WhatsApp = 1 Tiket
           </label>
-
+          
+          <div style="border-top: 1px dashed #e2e8f0; padding-top: 12px;">
+            <label class="checkbox-item mb-0" style="font-weight: 600;">
+              <input type="checkbox" v-model="formEditEvent.is_limit_tiket_active" /> <span style="font-size: 0.85rem;"><Icon name="lucide:shopping-cart" style="font-size:16px;color:var(--primary);" /> Batasi Pembelian Tiket</span>
+            </label>
+            <div v-if="formEditEvent.is_limit_tiket_active" class="flex" style="align-items:center; gap:8px; margin-left: 24px; margin-top: 8px;">
+              <input type="number" v-model="formEditEvent.max_tiket_per_transaksi" class="form-control" style="width: 80px; padding: 6px 12px; font-size: 0.85rem;" placeholder="1" />
+              <span style="font-size: 0.85rem; color:#8a9aa8;">Max tiket per checkout</span>
+            </div>
+          </div>
         </div>
 
         <div class="panel">
@@ -166,14 +174,35 @@
               </div>
               <div class="col">
                 <label class="form-label">Pilihan Nominal (Pisahkan dengan koma)</label>
-                <input type="text" v-model="formEditEvent.donasi_options" class="form-control" placeholder="Contoh: 10000, 50000, 100000, custom" />
-                <span class="text-muted" style="font-size:11px; display:block; margin-top:4px;">Tulis "custom" jika ingin peserta mengisi nominal sendiri.</span>
+                <input type="text" v-model="formEditEvent.donasi_options" class="form-control" placeholder="Contoh: 10000, 50000, 100000" />
+                <label class="checkbox-item" style="margin-top: 15px; font-weight: 600;">
+                  <input type="checkbox" v-model="formEditEvent.is_donasi_custom" /> Izinkan nominal custom
+                </label>
               </div>
             </div>
           </div>
         </div>
 
-
+        <div class="panel">
+          <h4 style="margin-bottom:8px;font-weight:600;color:#0a1929;display:flex;align-items:center;gap:6px;"><Icon name="lucide:credit-card" style="font-size:16px;color:var(--primary);" /> Pembayaran Online (ESPay Direct API)</h4>
+          <p style="font-size:0.8rem;color:#64748b;margin-bottom:12px;">Metode pembayaran otomatis instan (QRIS & Virtual Account) terkelola terpusat oleh Tyket.id.</p>
+          
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <span style="font-size: 0.8rem; font-weight: 600; color: #334155; margin-bottom: 4px;">Pilih Channel Pembayaran yang Diizinkan:</span>
+            <label class="checkbox-item" style="font-size: 0.85rem;">
+              <input type="checkbox" v-model="formEditEvent.espay_methods.qris" /> <span><strong>QRIS</strong> (MDR 0.63% - Semua Bank & E-Wallet)</span>
+            </label>
+            <label class="checkbox-item" style="font-size: 0.85rem;">
+              <input type="checkbox" v-model="formEditEvent.espay_methods.va_mandiri" /> <span><strong>Mandiri Virtual Account</strong> (Fee Rp 2.500)</span>
+            </label>
+            <label class="checkbox-item" style="font-size: 0.85rem;">
+              <input type="checkbox" v-model="formEditEvent.espay_methods.va_bri" /> <span><strong>BRI Virtual Account (BRIVA)</strong> (Fee Rp 2.500)</span>
+            </label>
+            <label class="checkbox-item" style="font-size: 0.85rem;">
+              <input type="checkbox" v-model="formEditEvent.espay_methods.va_bni" /> <span><strong>BNI Virtual Account</strong> (Fee Rp 3.000)</span>
+            </label>
+          </div>
+        </div>
 
         <div class="panel">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -206,12 +235,12 @@
               </span>
             </div>
             <div style="display:flex; justify-content:center; margin-bottom:12px;">
-              <span style="background:#eef3f9; color:var(--primary); padding:4px 12px; border-radius:20px; font-size:9px; font-weight:700; letter-spacing:0.5px;"><Icon name="lucide:ticket" style="margin-right:4px;" /> EVENTHUB TICKET</span>
+              <span style="background:#eef3f9; color:var(--primary); padding:4px 12px; border-radius:20px; font-size:9px; font-weight:700; letter-spacing:0.5px;"><Icon name="lucide:ticket" style="margin-right:4px;" /> TYKET.ID PASS</span>
             </div>
             <div style="background:#ffffff; border-radius:16px; padding:12px; box-shadow:0 4px 12px rgba(0,0,0,0.03); margin-bottom:12px; border:1px solid #e6edf5;">
               <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 12px;">
                 <div style="width: 100%; height: 100px; border-radius: 10px; margin-bottom: 8px; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 28px; color: rgba(255,255,255,0.7); border: 1px solid #e2e8f0;" 
-                  :style="posterPreviewUrl ? { backgroundImage: `url('${posterPreviewUrl}')` } : { background: 'linear-gradient(145deg, var(--primary), #3b82f6)' }">
+                  :style="posterPreviewUrl ? { backgroundImage: `url('${posterPreviewUrl}')` } : { background: 'linear-gradient(145deg, var(--primary), var(--primary-hover))' }">
                   <Icon v-if="!posterPreviewUrl" name="lucide:rocket" />
                 </div>
                 <p style="font-size: 9px; font-weight: 700; letter-spacing: 0.05em; color: var(--accent-main); text-transform: uppercase; margin-bottom: 2px;">
@@ -280,13 +309,15 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import AdminFormBuilder from '~/components/admin/AdminFormBuilder.vue'
+import { useImageCompress } from '~/composables/useImageCompress'
 
 const { isLoading, selectedEvent, formEditEvent, isSavingEdit, activeTab, supabase, showToast, currentUser, muatDaftarEvent, formForgeItems } = useAdmin()
+const { compressImageFile } = useImageCompress()
 
 // Fungsi untuk me-replace IP lokal ke URL https baru
 const fixPosterUrl = (url) => {
   if (!url) return ''
-  return url.replace('http://192.168.1.7:8000', 'https://supabase.e-tiket.web.id')
+  return url.replace('http://192.168.1.7:8000', 'https://supabase.tyket.id').replace('http://localhost:8000', 'https://supabase.tyket.id')
 }
 
 const posterFile = ref(null)
@@ -404,7 +435,7 @@ watch(selectedEvent, (val) => {
       sistem_checkin: val.sistem_checkin || 'scanner',
       target_absen: val.target_absen || 0,
       is_snk_active: s.is_snk_active !== false,
-      snk_text: s.snk_text || 'Syarat dan ketentuan berlaku mengikuti aturan panitia EventHub.',
+      snk_text: s.snk_text || 'Syarat dan ketentuan berlaku mengikuti kebijakan panitia dan tyket.id.',
       is_anti_calo_email: s.is_anti_calo_email || false,
       is_anti_calo_wa: s.is_anti_calo_wa || false,
       is_wa_konfirm: s.is_wa_konfirm || false,
@@ -412,41 +443,72 @@ watch(selectedEvent, (val) => {
       is_infaq_wajib: s.is_infaq_wajib || false,
       donasi_header: s.donasi_header || '',
       donasi_options: s.donasi_options || '',
+      is_donasi_custom: s.is_donasi_custom || false,
       is_grup_wa_active: s.link_grup_wa && s.link_grup_wa.length > 5,
-      link_grup_wa: s.link_grup_wa || ''
+      link_grup_wa: s.link_grup_wa || '',
+      is_limit_tiket_active: s.is_limit_tiket_active || false,
+      max_tiket_per_transaksi: s.max_tiket_per_transaksi || 1,
+      is_espay_active: s.is_espay_active !== false,
+      espay_methods: s.espay_methods || {
+        qris: true,
+        va_mandiri: true,
+        va_bri: true,
+        va_bni: true
+      }
     }
     
     // Load FormForge Items
     if (s.pertanyaan_kustom && Array.isArray(s.pertanyaan_kustom)) {
       formForgeItems.value = s.pertanyaan_kustom
     } else {
-      formForgeItems.value = getDefaultItems()
+      formForgeItems.value = [
+        { id: 'ff_default_nama', type: 'short_text', label: 'Nama Lengkap', field_key: 'nama_lengkap', x: 0, y: 0, width: 12, height: 2, required: true, undeletable: true, unduplicable: true, is_mandatory: true },
+        { id: 'ff_default_email', type: 'short_text', label: 'Email', field_key: 'email', x: 0, y: 2, width: 6, height: 2, required: true, undeletable: true, unduplicable: true, is_mandatory: true },
+        { id: 'ff_default_wa', type: 'phone_wa', label: 'No. WhatsApp', field_key: 'no_wa', x: 6, y: 2, width: 6, height: 2, required: true, undeletable: true, unduplicable: true, is_mandatory: true },
+        { id: 'ff_default_domisili', type: 'domisili_api', label: 'Kota Domisili', field_key: 'domisili', x: 0, y: 4, width: 12, height: 2, required: true, undeletable: false, unduplicable: false, is_mandatory: false }
+      ]
     }
     setTimeout(() => {
-      if (typeof window !== 'undefined' && window.renderGrid) {
+      if (typeof window !== 'undefined' && window._ffInstance) {
+        window._ffInstance.init(formForgeItems.value)
+      } else if (typeof window !== 'undefined' && window.renderGrid) {
         window.items = formForgeItems.value
         window.renderGrid()
       }
       updatePreviewFromItems()
-    }, 500)
+    }, 400)
     
     posterPreviewUrl.value = fixPosterUrl(val.poster_url) || null
     posterFile.value = null
   }
 }, { immediate: true })
 
-const handlePosterUpload = (e) => {
+const handlePosterUpload = async (e) => {
   const file = e.target.files[0]
   if (!file) return
-  if (file.size > 2 * 1024 * 1024) {
-    showToast('Ukuran poster maksimal 2MB!', 'error')
+  if (!file.type || !file.type.startsWith('image/')) {
+    showToast('File yang diunggah harus berupa gambar!', 'error')
     e.target.value = ''
     return
   }
-  posterFile.value = file
-  const reader = new FileReader()
-  reader.onload = (ev) => { posterPreviewUrl.value = ev.target.result }
-  reader.readAsDataURL(file)
+  if (file.size > 15 * 1024 * 1024) {
+    showToast('Ukuran poster maksimal 15MB!', 'error')
+    e.target.value = ''
+    return
+  }
+  try {
+    const compressed = await compressImageFile(file, 1080, 0.82)
+    posterFile.value = compressed
+    const reader = new FileReader()
+    reader.onload = (ev) => { posterPreviewUrl.value = ev.target.result }
+    reader.readAsDataURL(compressed)
+  } catch (err) {
+    console.error('Gagal kompres poster:', err)
+    posterFile.value = file
+    const reader = new FileReader()
+    reader.onload = (ev) => { posterPreviewUrl.value = ev.target.result }
+    reader.readAsDataURL(file)
+  }
 }
 
 const simpanEdit = async () => {
@@ -471,13 +533,18 @@ const simpanEdit = async () => {
       is_anti_calo_email: formEditEvent.value.is_anti_calo_email,
       is_anti_calo_wa: formEditEvent.value.is_anti_calo_wa,
       is_wa_konfirm: formEditEvent.value.is_wa_konfirm,
+      is_limit_tiket_active: formEditEvent.value.is_limit_tiket_active,
+      max_tiket_per_transaksi: parseInt(formEditEvent.value.max_tiket_per_transaksi) || 1,
       is_donasi_active: formEditEvent.value.is_donasi_active,
       is_infaq_wajib: formEditEvent.value.is_infaq_wajib,
       donasi_header: formEditEvent.value.donasi_header,
       donasi_options: formEditEvent.value.donasi_options,
+      is_donasi_custom: formEditEvent.value.is_donasi_custom,
       link_grup_wa: formEditEvent.value.is_grup_wa_active ? formEditEvent.value.link_grup_wa : '',
       is_snk_active: formEditEvent.value.is_snk_active,
-      snk_text: formEditEvent.value.snk_text
+      snk_text: formEditEvent.value.snk_text,
+      is_espay_active: true,
+      espay_methods: formEditEvent.value.espay_methods
     }
 
     const payload = {

@@ -5,9 +5,60 @@
       {{ toastMessage }}
     </div>
 
-    <!-- State Loading -->
-    <div v-if="loading" class="state-message">
-      Mempersiapkan ruang yang aman dan nyaman...
+    <!-- State Loading: Skeleton Event Detail Mewah & Modern -->
+    <div v-if="isEventLoading" class="step-content active step-home">
+      <div class="glass glass-home">
+        <!-- Brand Loading Badge -->
+        <div class="skeleton-badge-wrap">
+          <div class="skeleton-brand-badge">
+            <span class="skeleton-dot-pulse"></span>
+            <span class="skeleton-badge-text">Memuat detail event...</span>
+          </div>
+        </div>
+
+        <!-- Poster Box -->
+        <div class="skeleton-item skeleton-poster-box"></div>
+
+        <!-- Title Bars -->
+        <div class="skeleton-item skeleton-title-line"></div>
+        <div class="skeleton-item skeleton-title-line-short"></div>
+
+        <!-- Meta Grid (Date & Location) -->
+        <div class="skeleton-meta-grid">
+          <div class="skeleton-item skeleton-meta-pill"></div>
+          <div class="skeleton-item skeleton-meta-pill"></div>
+        </div>
+
+        <!-- Card EO & Description -->
+        <div class="skeleton-card-block">
+          <div class="skeleton-eo-row">
+            <div class="skeleton-item skeleton-avatar-circle"></div>
+            <div class="skeleton-eo-text">
+              <div class="skeleton-item skeleton-eo-sub"></div>
+              <div class="skeleton-item skeleton-eo-main"></div>
+            </div>
+          </div>
+          <div class="skeleton-item skeleton-divider"></div>
+          <div class="skeleton-item skeleton-desc-heading"></div>
+          <div class="skeleton-item skeleton-desc-line"></div>
+          <div class="skeleton-item skeleton-desc-line"></div>
+          <div class="skeleton-item skeleton-desc-line-short"></div>
+        </div>
+
+        <!-- Tickets Shimmer -->
+        <div class="skeleton-tickets-container">
+          <div v-for="n in 2" :key="'skel-tkt-' + n" class="skeleton-ticket-item">
+            <div class="skeleton-tkt-left">
+              <div class="skeleton-item skeleton-tkt-title"></div>
+              <div class="skeleton-item skeleton-tkt-price"></div>
+            </div>
+            <div class="skeleton-item skeleton-tkt-action"></div>
+          </div>
+        </div>
+
+        <!-- Button Shimmer -->
+        <div class="skeleton-item skeleton-btn-main"></div>
+      </div>
     </div>
 
     <!-- State Error -->
@@ -30,39 +81,69 @@
         <TicketList 
           :tickets="tickets"
           :keranjang="keranjang"
+          :isLoading="isTicketsLoading"
           @update-keranjang="updateKeranjang"
         />
 
         <!-- Tombol Daftar -->
-        <button @click="lanjutDaftar" class="btn-register">
-          <div class="btn-register-text">DAFTAR SEKARANG ➔</div>
-          <small v-if="totalQty > 0" class="btn-register-sub">
-            {{ totalQty }} Tiket • {{ totalPrice === 0 ? 'GRATIS' : formatPrice(totalPrice) }}
-          </small>
+        <button 
+          @click="lanjutDaftar" 
+          class="btn-register" 
+          :disabled="isTicketsLoading || tickets.length === 0"
+        >
+          <div class="btn-register-text">
+            <template v-if="isTicketsLoading">MEMUAT TIKET...</template>
+            <template v-else-if="tickets.length === 0">TIKET BELUM TERSEDIA</template>
+            <template v-else>DAFTAR SEKARANG &rarr;</template>
+          </div>
+          <ClientOnly>
+            <small v-if="totalQty > 0 && !isTicketsLoading && tickets.length > 0" class="btn-register-sub">
+              {{ totalQty }} Tiket • {{ totalPrice === 0 ? 'GRATIS' : formatPrice(totalPrice) }}
+            </small>
+          </ClientOnly>
         </button>
 
-        <!-- Tombol Sosial Media -->
-        <div class="social-grid">
-          <a :href="organizerProfile.link_ig || '#'" target="_blank" class="social-btn">
+        <!-- Tombol Sosial Media (Hanya tampil jika EO mengisi linknya) -->
+        <div v-if="organizerProfile.link_ig || organizerProfile.no_wa || organizerProfile.link_web" class="social-grid">
+          <a v-if="organizerProfile.link_ig" :href="organizerProfile.link_ig" target="_blank" rel="noopener noreferrer" class="social-btn">
+            <Icon name="mdi:instagram" size="1.2rem" style="color: #64748b;" />
             <span class="social-text">Instagram</span>
           </a>
-          <a :href="formatWaLink(organizerProfile.no_wa)" target="_blank" class="social-btn">
+          <a v-if="organizerProfile.no_wa" :href="formatWaLink(organizerProfile.no_wa)" target="_blank" rel="noopener noreferrer" class="social-btn">
+            <Icon name="mdi:whatsapp" size="1.2rem" style="color: #64748b;" />
             <span class="social-text">WhatsApp</span>
           </a>
-          <a :href="organizerProfile.link_web || '#'" target="_blank" class="social-btn">
+          <a v-if="organizerProfile.link_web" :href="organizerProfile.link_web" target="_blank" rel="noopener noreferrer" class="social-btn">
+            <Icon name="lucide:globe" size="1.2rem" style="color: #64748b;" />
             <span class="social-text">Website</span>
           </a>
+        </div>
+
+        <!-- Tautan Cek Tiket Bagi Yang Sudah Mendaftar (Discreet & Minimal) -->
+        <div class="footer-check-ticket">
+          <NuxtLink to="/cari-tiket" class="link-check-ticket">
+            Sudah mendaftar? Cek tiket di sini
+          </NuxtLink>
+        </div>
+
+        <!-- Watermark Platform Branding (Sleek & Professional) -->
+        <div class="platform-watermark">
+          <NuxtLink to="/" class="watermark-link" title="Buat sistem tiket event Anda di tyket.id">
+            <span>Ditenagai oleh</span>
+            <img src="/logo-tyket.svg" alt="tyket.id" class="watermark-logo" />
+          </NuxtLink>
         </div>
       </div>
     </div>
 
     <!-- Tampilan Syarat & Ketentuan (S&K) -->
     <div v-else-if="currentStep === 'snk'" class="step-content active step-padded">
+      <CheckoutStepper :currentStep="currentStep" :hasSurvey="hasB2BSurvey" />
       <h3 class="step-title">Syarat & Ketentuan</h3>
       <p class="step-subtitle">Mohon baca dan setujui sebelum melanjutkan</p>
       
       <div class="snk-box">
-        {{ eventData.settings?.snk_text || 'Syarat dan ketentuan berlaku mengikuti aturan panitia EventHub.' }}
+        {{ eventData.settings?.snk_text || 'Syarat dan ketentuan berlaku mengikuti kebijakan panitia dan tyket.id.' }}
       </div>
       
       <label class="snk-label">
@@ -72,12 +153,13 @@
 
       <div class="action-row">
         <button @click="currentStep = 'home'" class="btn-action btn-secondary">KEMBALI</button>
-        <button @click="setujuDanLanjut" class="btn-action btn-primary">LANJUTKAN ➔</button>
+        <button @click="setujuDanLanjut" class="btn-action btn-primary">LANJUTKAN &rarr;</button>
       </div>
     </div>
 
     <!-- Tampilan Form Data Diri (FORM) -->
     <div v-else-if="currentStep === 'form'" class="step-content active step-padded">
+      <CheckoutStepper :currentStep="currentStep" :hasSurvey="hasB2BSurvey" />
       <h3 class="step-title-left">Data Diri Peserta</h3>
       
       <ParticipantForm 
@@ -86,64 +168,53 @@
         @toast="showToastMsg"
       />
 
-      <!-- Bagian Donasi Standar (Sesuai Form Peserta) -->
-      <div v-if="eventData?.settings?.is_donasi_active" class="participant-card donasi-form-card" :class="{'donasi-dim': !isInfaqOn}">
-        <div class="donasi-header-flex">
-          <div class="donasi-title-wrap">
-            <svg class="donasi-svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-            <span class="form-section-title" style="margin: 0; font-size: 0.95rem;">{{ eventData.settings.donasi_header || 'Infaq / Donasi' }}</span>
-          </div>
-          <label v-if="!eventData.settings.is_infaq_wajib" class="switch-small">
-            <input type="checkbox" v-model="isInfaqOn" @change="handleToggleInfaq">
-            <span class="slider-small round-small"></span>
-          </label>
-        </div>
-        
-        <p class="donasi-subtitle">Bantu tebarkan manfaat untuk sesama</p>
+      <!-- Bagian Donasi Standar (Hanya jika bukan event survey B2B, karena di B2B ditaruh di akhir survey) -->
+      <DonationForm 
+        v-if="!hasB2BSurvey"
+        :eventData="eventData" 
+        v-model:isInfaqOn="isInfaqOn" 
+        :donasiAmount="donasiAmount" @update:donasiAmount="setDonasiAmount" 
+      />
 
-        <div v-if="isInfaqOn" class="donasi-form-body">
-          <div v-if="hasFixedOptions" class="donasi-chips">
-            <button 
-              v-for="(opt, idx) in fixedOptionsOnly" 
-              :key="idx"
-              @click="selectDonasi(opt)"
-              class="form-chip"
-              :class="{ 'form-chip-active': selectedDonasiOpt === opt }"
-            >
-              {{ formatPrice(Number(opt)) }}
-            </button>
-            <button 
-              v-if="hasCustomOption"
-              @click="selectDonasi('custom')"
-              class="form-chip"
-              :class="{ 'form-chip-active': selectedDonasiOpt === 'custom' }"
-            >
-              Lainnya
-            </button>
-          </div>
-
-          <div v-if="selectedDonasiOpt === 'custom' || (!hasFixedOptions && hasCustomOption)" class="form-input-group">
-            <span class="form-input-prefix">Rp</span>
-            <input 
-              type="text" 
-              inputmode="numeric"
-              :value="customDonasiValueFormatted"
-              @input="updateCustomDonasi"
-              class="form-input donasi-input" 
-              placeholder="0" 
-            />
-          </div>
-        </div>
+      <div class="legal-disclaimer">
+        Dengan menekan tombol di bawah, Anda menyetujui <a href="/terms" target="_blank">Syarat & Ketentuan</a> serta <a href="/privacy" target="_blank">Kebijakan Privasi</a> tyket.id.
       </div>
 
       <div class="action-row">
         <button @click="kembaliKeSnkAtauHome" class="btn-action btn-secondary">KEMBALI</button>
-        <button @click="lanjutBayar" class="btn-action btn-primary">LANJUT BAYAR ➔</button>
+        <button @click="lanjutBayar" class="btn-action btn-primary">
+          {{ hasB2BSurvey ? 'LANJUT KE KUESIONER &rarr;' : (isTrulyFree ? 'SELESAIKAN DAFTAR &rarr;' : 'LANJUT BAYAR &rarr;') }}
+        </button>
       </div>
+    </div>
+
+    <!-- Tampilan Kuesioner Khusus B2B (SURVEI) -->
+    <div v-else-if="currentStep === 'survei'" class="step-content active step-padded">
+      <CheckoutStepper :currentStep="currentStep" :hasSurvey="hasB2BSurvey" />
+
+      <B2BSurveyStep 
+        :eventData="eventData" 
+        :primaryParticipant="primaryParticipant" 
+        :isTrulyFree="isTrulyFree" 
+        :isSubmitting="isSubmitting"
+        @back="currentStep = 'form'"
+        @complete="handleSurveyComplete"
+        @toast="showToastMsg"
+      >
+        <template #donation>
+          <DonationForm 
+            :eventData="eventData" 
+            v-model:isInfaqOn="isInfaqOn" 
+            :donasiAmount="donasiAmount" 
+            @update:donasiAmount="setDonasiAmount" 
+          />
+        </template>
+      </B2BSurveyStep>
     </div>
 
     <!-- Tampilan Pembayaran (BAYAR) -->
     <div v-else-if="currentStep === 'bayar'" class="step-content active step-padded">
+      <CheckoutStepper v-if="!activePaymentResult" :currentStep="currentStep" :hasSurvey="hasB2BSurvey" />
       <CheckoutPayment 
         :grandTotal="grandTotal"
         :totalQty="totalQty"
@@ -154,10 +225,21 @@
         :buktiBayarPreview="buktiBayarPreview"
         :uploadError="uploadError"
         :isSubmitting="isSubmitting"
+        :daftarPeserta="daftarPeserta"
+        :isEspayActive="isEspayActiveCalculated"
+        :isEmergencyBackup="isEmergencyBackup"
+        :emergencyMessage="emergencyMessage"
+        :espayMethods="eventData?.settings?.espay_methods"
+        :eventData="eventData"
+        :initialPaymentResult="activePaymentResult"
         @file-upload="handleFileUpload"
-        @back="currentStep = 'form'"
+        @back="currentStep = hasB2BSurvey ? 'survei' : 'form'"
         @submit="submitData"
         @toast="showToastMsg"
+        @request-espay="handleEspayPayment"
+        @payment-success="handlePaymentSuccess"
+        @reset-payment="handleResetPayment"
+        @cancel-order="handleCancelOrder"
       />
     </div>
 
@@ -165,65 +247,30 @@
     <div v-else-if="currentStep === 'sukses'" class="step-content active">
       <SuccessStep 
         :eventData="eventData"
-        :isFree="grandTotal === 0"
+        :isFree="isTrulyFree"
+        :isPaid="isPaymentGatewayPaid"
         @kirim-wa="kirimWA"
         @buka-grup="bukaGrupWa"
-        @lihat-tiket="() => { window.location.href = `/tiket/${transactionIdGlobal}` }"
+        @lihat-tiket="goToTicket"
       />
     </div>
   </div>
 
-  <!-- PRINTER ANIMATION OVERLAY -->
-  <div class="api-loader" :class="{ active: isSubmitting }">
-    <div class="printer-wrapper">
-      <div class="printer-slot"><div class="printer-slot-inner"><div class="printer-slot-light"></div></div></div>
-      <div class="printer-mask">
-        <div class="ticket-paper-output">
-          <div class="ticket-header-star">★ E-TICKET RESMI ★</div>
-          <div class="ticket-header-event">{{ eventData?.nama_event || 'EVENT' }}</div>
-          
-          <div class="ticket-divider"></div>
-          
-          <div class="ticket-owner-box">
-            <span class="ticket-owner-label">PESERTA</span>
-            <span class="ticket-owner-name">{{ daftarPeserta[0]?.jawaban?.nama_lengkap || 'PESERTA' }}</span>
-          </div>
 
-          <div class="ticket-trx-box">
-             <span class="ticket-trx-id">{{ transactionIdGlobal || 'MEMPROSES...' }}</span>
-          </div>
-
-          <div class="ticket-summary-box">
-             <span>{{ daftarPeserta.length }} TIKET</span>
-             <span class="ticket-status-paid">LUNAS</span>
-          </div>
-          
-          <div class="fake-barcode-area">
-             <div class="bar-4"></div><div class="bar-8"></div>
-             <div class="bar-4"></div><div class="bar-16"></div>
-             <div class="bar-4"></div><div class="bar-4"></div>
-             <div class="bar-8"></div><div class="bar-12"></div>
-             <div class="bar-4"></div><div class="bar-16"></div>
-             <div class="bar-4"></div><div class="bar-8"></div>
-             <div class="bar-8"></div><div class="bar-4"></div>
-             <div class="bar-16"></div><div class="bar-4"></div>
-             <div class="bar-12"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="loading-badge">
-      <div class="loading-dot"></div>
-      MENCETAK TIKET...
-    </div>
-  </div>
+  <!-- OVERLAYS -->
+  <TicketPrinterOverlay 
+    :isSubmitting="isSubmitting" 
+    :isPrinting="isPrinting" 
+    :eventData="eventData" 
+    :daftarPeserta="daftarPeserta" 
+    :transactionId="transactionIdGlobal" 
+  />
 </template>
 
 
 <script setup>
 
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useCart } from '~/composables/useCart'
 import { useImageCompress } from '~/composables/useImageCompress'
 import { formatPrice } from '~/utils/format'
@@ -231,7 +278,11 @@ import EventHeader from '~/components/event/EventHeader.vue'
 import TicketList from '~/components/event/TicketList.vue'
 import ParticipantForm from '~/components/event/ParticipantForm.vue'
 import CheckoutPayment from '~/components/event/CheckoutPayment.vue'
+import CheckoutStepper from '~/components/event/CheckoutStepper.vue'
 import SuccessStep from '~/components/event/SuccessStep.vue'
+import DonationForm from '~/components/event/DonationForm.vue'
+import TicketPrinterOverlay from '~/components/event/TicketPrinterOverlay.vue'
+import { useEventCheckout } from '~/composables/useEventCheckout'
 import { useRoute } from 'vue-router'
 
 const toastMessage = ref('')
@@ -243,6 +294,15 @@ const showToastMsg = (msg, type = 'error') => {
 }
 
 const route = useRoute()
+const printAudio = ref(null)
+
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    printAudio.value = new Audio('/printer.mp3')
+    printAudio.value.preload = 'auto'
+    printAudio.value.load()
+  }
+})
 const slug = route.params.slug
 
 const supabase = useSupabaseClient()
@@ -250,35 +310,104 @@ const supabase = useSupabaseClient()
 // Fungsi untuk me-replace IP lokal ke URL https baru
 const fixPosterUrl = (url) => {
   if (!url) return ''
-  return url.replace('http://192.168.1.7:8000', 'https://supabase.e-tiket.web.id')
+  let fixed = url.replace('http://192.168.1.7:8000', 'https://supabase.tyket.id').replace('http://localhost:8000', 'https://supabase.tyket.id')
+  
+  // WA Crawler seringkali menolak gambar jika URL-nya tidak diakhiri dengan ekstensi gambar yang jelas.
+  // Supabase Storage sering tidak pakai ekstensi, jadi kita akali dengan menambah parameter dummy.
+  if (!fixed.match(/\.(jpg|jpeg|png|webp)($|\?)/i)) {
+    fixed += (fixed.includes('?') ? '&' : '?') + 'wa_trick=.jpg'
+  }
+  
+  return fixed
 }
 
 // === SEO & OPEN GRAPH (Berjalan di Server-Side) ===
 const { data: seoData } = await useAsyncData(`seo-${slug}`, async () => {
-  const { data } = await supabase.from('event').select('nama_event, deskripsi, poster_url').eq('slug', slug).single()
-  return data
+  try {
+    return await $fetch(`/api/seo/${slug}`)
+  } catch (e) {
+    return null
+  }
+}, {
+  lazy: true
 })
 
 if (seoData.value) {
   // Potong deskripsi jika terlalu panjang untuk SEO
   const plainDesc = seoData.value.deskripsi ? seoData.value.deskripsi.replace(/<[^>]*>?/gm, '').substring(0, 150) + '...' : `Daftar sekarang untuk acara ${seoData.value.nama_event}!`
+  const organizerName = seoData.value.organizer_profile?.nama_organizer || 'tyket.id'
+  const finalDesc = `Penyelenggara: ${organizerName} | ${plainDesc}`
+  const currentUrl = `https://tyket.id/${slug}`
   
   useSeoMeta({
     title: seoData.value.nama_event,
     ogTitle: seoData.value.nama_event,
-    description: plainDesc,
-    ogDescription: plainDesc,
+    description: finalDesc,
+    ogDescription: finalDesc,
     ogImage: fixPosterUrl(seoData.value.poster_url),
+    ogImageType: 'image/jpeg',
+    ogType: 'website',
+    ogUrl: currentUrl,
     twitterCard: 'summary_large_image',
+    twitterTitle: seoData.value.nama_event,
+    twitterDescription: finalDesc,
+    twitterImage: fixPosterUrl(seoData.value.poster_url)
+  })
+
+  useHead({
+    link: [
+      { rel: 'preload', as: 'image', href: '/qris.webp', type: 'image/webp' }
+    ]
   })
 }
 // ================================================
 
-const loading = ref(true)
+useHead({
+  link: [
+    { rel: 'preload', as: 'image', href: '/qris.webp', type: 'image/webp' }
+  ]
+})
+
+const { ticketCache, getTickets, invalidateTicketCache } = useEventTicketCache()
+
+const selectedPreview = useState('selected_event_preview', () => null)
+
+// Cek apakah ada data preloaded (dari klik event di index.vue atau dari SSR seoData)
+const initialEvent = (selectedPreview.value && selectedPreview.value.slug === slug)
+  ? selectedPreview.value
+  : (seoData.value ? { ...seoData.value, slug } : null)
+
+// Cek apakah tiket sudah ter-cache (dari prefetch touch/hover di index.vue)
+const cachedInitialTickets = (initialEvent?.id && ticketCache.value[initialEvent.id]?.tickets) || null
+
+const eventData = ref(initialEvent)
+const organizerProfile = ref(initialEvent?.organizer_profile || {})
+const isEventLoading = ref(!initialEvent)
+const isTicketsLoading = ref(!cachedInitialTickets)
+const tickets = ref(cachedInitialTickets ? [...cachedInitialTickets] : [])
 const error = ref(null)
-const eventData = ref(null)
-const organizerProfile = ref({})
-const tickets = ref([])
+
+const isEmergencyBackup = ref(false)
+const emergencyMessage = ref('')
+
+const isEspayActiveCalculated = computed(() => {
+  if (isEmergencyBackup.value) return false
+  return eventData.value?.settings?.is_espay_active !== false
+})
+
+const hasB2BSurvey = computed(() => {
+  return eventData.value?.settings?.b2b_survey?.active === true
+})
+
+const primaryParticipant = computed(() => {
+  if (!daftarPeserta.value || daftarPeserta.value.length === 0) return null
+  const p = daftarPeserta.value[0]
+  return {
+    nama: p.jawaban?.nama_lengkap || p.nama || '',
+    email: p.jawaban?.email || p.email || '',
+    phone: p.jawaban?.no_wa || p.phone || ''
+  }
+})
 
 const { compressImageFile } = useImageCompress()
 
@@ -286,91 +415,8 @@ const { compressImageFile } = useImageCompress()
 const currentStep = ref('home')
 const isSetujuSnk = ref(false)
 
-const isInfaqOn = ref(true) // Otomatis menyala di awal
-const selectedDonasiOpt = ref('')
-const customDonasiValue = ref(0)
-const customDonasiValueFormatted = ref('')
 
-const parsedDonasiOptions = computed(() => {
-  if (!eventData.value?.settings?.donasi_options) return []
-  return eventData.value.settings.donasi_options.split(',').map(s => s.trim()).filter(s => s)
-})
-
-const fixedOptionsOnly = computed(() => {
-  return parsedDonasiOptions.value.filter(opt => opt !== 'custom')
-})
-
-const hasFixedOptions = computed(() => {
-  return fixedOptionsOnly.value.length > 0
-})
-
-const hasCustomOption = computed(() => {
-  return parsedDonasiOptions.value.includes('custom')
-})
-
-// Fungsi untuk memilih otomatis nominal saat form dirender pertama kali
-const initDefaultDonasi = () => {
-  if (!eventData.value?.settings?.is_donasi_active) return
-  const opts = parsedDonasiOptions.value
-  if (opts.length > 0) {
-    // Selalu prioritaskan opsi fixed pertama, kalau tidak ada baru 'custom'
-    const firstOpt = hasFixedOptions.value ? fixedOptionsOnly.value[0] : 'custom'
-    selectedDonasiOpt.value = firstOpt
-    if (firstOpt !== 'custom') {
-      donasiAmount.value = Number(firstOpt)
-    } else {
-      donasiAmount.value = customDonasiValue.value || 0
-    }
-  }
-}
-
-// Panggil inisialisasi setiap kali pindah ke step 'form' (bisa via watch, atau saat tombol lanjut ditekan)
-import { watch } from 'vue'
-watch(currentStep, (newVal) => {
-  if (newVal === 'form') {
-    if (eventData.value?.settings?.is_infaq_wajib) {
-      isInfaqOn.value = true
-    }
-    if (donasiAmount.value === 0 && isInfaqOn.value) {
-      initDefaultDonasi()
-    }
-  }
-})
-
-const handleToggleInfaq = () => {
-  if (isInfaqOn.value) {
-    // Jika dihidupkan lagi, pilih opsi pertama atau opsi yang tersimpan
-    initDefaultDonasi()
-  } else {
-    // Jika dimatikan, paksa donasi jadi 0
-    donasiAmount.value = 0
-  }
-}
-
-const selectDonasi = (opt) => {
-  selectedDonasiOpt.value = opt
-  if (opt !== 'custom') {
-    donasiAmount.value = Number(opt)
-  } else {
-    donasiAmount.value = customDonasiValue.value || 0
-  }
-}
-
-const updateCustomDonasi = (e) => {
-  let val = e.target.value.replace(/\D/g, '')
-  if (val) {
-    customDonasiValueFormatted.value = Number(val).toLocaleString('id-ID')
-    customDonasiValue.value = Number(val)
-  } else {
-    customDonasiValueFormatted.value = ''
-    customDonasiValue.value = 0
-  }
-
-  if (selectedDonasiOpt.value === 'custom') {
-    donasiAmount.value = customDonasiValue.value
-  }
-}
-
+const isInfaqOn = ref(true)
 const daftarPeserta = ref([])
 
 const customFields = computed(() => {
@@ -382,7 +428,7 @@ const customFields = computed(() => {
       { field_key: 'no_wa', label: 'No. WhatsApp', required: true, width: 6, type: 'phone_wa' }
     ]
   }
-  return fields
+  return [...fields].sort((a, b) => a.y - b.y || a.x - b.x)
 })
 
 const kodeUnik = ref(0)
@@ -392,7 +438,68 @@ onMounted(() => {
 
 const adminFee = 2000
 
-const { keranjang, donasiAmount, totalQty, totalPrice, grandTotal, updateKeranjang } = useCart(tickets, kodeUnik, adminFee, showToastMsg)
+const maxTicketsLimit = computed(() => {
+  if (eventData.value?.settings?.is_limit_tiket_active) {
+    return eventData.value?.settings?.max_tiket_per_transaksi || 1
+  }
+  return 0 // 0 means unlimited
+})
+
+const { keranjang, donasiAmount, totalQty, totalPrice, grandTotal, updateKeranjang, setEventSlug, syncWithAvailableTickets } = useCart(tickets, kodeUnik, adminFee, showToastMsg, maxTicketsLimit)
+setEventSlug(slug)
+if (cachedInitialTickets) {
+  syncWithAvailableTickets(tickets.value)
+}
+const setDonasiAmount = (val) => donasiAmount.value = val
+
+// Sinkronisasi keranjang dari daftarPeserta (misal setelah refresh F5 atau kembali antar-langkah)
+const ensureCartSynced = () => {
+  if (daftarPeserta.value && daftarPeserta.value.length > 0) {
+    let needsSync = false
+    const reconstructedCart = {}
+    for (const p of daftarPeserta.value) {
+      if (p.tiketId) {
+        reconstructedCart[String(p.tiketId)] = (reconstructedCart[String(p.tiketId)] || 0) + 1
+      }
+    }
+    for (const id in reconstructedCart) {
+      if (keranjang.value[id] !== reconstructedCart[id]) {
+        needsSync = true
+        break
+      }
+    }
+    if (needsSync || Object.keys(keranjang.value).length === 0) {
+      keranjang.value = reconstructedCart
+    }
+  }
+}
+
+// Cek mutlak apakah pendaftaran benar-benar gratis (harga tiket di DB adalah Rp 0 dan tanpa donasi)
+const isTrulyFree = computed(() => {
+  if (donasiAmount.value > 0) return false
+  if (totalPrice.value > 0) return false
+  if (!daftarPeserta.value || daftarPeserta.value.length === 0) return false
+  const hasPaidTicket = daftarPeserta.value.some(p => {
+    const t = tickets.value.find(tkt => String(tkt.id) === String(p.tiketId))
+    return t ? Number(t.harga) > 0 : (Number(p.hargaTiket) > 0)
+  })
+  if (hasPaidTicket) return false
+  return true
+})
+
+import { watch } from 'vue'
+watch(currentStep, (newVal) => {
+  if (newVal === 'form' || newVal === 'bayar') {
+    ensureCartSynced()
+    if (daftarPeserta.value.length === 0 && !activePaymentResult.value) {
+      currentStep.value = 'home'
+      return
+    }
+    if (eventData.value?.settings?.is_infaq_wajib) {
+      isInfaqOn.value = true
+    }
+  }
+})
 
 // --- KOMPUTASI PROGRESS BAR ---
 const totalMaksimalKuota = computed(() => {
@@ -447,6 +554,10 @@ const generateFormPeserta = () => {
 }
 
 const lanjutDaftar = () => {
+  if (tickets.value.length === 0) {
+    showToastMsg('Belum ada tiket yang tersedia untuk event ini.')
+    return
+  }
   if (totalQty.value === 0) {
     if (window.Swal) {
       window.Swal.fire({ icon: 'warning', title: 'Pilih Tiket', text: 'Silakan tentukan jumlah tiket yang ingin dibeli terlebih dahulu.', confirmButtonColor: '#0C387A' })
@@ -481,7 +592,22 @@ const kembaliKeSnkAtauHome = () => {
   currentStep.value = isSnkActive ? 'snk' : 'home'
 }
 
-const lanjutBayar = () => {
+const lanjutBayar = async () => {
+  if (!daftarPeserta.value || daftarPeserta.value.length === 0) {
+    if (window.Swal) {
+      window.Swal.fire({
+        icon: 'warning',
+        title: 'Tiket Belum Dipilih',
+        text: 'Data peserta kosong atau sesi telah berakhir. Silakan pilih tiket kembali.',
+        confirmButtonColor: '#0C387A'
+      })
+    } else {
+      showToastMsg('Data peserta kosong. Silakan pilih tiket terlebih dahulu.')
+    }
+    currentStep.value = 'home'
+    return
+  }
+
   let isValid = true
   for (const [index, peserta] of daftarPeserta.value.entries()) {
     for (const field of customFields.value) {
@@ -507,6 +633,36 @@ const lanjutBayar = () => {
         isValid = false
         return
       }
+
+      // Validasi Format Email (Bisa jadi type 'email' atau 'short_text' dengan key 'email')
+      const isEmailField = field.type === 'email' || field.field_key === 'email' || ((field.type === 'short_text' || !field.type) && /^(email|alamat\s*email)$/i.test(field.label?.trim()))
+      if (isEmailField && !isEmpty) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(answer)) {
+          if (window.Swal) {
+            window.Swal.fire({ icon: 'warning', title: 'Format Email Salah', text: `Mohon ketikkan format email yang benar pada "${field.label}" untuk Peserta Ke-${index + 1}`, confirmButtonColor: '#E85D5E' })
+          } else {
+            showToastMsg(`Format email salah pada "${field.label}"`)
+          }
+          isValid = false
+          return
+        }
+      }
+
+      // Validasi Nomor WhatsApp minimal 8 angka
+      const isPhoneField = field.type === 'phone_wa' || field.field_key === 'no_wa' || field.field_key === 'whatsapp' || field.field_key === 'no_hp' || /^(no\.?\s*(wa|whatsapp|hp)|nomor\s*(wa|whatsapp|hp)|whatsapp)$/i.test(field.label?.trim())
+      if (isPhoneField && !isEmpty) {
+        const cleanNumber = answer.toString().replace(/\D/g, '')
+        if (cleanNumber.length < 8) {
+          if (window.Swal) {
+            window.Swal.fire({ icon: 'warning', title: 'Nomor WA Tidak Valid', text: `Nomor WhatsApp pada "${field.label}" untuk Peserta Ke-${index + 1} minimal 8 angka.`, confirmButtonColor: '#E85D5E' })
+          } else {
+            showToastMsg(`Nomor WA pada "${field.label}" minimal 8 angka`)
+          }
+          isValid = false
+          return
+        }
+      }
     }
   }
 
@@ -517,135 +673,348 @@ const lanjutBayar = () => {
   }
   
   if (isValid) {
-    if (totalPrice.value === 0 && donasiAmount.value === 0) {
+    // Jika event memiliki kuesioner B2B khusus (seperti Khazilmu), alihkan ke step survei terlebih dahulu
+    if (hasB2BSurvey.value) {
+      currentStep.value = 'survei'
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
+
+    const isAntiCaloActive = eventData.value?.settings?.is_anti_calo_email || eventData.value?.settings?.is_anti_calo_wa
+    
+    if (isAntiCaloActive) {
+      // --- LAKUKAN PENGECEKAN ANTI CALO ---
+      isSubmitting.value = true
+      isPrinting.value = false
+      try {
+        const payloadPeserta = daftarPeserta.value.map(p => {
+          let rawWa = p.jawaban['no_wa'] || ''
+          if (rawWa && !rawWa.startsWith('62')) {
+            if (rawWa.startsWith('0')) rawWa = '62' + rawWa.substring(1)
+            else rawWa = '62' + rawWa
+          }
+          return {
+            email: p.jawaban['email'] || '',
+            no_wa: rawWa
+          }
+        })
+        await $fetch('/api/check-calo', {
+          method: 'POST',
+          body: { event_id: eventData.value.id, peserta: payloadPeserta }
+        })
+      } catch (err) {
+        isSubmitting.value = false
+        const msg = err.data?.statusMessage || err.data?.message || err.message
+        if (window.Swal) window.Swal.fire({ icon: 'error', title: 'Pendaftaran Ditolak', text: msg, confirmButtonColor: '#E85D5E' })
+        return // STOP DI SINI JIKA KENA ANTI CALO
+      }
+      isSubmitting.value = false
+    }
+
+    ensureCartSynced()
+
+    if (isTrulyFree.value) {
       // Tiket Gratis! Langsung eksekusi submit tanpa perlu langkah pembayaran
+      isPrinting.value = true
       submitData()
-    } else if (eventData.value?.settings?.is_kasera_active && grandTotal.value >= 10000) {
-      // Bayar pakai Kasera! Skip halaman upload bukti
-      submitDataKasera()
     } else {
-      // Pembayaran Manual
+      // Pembayaran (ESPay Direct API atau Transfer Manual)
       currentStep.value = 'bayar'
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
 }
 
-// --- LOGIKA SUBMIT KASERA ---
-const submitDataKasera = async () => {
-  isSubmitting.value = true
-  // Munculkan UI loading (bisa meminjam UI loading milik submitData biasa)
-  document.querySelector('.api-loader')?.classList.add('active')
-
-  try {
-    // -- DOUBLE CHECK KUOTA TIKET --
-    if (tickets.value.length > 0 && !tickets.value[0].is_unlimited) {
-      const { count, error: countErr } = await supabase
-        .from('peserta')
-        .select('*', { count: 'exact', head: true })
-        .eq('kategori_id', tickets.value[0].id)
-      
-      if (!countErr && count !== null) {
-        const sisaSekarang = tickets.value[0].kuota_maksimal - count
-        if (sisaSekarang < daftarPeserta.value.length) {
-          throw new Error(`Maaf, sisa kuota tiket ini hanya ${sisaSekarang > 0 ? sisaSekarang : 0}. Pesanan ditolak untuk mencegah oversold.`)
-        }
-      }
-    }
-    // -- END DOUBLE CHECK --
-
-    let arrPeserta = JSON.parse(JSON.stringify(daftarPeserta.value))
-    const prefixDynamic = eventData.value?.nama_event ? eventData.value.nama_event.replace(/[^A-Za-z]/g, '').substring(0, 3).toUpperCase() : 'EVT'
-    const dNow = new Date()
-    const dateStr = dNow.getFullYear().toString().slice(-2) + ("0" + (dNow.getMonth() + 1)).slice(-2) + ("0" + dNow.getDate()).slice(-2)
-    const timeStr = ("0" + dNow.getHours()).slice(-2) + ("0" + dNow.getMinutes()).slice(-2)
-
-    const processedPeserta = arrPeserta.map(p => {
-      let finalJawaban = { ...p.jawaban }
-      // Gabungkan kode negara
-      for (const field of customFields.value) {
-        if (field.type === 'phone_wa' && p['_cc_' + field.field_key]) {
-          finalJawaban[field.field_key] = p['_cc_' + field.field_key] + (finalJawaban[field.field_key] || '')
-        }
-        if (field.type === 'domisili_api' && p['_lat_' + field.field_key]) {
-          finalJawaban['lat'] = p['_lat_' + field.field_key]
-          finalJawaban['lon'] = p['_lon_' + field.field_key]
-        }
-      }
-      return {
-        ...p,
-        namaAnak: finalJawaban['nama_lengkap'] || p.jawaban['namaLengkap'] || 'Peserta',
-        email: finalJawaban['email'] || '-',
-        hp: finalJawaban['no_wa'] || '-',
-        dataTambahanJSON: finalJawaban
+// Handler saat kuesioner B2B selesai diisi
+const handleSurveyComplete = async (surveyPayload) => {
+  if (daftarPeserta.value && daftarPeserta.value.length > 0) {
+    daftarPeserta.value.forEach(p => {
+      p.jawaban = {
+        ...p.jawaban,
+        ...surveyPayload
       }
     })
+  }
 
-    const payloadBackend = {
-      event_id: eventData.value.id,
-      kategori_id: arrPeserta[0].tiketId, // Di sini aslinya bernama tiketId
-      peserta: processedPeserta.map((p, index) => {
-        let randomStr = Math.random().toString(36).substring(2, 5).toUpperCase()
+  // Cek Infaq Wajib jika aktif
+  if (eventData.value?.settings?.is_infaq_wajib && donasiAmount.value <= 0) {
+    if (window.Swal) window.Swal.fire({ icon: 'warning', title: 'Infaq Wajib', text: 'Mohon isi nominal infaq terbaik Anda.', confirmButtonColor: '#E85D5E' })
+    else showToastMsg('Mohon isi nominal infaq!')
+    return
+  }
+
+  // Jalankan Anti-Calo jika aktif
+  const isAntiCaloActive = eventData.value?.settings?.is_anti_calo_email || eventData.value?.settings?.is_anti_calo_wa
+  if (isAntiCaloActive) {
+    isSubmitting.value = true
+    isPrinting.value = false
+    try {
+      const payloadPeserta = daftarPeserta.value.map(p => {
+        let rawWa = p.jawaban['no_wa'] || ''
+        if (rawWa && !rawWa.startsWith('62')) {
+          if (rawWa.startsWith('0')) rawWa = '62' + rawWa.substring(1)
+          else rawWa = '62' + rawWa
+        }
         return {
-          nama_lengkap: p.namaAnak,
-          email: p.email,
-          no_wa: p.hp,
-          ticket_id: `${prefixDynamic}-${dateStr}-${timeStr}-${randomStr}`,
-          data_tambahan: p.dataTambahanJSON
+          email: p.jawaban['email'] || '',
+          no_wa: rawWa
         }
       })
+      await $fetch('/api/check-calo', {
+        method: 'POST',
+        body: { event_id: eventData.value.id, peserta: payloadPeserta }
+      })
+    } catch (err) {
+      isSubmitting.value = false
+      const msg = err.data?.statusMessage || err.data?.message || err.message
+      if (window.Swal) window.Swal.fire({ icon: 'error', title: 'Pendaftaran Ditolak', text: msg, confirmButtonColor: '#E85D5E' })
+      return
     }
+    isSubmitting.value = false
+  }
 
-    const checkoutRes = await $fetch('/api/checkout', {
-      method: 'POST',
-      body: payloadBackend
+  ensureCartSynced()
+
+  if (isTrulyFree.value) {
+    // Tiket Gratis (Rp 0 & Infaq Rp 0)! Langsung eksekusi submit dan terbitkan tiket
+    isPrinting.value = true
+    submitData()
+  } else {
+    // Ada Infaq / Pembayaran -> Masuk ke layar pembayaran QRIS
+    currentStep.value = 'bayar'
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
+
+const {
+  isSubmitting,
+  isPrinting,
+  buktiBayarFile,
+  buktiBayarPreview,
+  uploadError,
+  transactionIdGlobal,
+  processEspaySubmit,
+  processManualSubmit
+} = useEventCheckout()
+
+const activePaymentResult = ref(null)
+const isPaymentGatewayPaid = ref(false)
+
+const handleResetPayment = () => {
+  activePaymentResult.value = null
+  if (typeof window !== 'undefined') {
+    sessionStorage.removeItem(`tyket_active_payment_${slug}`)
+    const url = new URL(window.location.href)
+    url.searchParams.delete('order_id')
+    window.history.replaceState({}, '', url.toString())
+  }
+}
+
+const handleCancelOrder = (orderId) => {
+  activePaymentResult.value = null
+  transactionIdGlobal.value = ''
+  daftarPeserta.value = []
+  keranjang.value = {}
+  donasiAmount.value = 0
+  if (typeof window !== 'undefined') {
+    sessionStorage.removeItem(`tyket_active_payment_${slug}`)
+    const url = new URL(window.location.href)
+    url.searchParams.delete('order_id')
+    window.history.replaceState({}, '', url.toString())
+  }
+  currentStep.value = 'home'
+  showToastMsg('Pesanan berhasil dibatalkan. Kuota tiket telah dikembalikan.', 'info')
+}
+
+const handleEspayPayment = async ({ paymentMethod, onSuccess, onError }) => {
+  try {
+    const res = await processEspaySubmit({
+      donasiAmount: donasiAmount.value,
+      eventData: eventData.value,
+      daftarPeserta: daftarPeserta.value,
+      customFields: customFields.value,
+      tickets: tickets.value,
+      kodeUnik: kodeUnik.value,
+      supabase,
+      $fetch,
+      paymentMethod
     })
 
-    let isRedirecting = false
-    if (checkoutRes.checkout_url) {
-      isRedirecting = true
-      window.location.href = checkoutRes.checkout_url
-    } else {
-      throw new Error('Gagal mendapatkan link pembayaran Kasera')
+    // Simpan session transaksi aktif agar tahan saat browser di-refresh
+    activePaymentResult.value = res
+    transactionIdGlobal.value = res.order_id
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(`tyket_active_payment_${slug}`, JSON.stringify({
+        order_id: res.order_id,
+        paymentResult: {
+          ...res,
+          amount: res.amount !== undefined ? res.amount : totalPrice.value,
+          ticket_count: res.ticket_count || totalQty.value || (daftarPeserta.value ? daftarPeserta.value.length : 1),
+          donasi_amount: res.donasi_amount !== undefined ? res.donasi_amount : donasiAmount.value,
+          admin_fee: res.admin_fee || 2000,
+          fee: res.fee
+        },
+        daftarPeserta: daftarPeserta.value,
+        keranjang: keranjang.value,
+        donasiAmount: donasiAmount.value
+      }))
+      const url = new URL(window.location.href)
+      url.searchParams.set('order_id', res.order_id)
+      window.history.replaceState({}, '', url.toString())
     }
 
+    if (onSuccess) onSuccess(res)
   } catch (err) {
-    console.error(err)
-    if (window.Swal) window.Swal.fire({ icon: 'error', title: 'Checkout Gagal', text: err.message, confirmButtonColor: '#E85D5E' })
-    else alert('Checkout Gagal: ' + err.message)
-  } finally {
-    if (typeof isRedirecting === 'undefined' || !isRedirecting) {
-      isSubmitting.value = false
-      document.querySelector('.api-loader')?.classList.remove('active')
+    if (onError) onError(err)
+    const errorMsg = err.data?.statusMessage || err.data?.message || err.message || ''
+
+    // Jika error adalah validasi peserta/kuota/anti-calo, tampilkan pesan error spesifik
+    const isValidationErr = errorMsg.includes('Sistem Anti-Calo') || 
+                            errorMsg.includes('kuota') || 
+                            errorMsg.includes('tidak mencukupi') || 
+                            errorMsg.includes('1 Email') || 
+                            errorMsg.includes('1 No WA')
+
+    if (isValidationErr) {
+      if (window.Swal) window.Swal.fire({ icon: 'error', title: 'Pendaftaran Ditolak', text: errorMsg, confirmButtonColor: '#E85D5E' })
+      else showToastMsg(errorMsg, 'error')
+      return
+    }
+
+    // Auto-Failover: Jika gateway ESPay mengalami gangguan/timeout/down, alihkan ke QRIS Cadangan Tyket.id
+    console.warn('[Auto-Failover] ESPay gagal, mengalihkan ke mode QRIS cadangan Tyket.id:', errorMsg)
+    activePaymentResult.value = null
+    isEmergencyBackup.value = true
+    emergencyMessage.value = 'Layanan pembayaran otomatis sedang gangguan/pemeliharaan berkala. Pembayaran dialihkan ke QRIS Resmi Tyket.id.'
+
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem(`tyket_active_payment_${slug}`)
+      const url = new URL(window.location.href)
+      url.searchParams.delete('order_id')
+      window.history.replaceState({}, '', url.toString())
+    }
+
+    if (window.Swal) {
+      window.Swal.fire({
+        icon: 'info',
+        title: 'Pengalihan Pembayaran Cadangan',
+        text: 'Layanan pembayaran bank otomatis sedang gangguan atau pemeliharaan berkala. Pembayaran Anda langsung dialihkan ke QRIS Resmi Tyket.id.',
+        confirmButtonColor: '#0c387a',
+        confirmButtonText: 'Lanjutkan Bayar via QRIS'
+      })
+    } else {
+      showToastMsg('Pembayaran dialihkan ke QRIS Cadangan Tyket.id', 'info')
     }
   }
 }
 
-// --- LOGIKA UPLOAD & SUBMIT ---
-const buktiBayarFile = ref(null)
-const buktiBayarPreview = ref('')
-const uploadError = ref(false)
-const isSubmitting = ref(false)
+const goToTicket = async () => {
+  if (transactionIdGlobal.value) {
+    await navigateTo(`/tiket/${transactionIdGlobal.value}`)
+  }
+}
+
+const handlePaymentSuccess = async (orderId) => {
+  transactionIdGlobal.value = orderId
+  isPaymentGatewayPaid.value = true
+
+  // Hapus sesi aktif dari sessionStorage
+  if (typeof window !== 'undefined') {
+    sessionStorage.removeItem(`tyket_active_payment_${slug}`)
+  }
+
+  // Mainkan suara printer tiket
+  if (printAudio.value) {
+    try {
+      printAudio.value.currentTime = 0
+      printAudio.value.play().catch(e => console.log('Autoplay sound blocked:', e))
+    } catch (e) {}
+  }
+
+  // Tampilkan animasi cetak tiket (TicketPrinterOverlay)
+  isPrinting.value = true
+  isSubmitting.value = true
+
+  // PRELOAD DATA TIKET & GENERATE BARCODE DI LATAR BELAKANG
+  // Sambil menunggu animasi struk keluar (~2.4s), kita siapkan data dan QR code
+  const preloadTicketData = async () => {
+    try {
+      const { data, error: sbErr } = await supabase
+        .from('peserta')
+        .select('*, event(nama_event, settings, organizer_id), kategori_tiket(harga)')
+        .or(`order_id.eq.${orderId},data_tambahan->>order_id.eq.${orderId}`)
+        .order('id', { ascending: true })
+
+      if (!sbErr && data && data.length > 0) {
+        const QRCode = (await import('qrcode')).default
+        const qrMap = {}
+        for (const t of data) {
+          const code = t.data_tambahan?.ticket_id || orderId
+          if (code && !qrMap[code]) {
+            try {
+              qrMap[code] = await QRCode.toDataURL(code, {
+                width: 240,
+                margin: 1,
+                color: { dark: '#0f172a', light: '#ffffff' }
+              })
+            } catch (e) {}
+          }
+        }
+
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(`tyket_preloaded_${orderId}`, JSON.stringify({
+            data,
+            qrMap,
+            timestamp: Date.now()
+          }))
+        }
+      }
+    } catch (e) {
+      console.warn('Preload tiket di background gagal, fallback ke fetch normal:', e)
+    }
+  }
+
+  // Jalankan preload data dan tunggu animasi printer & audio selesai secara sinkron
+  await Promise.all([
+    preloadTicketData(),
+    new Promise(resolve => {
+      let isDone = false
+      const finish = () => {
+        if (!isDone) {
+          isDone = true
+          resolve()
+        }
+      }
+      if (printAudio.value) {
+        printAudio.value.onended = finish
+      }
+      setTimeout(finish, 3350)
+    })
+  ])
+
+  isPrinting.value = false
+  isSubmitting.value = false
+
+  // Langsung navigasi via SPA Router (tanpa reload browser / kedipan putih)
+  await navigateTo(`/tiket/${orderId}`)
+}
 
 const handleFileUpload = async (event) => {
   const file = event.target.files[0]
   if (!file) return
-  
   if (file.size > 5 * 1024 * 1024) {
-    if (window.Swal) window.Swal.fire({ icon: 'error', title: 'Ukuran Terlalu Besar', text: 'Maksimal 5 MB. Silakan kompres foto struk Anda.', confirmButtonColor: '#E85D5E' })
+    if (window.Swal) window.Swal.fire({ icon: 'error', title: 'Ukuran Terlalu Besar', text: 'Maksimal 5 MB.' })
     else showToastMsg('Ukuran foto maksimal 5 MB!')
     event.target.value = '' 
     return
   }
-
   uploadError.value = false
-  
   if (file.type.startsWith('image/')) {
     try {
       buktiBayarFile.value = await compressImageFile(file, 800, 0.6)
       buktiBayarPreview.value = URL.createObjectURL(buktiBayarFile.value)
     } catch (e) {
-      console.error(e)
       showToastMsg('Gagal memproses gambar struk')
     }
   } else {
@@ -654,210 +1023,40 @@ const handleFileUpload = async (event) => {
   }
 }
 
-const orderIdsGlobal = ref([])
-const linkBuktiGlobal = ref('')
-const transactionIdGlobal = ref('')
-
 const submitData = async () => {
   const startTime = Date.now()
-  if (grandTotal.value > 0 && !buktiBayarFile.value) {
-    uploadError.value = true
-    if (window.Swal) window.Swal.fire({ icon: 'warning', title: 'Struk Belum Ada', text: 'Harap upload foto struk transfer terlebih dahulu.', confirmButtonColor: '#E85D5E' })
-    else showToastMsg('Harap upload foto struk transfer!')
-    return
-  }
-
-  isSubmitting.value = true
-  
   try {
-    // -- DOUBLE CHECK KUOTA TIKET --
-    if (tickets.value.length > 0 && !tickets.value[0].is_unlimited) {
-      const { count, error: countErr } = await supabase
-        .from('peserta')
-        .select('*', { count: 'exact', head: true })
-        .eq('kategori_id', tickets.value[0].id)
-      
-      if (!countErr && count !== null) {
-        const sisaSekarang = tickets.value[0].kuota_maksimal - count
-        if (sisaSekarang < daftarPeserta.value.length) {
-          throw new Error(`Maaf, sisa kuota tiket ini hanya ${sisaSekarang > 0 ? sisaSekarang : 0}. Pesanan ditolak untuk mencegah oversold.`)
-        }
-      }
-    }
-    // -- END DOUBLE CHECK --
-
-    // 0. Gabungkan kode negara (CC) dan nomor HP sebelum dikirim
-    const processedPeserta = daftarPeserta.value.map(p => {
-      let finalJawaban = { ...p.jawaban }
-      for (const field of customFields.value) {
-        if (field.type === 'phone_wa' && p['_cc_' + field.field_key]) {
-          // Gabungkan +62 dan 812...
-          finalJawaban[field.field_key] = p['_cc_' + field.field_key] + (finalJawaban[field.field_key] || '')
-        }
-        if (field.type === 'domisili_api' && p['_lat_' + field.field_key]) {
-          finalJawaban['lat'] = p['_lat_' + field.field_key]
-          finalJawaban['lon'] = p['_lon_' + field.field_key]
-        }
-      }
-      return { ...p, jawaban: finalJawaban }
-    })
-
-    // 1. Siapkan payload untuk Google Script
-    const arrPeserta = processedPeserta.map(p => {
-      const { nama_lengkap, email, no_wa, domisili, ...dataTambahanJSON } = p.jawaban
-      
-      let emailVal = email
-      let noWaVal = no_wa
-      let namaLengkapVal = nama_lengkap
-      
-      for (const field of customFields.value) {
-        if (field.type === 'email' && p.jawaban[field.field_key]) emailVal = p.jawaban[field.field_key]
-        if (field.type === 'phone_wa' && p.jawaban[field.field_key]) noWaVal = p.jawaban[field.field_key]
-        if (field.field_key === 'nama_lengkap' && p.jawaban[field.field_key]) namaLengkapVal = p.jawaban[field.field_key]
-      }
-
-      return {
-        namaAnak: namaLengkapVal || "-",
-        usia: "-",
-        domisili: domisili || "-",
-        followMunira: "Tidak",
-        hp: noWaVal ? noWaVal.replace(/\D/g, '') : (no_wa ? no_wa.replace(/\D/g, '') : "-"),
-        email: emailVal || "-",
-        latitude: "",
-        longitude: "",
-        dataTambahanJSON: { ...dataTambahanJSON, infaqNominal: donasiAmount.value },
-        kategori_id: p.tiketId,
-        namaTiket: p.namaTiket
-      }
-    })
-
-    const prefixDynamic = eventData.value?.nama_event ? eventData.value.nama_event.replace(/[^A-Za-z]/g, '').substring(0, 3).toUpperCase() : 'EVT'
-    const transactionId = `TRX-${prefixDynamic}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`
-    transactionIdGlobal.value = transactionId
-    
-    const emailVal = arrPeserta[0]?.email || "-"
-    
-    // --- UPLOAD KE SUPABASE STORAGE ---
-    let urlBukti = ""
-    if (buktiBayarFile.value) {
-      const ext = buktiBayarFile.value.name.split('.').pop()
-      const pathBukti = `${eventData.value?.nama_event || 'Event'}/Bukti Transfer/${transactionId}.${ext}`
-      const { error: err1 } = await supabase.storage.from('berkas').upload(pathBukti, buktiBayarFile.value)
-      if (err1) throw new Error("Gagal mengupload Bukti Transfer: " + err1.message)
-      urlBukti = supabase.storage.from('berkas').getPublicUrl(pathBukti).data.publicUrl
-    }
-    
-    // Upload file custom dari form builder
-    for (let p of arrPeserta) {
-      for (let key in p.dataTambahanJSON) {
-        if (p.dataTambahanJSON[key] instanceof File) {
-          let file = p.dataTambahanJSON[key]
-          let ext = file.name.split('.').pop()
-          // Menggunakan 'key' (nama form) sebagai nama sub-folder
-          let pathCustom = `${eventData.value?.nama_event || 'Event'}/${key}/${transactionId}_${p.namaAnak || 'Peserta'}.${ext}`
-          const { error: err2 } = await supabase.storage.from('berkas').upload(pathCustom, file)
-          if (err2) throw new Error("Gagal mengupload file: " + err2.message)
-          // Timpa object File dengan URL public
-          p.dataTambahanJSON[key] = supabase.storage.from('berkas').getPublicUrl(pathCustom).data.publicUrl
-        }
-      }
-    }
-
-    const dataPayload = {
-      action: 'create_order',
-      transactionId: transactionId,
-      namaEvent: eventData.value?.nama_event || "Event Umum",
-      peserta: arrPeserta,
-      email: emailVal,
-      infoDari: "-",
+    const res = await processManualSubmit({
+      eventData: eventData.value,
+      daftarPeserta: daftarPeserta.value,
+      customFields: customFields.value,
+      tickets: tickets.value,
+      supabase,
+      $fetch,
+      printAudio: printAudio.value,
+      grandTotal: grandTotal.value,
+      totalPrice: totalPrice.value,
       kodeUnik: kodeUnik.value,
-      infaqNominal: donasiAmount.value, 
-      kodePrefix: eventData.value?.settings?.Kode_Prefix || "EVT"
-    }
-
-    // 2. Tembak API Nuxt Backend (Kirim Notif WA Fonnte)
-    const res = await fetch('/api/create-order', { 
-      method: 'POST', 
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'omit', // Abaikan cookie agar backend tidak memverifikasi user (menghindari timeout Supabase)
-      body: JSON.stringify(dataPayload) 
+      donasiAmount: donasiAmount.value,
+      adminFee,
+      startTime
     })
     
-    if (!res.ok) {
-      throw new Error(`Pendaftaran tertunda (Error ${res.status}). Pastikan API tersedia.`)
+    isPrinting.value = false
+    isSubmitting.value = false
+    if (eventData.value?.id) {
+      invalidateTicketCache(eventData.value.id)
     }
-    
-    const response = await res.json()
-
-    // Lanjutkan walau notif WA gagal (atau bisa di-throw error jika wajib)
-    if (response.status === 'success' || response.status === 'error') {
-      linkBuktiGlobal.value = urlBukti // Gunakan URL dari Supabase
-      
-      // 3. Insert ke Supabase
-      const prefixDynamic = eventData.value?.nama_event ? eventData.value.nama_event.replace(/[^A-Za-z]/g, '').substring(0, 3).toUpperCase() : 'EVT'
-      const dNow = new Date()
-      const dateStr = dNow.getFullYear().toString().slice(-2) + ("0" + (dNow.getMonth() + 1)).slice(-2) + ("0" + dNow.getDate()).slice(-2)
-      const timeStr = ("0" + dNow.getHours()).slice(-2) + ("0" + dNow.getMinutes()).slice(-2)
-
-      const payloadSupabase = arrPeserta.map((p, index) => {
-        let randomStr = Math.random().toString(36).substring(2, 5).toUpperCase()
-        let ticketIdDynamic = `${prefixDynamic}-${dateStr}-${timeStr}-${randomStr}`
-        
-        let finalDataTambahan = p.dataTambahanJSON
-        
-        finalDataTambahan.ticket_id = ticketIdDynamic
-        finalDataTambahan.order_id = transactionId
-
-        return {
-          event_id: eventData.value.id,
-          kategori_id: p.kategori_id,
-          nama_lengkap: p.namaAnak,
-          email: p.email,
-          no_wa: p.hp,
-          nama_tiket: p.namaTiket,
-          bukti_bayar_url: linkBuktiGlobal.value,
-          data_tambahan: finalDataTambahan,
-          status_bayar: grandTotal.value === 0 ? 'paid' : 'pending'
-        }
-      })
-
-      const { data: sbData, error: sbError } = await supabase
-        .from('peserta')
-        .insert(payloadSupabase)
-        .select()
-
-      if (sbError) throw sbError
-      
-      if (sbData && sbData.length > 0) {
-        orderIdsGlobal.value = sbData.map(row => `${row.data_tambahan.ticket_id}-${row.id}`)
-      }
-
-      // Pastikan animasi printer selesai (animasi butuh 3.5 detik)
-      const elapsed = Date.now() - startTime
-      if (elapsed < 3500) {
-        await new Promise(r => setTimeout(r, 3500 - elapsed))
-      }
-
-      // 4. Pindah ke halaman sukses atau tiket
-      if (totalPrice.value === 0) {
-        window.isRedirecting = true
-        window.location.href = `/tiket/${transactionIdGlobal.value}`
-      } else {
-        currentStep.value = 'sukses'
-        window.scrollTo({ top: 0, behavior: 'smooth' })
-      }
-      
+    if (res.isFree) {
+      window.isRedirecting = true
+      await navigateTo(`/tiket/${res.transactionId}`)
     } else {
-      throw new Error(response.message || 'Gagal memproses pendaftaran')
+      currentStep.value = 'sukses'
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   } catch (err) {
-    console.error(err)
     if (window.Swal) window.Swal.fire({ icon: 'error', title: 'Pendaftaran Gagal', text: err.message, confirmButtonColor: '#E85D5E' })
     else showToastMsg('Gagal: ' + err.message)
-  } finally {
-    if (!window.isRedirecting) {
-      isSubmitting.value = false
-    }
   }
 }
 
@@ -867,12 +1066,29 @@ const kirimWA = () => {
   if (noAdmin.startsWith('0')) noAdmin = '62' + noAdmin.substring(1)
   
   const domain = window.location.origin
+  const namaEvent = eventData.value?.nama_event || 'Event'
+  const namaPeserta = daftarPeserta.value?.[0]?.nama_lengkap || ''
+  const groupUrl = eventData.value?.settings?.link_grup_wa || ''
   
   let rawText = ''
-  if (grandTotal.value === 0) {
-    rawText = `Hai Admin,\nSaya sudah mendaftar untuk acara *${eventData.value?.nama_event || 'Event'}*.\n\nIni adalah link tiket saya:\n${domain}/tiket/${transactionIdGlobal.value}\n\nTerima kasih! 🙏`
+  if (isTrulyFree.value || isPaymentGatewayPaid.value) {
+    rawText = `Halo Admin Panitia,\nSaya sudah menyelesaikan pendaftaran acara *${namaEvent}*:\n` +
+      (namaPeserta ? `• Nama: *${namaPeserta}*\n` : '') +
+      `• Order ID: *${transactionIdGlobal.value}*\n` +
+      `• Link E-Ticket: ${domain}/tiket/${transactionIdGlobal.value}\n\n`
+      
+    if (groupUrl) {
+      rawText += `👉 Tautan Masuk Grup WhatsApp Peserta:\n${groupUrl}\n\n` +
+        `Mohon dicatat dan di-approve di grup ya min. Terima kasih! 🙏`
+    } else {
+      rawText += `Mohon dicatat dan dikonfirmasi kehadiran saya. Terima kasih! 🙏`
+    }
   } else {
-    rawText = `Hai Admin,\nSaya sudah mendaftar dan mentransfer pembayaran untuk acara *${eventData.value?.nama_event || 'Event'}*.\n\nIni adalah link tiket saya:\n${domain}/tiket/${transactionIdGlobal.value}\n\nSaya akan cek link tersebut secara berkala sampai dikonfirmasi. Terima kasih! 🙏`
+    rawText = `Halo Admin Panitia,\nSaya sudah mendaftar dan mentransfer pembayaran untuk acara *${namaEvent}*.\n\n` +
+      (namaPeserta ? `• Nama: *${namaPeserta}*\n` : '') +
+      `• Order ID: *${transactionIdGlobal.value}*\n` +
+      `• Link Tiket: ${domain}/tiket/${transactionIdGlobal.value}\n\n` +
+      `Berikut saya lampirkan bukti transfer pembayaran saya. Mohon bantuannya untuk diverifikasi. Terima kasih! 🙏`
   }
   
   window.open(`https://api.whatsapp.com/send?phone=${noAdmin}&text=${encodeURIComponent(rawText)}`, "_blank")
@@ -888,51 +1104,204 @@ const formatDate = (dateStr) => {
   return new Date(dateStr).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})
 }
 
-onMounted(async () => {
+// Fungsi memuat tiket secepat kilat (Non-blocking langsung render begitu data tiba)
+const fetchTicketsForEvent = async (eventId) => {
   try {
-    const { data: evData, error: evErr } = await supabase.from('event').select('id, nama_event, poster_url, tanggal_mulai, lokasi, deskripsi, organizer_id, settings').eq('slug', slug).single()
-    if (evErr) throw evErr
-    eventData.value = evData
+    const tktData = await getTickets(eventId, route.query.secret)
 
-    if (evData.organizer_id) {
-      const { data: orgData } = await supabase.from('organizer_profile').select('nama_organizer, no_wa, link_ig, link_web').eq('id', evData.organizer_id).maybeSingle()
-      if (orgData) organizerProfile.value = orgData
-    }
-
-    let tktQuery = supabase.from('kategori_tiket')
-      .select('id, nama_kategori, harga, kuota_maksimal')
-      .eq('event_id', evData.id)
-      .eq('is_active', true)
-
-    if (route.query.secret && typeof route.query.secret === 'string') {
-      tktQuery = tktQuery.or(`is_hidden.eq.false,secret_token.eq.${route.query.secret}`)
-    } else {
-      tktQuery = tktQuery.eq('is_hidden', false)
-    }
-
-    const { data: tktData, error: tktErr } = await tktQuery
-    if (tktErr) throw tktErr
-
-    const { data: pesertaData } = await supabase.from('peserta').select('kategori_id').eq('event_id', evData.id)
-
-    if (tktData && pesertaData) {
-      tickets.value = tktData.map(t => {
-        const terjual = pesertaData.filter(p => p.kategori_id === t.id).length
-        const isUnlimited = t.kuota_maksimal == 0
-        const sisa = isUnlimited ? 999999 : t.kuota_maksimal - terjual
-        return { ...t, is_unlimited: isUnlimited, sisa_kuota: sisa < 0 ? 0 : sisa }
-      })
-    } else if (tktData) {
+    if (tktData && tktData.length > 0) {
       tickets.value = tktData
+      syncWithAvailableTickets(tickets.value)
+    } else {
+      tickets.value = []
+      syncWithAvailableTickets([])
     }
   } catch (err) {
-    error.value = "Gagal memuat event dari sistem. Silakan periksa URL Anda."
+    console.error('Gagal memuat tiket:', err)
+    tickets.value = []
+    syncWithAvailableTickets([])
+  } finally {
+    // LANGSUNG MATIKAN SKELETON TIKET BEGITU DATA TIKET TIBA!
+    isTicketsLoading.value = false
+  }
+
+  // === AUTO-SELECT TIKET DARI URL QUERY (?tiket=... atau ?ticket=...) ===
+  const targetQuery = route.query.tiket || route.query.ticket
+  if (targetQuery && typeof targetQuery === 'string') {
+    const queryStr = targetQuery.toLowerCase().trim()
+    const targetQty = parseInt(route.query.qty) || 1
+
+    const foundTicket = tickets.value.find(t => 
+      String(t.id) === queryStr || 
+      (t.nama_kategori && t.nama_kategori.toLowerCase().includes(queryStr))
+    )
+
+    if (foundTicket && foundTicket.sisa_kuota > 0) {
+      const qtyToSelect = Math.min(targetQty, foundTicket.sisa_kuota)
+      updateKeranjang(foundTicket.id, qtyToSelect, foundTicket.sisa_kuota)
+
+      if (route.query.direct !== 'false') {
+        isSetujuSnk.value = true
+        generateFormPeserta()
+      } else {
+        setTimeout(() => {
+          showToastMsg(`Tiket "${foundTicket.nama_kategori}" terpilih otomatis.`, 'success')
+        }, 300)
+      }
+    }
+  }
+}
+
+onMounted(async () => {
+  // 1. Jalankan cek status failover gateway di background tanpa memblokir render
+  $fetch('/api/gateway-status').then(gwStatus => {
+    if (gwStatus) {
+      isEmergencyBackup.value = gwStatus.is_emergency_backup === true
+      emergencyMessage.value = gwStatus.emergency_message || ''
+    }
+  }).catch(e => console.warn('Gagal memuat status gateway:', e))
+
+  // 2. JIKA ID EVENT SUDAH TERSEDIA (DARI INDEX ATAU SSR), LANGSUNG TARIK TIKET SEKARANG JUGA!
+  if (eventData.value?.id) {
+    fetchTicketsForEvent(eventData.value.id)
+  }
+
+  try {
+    // 3. Tarik data event
+    const { data: evData, error: evErr } = await supabase
+      .from('event')
+      .select('id, nama_event, poster_url, tanggal_mulai, lokasi, deskripsi, organizer_id, settings')
+      .eq('slug', slug)
+      .single()
+
+    if (evErr) {
+      if (!eventData.value?.id) throw evErr
+    } else if (evData) {
+      eventData.value = { ...eventData.value, ...evData }
+      // Jika tadi tiket belum ditarik karena ID belum ada, tarik sekarang!
+      if (isTicketsLoading.value && tickets.value.length === 0) {
+        fetchTicketsForEvent(evData.id)
+      }
+    }
+
+    // 4. Tarik profil organizer jika ada dan belum lengkap
+    const currentOrgId = eventData.value?.organizer_id
+    if (currentOrgId && !organizerProfile.value?.no_wa) {
+      const { data: orgData } = await supabase
+        .from('organizer_profile')
+        .select('nama_organizer, no_wa, link_ig, link_web, logo_url')
+        .eq('id', currentOrgId)
+        .maybeSingle()
+      if (orgData) {
+        organizerProfile.value = { ...organizerProfile.value, ...orgData }
+      }
+    }
+
+      // === AUTO RESTORE PEMBAYARAN JIKA HALAMAN DI-REFRESH (F5) ===
+      if (typeof window !== 'undefined') {
+        const savedSessionStr = sessionStorage.getItem(`tyket_active_payment_${slug}`)
+        const urlOrderId = route.query.order_id
+        
+        if (savedSessionStr || urlOrderId) {
+          let savedData = null
+          try {
+            if (savedSessionStr) savedData = JSON.parse(savedSessionStr)
+          } catch (e) {}
+
+          const orderIdToCheck = (typeof urlOrderId === 'string' ? urlOrderId : null) || savedData?.order_id
+
+          // Jika session sebelumnya adalah QRIS Demo / simulator usang, bersihkan dan alihkan ke mode backup
+          if (
+            savedData?.paymentResult?.isSimulator || 
+            savedData?.paymentResult?.qr_image?.includes('QRIS DEMO') || 
+            savedData?.paymentResult?.qr_image?.includes('QRIS%20DEMO')
+          ) {
+            sessionStorage.removeItem(`tyket_active_payment_${slug}`)
+            activePaymentResult.value = null
+            isEmergencyBackup.value = true
+            emergencyMessage.value = 'Layanan pembayaran otomatis sedang gangguan/pemeliharaan berkala. Pembayaran dialihkan ke QRIS Resmi Tyket.id.'
+            const url = new URL(window.location.href)
+            url.searchParams.delete('order_id')
+            window.history.replaceState({}, '', url.toString())
+            if (savedData.daftarPeserta && Array.isArray(savedData.daftarPeserta)) {
+              daftarPeserta.value = savedData.daftarPeserta
+            }
+            if (savedData.keranjang && Object.keys(savedData.keranjang).length > 0) {
+              keranjang.value = { ...savedData.keranjang }
+            }
+            currentStep.value = 'bayar'
+            return
+          }
+
+          if (orderIdToCheck) {
+            try {
+              const checkRes = await $fetch(`/api/check-espay?order_id=${orderIdToCheck}`)
+              if (checkRes && checkRes.status === 'paid') {
+                sessionStorage.removeItem(`tyket_active_payment_${slug}`)
+                window.location.href = `/tiket/${orderIdToCheck}`
+                return
+              } else if (checkRes && (checkRes.status === 'expired' || checkRes.status === 'cancelled')) {
+                sessionStorage.removeItem(`tyket_active_payment_${slug}`)
+                const url = new URL(window.location.href)
+                url.searchParams.delete('order_id')
+                window.history.replaceState({}, '', url.toString())
+                showToastMsg('Pesanan sebelumnya telah kedaluwarsa atau dibatalkan.', 'info')
+              } else if (savedData && savedData.paymentResult) {
+                activePaymentResult.value = {
+                  ...savedData.paymentResult,
+                  ...(checkRes?.remaining_seconds !== undefined ? { remaining_seconds: checkRes.remaining_seconds } : {})
+                }
+                transactionIdGlobal.value = orderIdToCheck
+                if (savedData.daftarPeserta && Array.isArray(savedData.daftarPeserta)) {
+                  daftarPeserta.value = savedData.daftarPeserta
+                }
+                if (savedData.keranjang && Object.keys(savedData.keranjang).length > 0) {
+                  keranjang.value = { ...savedData.keranjang }
+                } else if (daftarPeserta.value && daftarPeserta.value.length > 0) {
+                  ensureCartSynced()
+                }
+                if (savedData.donasiAmount !== undefined) {
+                  donasiAmount.value = Number(savedData.donasiAmount)
+                } else if (savedData.paymentResult?.donasi_amount !== undefined) {
+                  donasiAmount.value = Number(savedData.paymentResult.donasi_amount)
+                }
+                currentStep.value = 'bayar'
+              } else if (checkRes && checkRes.payment) {
+                activePaymentResult.value = {
+                  order_id: orderIdToCheck,
+                  total_amount: checkRes.payment.total_amount,
+                  amount: checkRes.payment.amount || (checkRes.payment.total_amount - (checkRes.payment.gateway_fee || 0) - (checkRes.payment.admin_fee || 2000)),
+                  ticket_count: checkRes.payment.ticket_count || checkRes.ticket_count || 1,
+                  admin_fee: checkRes.payment.admin_fee || 2000,
+                  fee: checkRes.payment.gateway_fee || 0,
+                  donasi_amount: checkRes.payment.donasi_amount || 0,
+                  payment_type: checkRes.payment.espay_data?.payment_type || 'qris',
+                  va_number: checkRes.payment.espay_data?.va_number,
+                  bank_name: checkRes.payment.espay_data?.bank_name
+                }
+                transactionIdGlobal.value = orderIdToCheck
+                if (savedData?.daftarPeserta && Array.isArray(savedData.daftarPeserta)) {
+                  daftarPeserta.value = savedData.daftarPeserta
+                  ensureCartSynced()
+                }
+                currentStep.value = 'bayar'
+              }
+            } catch (sessionErr) {
+              console.warn('Gagal memverifikasi status pembayaran saat refresh:', sessionErr)
+            }
+          }
+        }
+      }
+  } catch (err) {
+    if (!eventData.value) {
+      error.value = "Gagal memuat event dari sistem. Silakan periksa URL Anda."
+    }
     console.error(err)
   } finally {
-    loading.value = false
+    isEventLoading.value = false
+    isTicketsLoading.value = false
   }
 })
-
 </script>
 
 <style scoped>
@@ -943,13 +1312,14 @@ onMounted(async () => {
   box-shadow: 0 20px 40px rgba(0,0,0,0.08); 
   border: 1px solid var(--border-soft); 
   border-radius: 24px; 
-  overflow: hidden; 
+  overflow-x: hidden; 
   position: relative; 
   margin: 40px auto;
   min-height: 100vh;
+  box-sizing: border-box;
 }
-.step-content { opacity: 1; padding: 24px 20px; }
-.glass { background: white; border-radius: 16px; padding: 2rem 1.5rem; text-align: center; position: relative; overflow: hidden; border: none; }
+.step-content { opacity: 1; padding: 24px 20px; box-sizing: border-box; width: 100%; }
+.glass { background: white; border-radius: 16px; padding: 2rem 1.5rem; text-align: center; position: relative; overflow: hidden; border: none; width: 100%; box-sizing: border-box; }
 
 @media (max-width: 480px) {
   .container {
@@ -958,74 +1328,19 @@ onMounted(async () => {
     border: none;
     box-shadow: none;
     min-height: 100vh;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
   }
   .step-content { padding: 20px 16px; }
 }
 
 input:focus, select:focus, textarea:focus {
   border-color: var(--accent-main) !important;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1) !important;
+  box-shadow: 0 0 0 4px rgba(28, 84, 144, 0.15) !important;
   outline: none;
 }
 
-
-/* =========================================
-   CSS ANIMASI PRINTER
-   ========================================= */
-.api-loader { 
-  position: fixed; 
-  inset: 0; 
-  background: rgba(15, 23, 42, 0.95); 
-  backdrop-filter: blur(8px); 
-  z-index: 99999; 
-  display: none; 
-  flex-direction: column; 
-  align-items: center; 
-  justify-content: center; 
-  overflow: hidden; 
-}
-
-.api-loader::before { 
-  content: ''; 
-  position: absolute; 
-  inset: 0; 
-  opacity: 0.1; 
-  pointer-events: none; 
-  background-image: radial-gradient(circle, #fff 1px, transparent 1px); 
-  background-size: 40px 40px; 
-}
-
-.api-loader.active { display: flex; }
-
-.printer-wrapper { 
-  position: relative; 
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
-  height: 330px; 
-}
-
-.printer-slot { width: 320px; height: 32px; background: #1E293B; border: 4px solid #0F172A; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); position: relative; z-index: 30; display: flex; justify-content: center; align-items: center; }
-.printer-slot-inner { width: 85%; height: 100%; background: #020617; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; border-radius: 4px; }
-.printer-slot-light { width: 90%; height: 4px; background: var(--accent-main); box-shadow: 0 0 10px var(--accent-main); opacity: 0.8; border-radius: 2px; }
-
-@keyframes viberateMotor { 0% { transform: translate(1px, 0); } 100% { transform: translate(-1px, 0.5px); } }
-.api-loader.active .printer-slot { animation: viberateMotor 0.1s infinite alternate; }
-
-@keyframes cetakKertas { 0% { height: 0px; } 100% { height: 280px; } }
-.printer-mask { width: 250px; height: 0px; overflow: hidden; position: relative; top: -6px; z-index: 5; display: flex; justify-content: center; }
-.api-loader.active .printer-mask { animation: cetakKertas 3.5s linear forwards; }
-
-.ticket-paper-output { width: 100%; height: 280px; background: white; border-left: 4px solid var(--primary); border-right: 4px solid var(--primary); border-bottom: 4px solid var(--primary); padding: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; position: relative; padding-bottom: 40px; }
-.ticket-paper-output::after { content: ''; position: absolute; bottom: -12px; left: -4px; width: calc(100% + 8px); height: 16px; background-repeat: repeat-x; background-image: linear-gradient(135deg, white 25%, transparent 25%), linear-gradient(225deg, white 25%, transparent 25%); background-size: 16px 16px; z-index: 10; }
-
-.fake-barcode-area { margin-top: 24px; width: 100%; height: 48px; background: white; display: flex; gap: 2px; align-items: flex-end; justify-content: center; }
-.fake-barcode-area div { height: 100%; background: var(--primary); }
-
-.loading-badge { position: absolute; bottom: 40px; background: var(--card-light); color: var(--text-main); padding: 12px 32px; border-radius: 9999px; font-weight: 900; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); font-size: 1rem; letter-spacing: 1px; z-index: 40; border: 3px solid var(--border-soft); }
-.loading-dot { width: 12px; height: 12px; background: var(--accent-main); border-radius: 50%; animation: pulseIcon 1.5s infinite; }
-@keyframes pulseIcon { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-@keyframes scaleIn { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
 /* Refactored CSS Classes */
 .toast-message {
@@ -1052,8 +1367,226 @@ input:focus, select:focus, textarea:focus {
 }
 .error-text { color: #ef4444; }
 
+/* SKELETON MODERN SHIMMER UI */
+.skeleton-badge-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+.skeleton-brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 6px 14px;
+}
+.skeleton-dot-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary, #0C387A);
+  animation: pulseDot 1.2s infinite ease-in-out;
+}
+.skeleton-badge-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  letter-spacing: 0.3px;
+}
+@keyframes pulseDot {
+  0% { transform: scale(0.85); opacity: 0.5; }
+  50% { transform: scale(1.25); opacity: 1; }
+  100% { transform: scale(0.85); opacity: 0.5; }
+}
+
+.skeleton-item {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s infinite linear;
+  border-radius: 8px;
+}
+@keyframes skeletonShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-poster-box {
+  width: 100%;
+  aspect-ratio: 3 / 1;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+.skeleton-title-line {
+  height: 24px;
+  width: 80%;
+  margin: 0 auto 8px auto;
+  border-radius: 6px;
+}
+.skeleton-title-line-short {
+  height: 18px;
+  width: 50%;
+  margin: 0 auto 16px auto;
+  border-radius: 6px;
+}
+.skeleton-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.skeleton-meta-pill {
+  height: 40px;
+  border-radius: 10px;
+}
+.skeleton-card-block {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+.skeleton-eo-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.skeleton-avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.skeleton-eo-text {
+  flex: 1;
+}
+.skeleton-eo-sub {
+  height: 10px;
+  width: 40%;
+  margin-bottom: 6px;
+}
+.skeleton-eo-main {
+  height: 14px;
+  width: 70%;
+}
+.skeleton-divider {
+  height: 1px;
+  width: 100%;
+  margin: 14px 0;
+  background: #e2e8f0;
+}
+.skeleton-desc-heading {
+  height: 12px;
+  width: 30%;
+  margin-bottom: 10px;
+}
+.skeleton-desc-line {
+  height: 12px;
+  width: 100%;
+  margin-bottom: 6px;
+}
+.skeleton-desc-line-short {
+  height: 12px;
+  width: 65%;
+}
+.skeleton-tickets-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.skeleton-ticket-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+}
+.skeleton-tkt-left {
+  flex: 1;
+}
+.skeleton-tkt-title {
+  height: 16px;
+  width: 55%;
+  margin-bottom: 6px;
+}
+.skeleton-tkt-price {
+  height: 14px;
+  width: 35%;
+}
+.skeleton-tkt-action {
+  width: 76px;
+  height: 32px;
+  border-radius: 8px;
+}
+.skeleton-btn-main {
+  height: 48px;
+  width: 100%;
+  border-radius: 12px;
+}
+
 .step-home { padding: 6px; }
 .glass-home { margin-top: 0px; padding: 1rem 1rem 0.5rem 1rem; }
+
+/* Tautan Cek Tiket Minimalis */
+.footer-check-ticket {
+  text-align: center;
+  margin-top: 10px;
+  padding-top: 0;
+}
+.link-check-ticket {
+  font-size: 0.65rem;
+  color: #94a3b8;
+  text-decoration: none;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  transition: all 0.2s ease;
+  display: inline-block;
+  opacity: 0.8;
+}
+.link-check-ticket:hover {
+  color: var(--primary, #0C387A);
+  text-decoration: underline;
+  opacity: 1;
+}
+
+/* Watermark Platform Branding */
+.platform-watermark {
+  margin-top: 6px;
+  padding-top: 0;
+  border-top: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.watermark-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  opacity: 0.75;
+  transition: opacity 0.2s ease;
+}
+.watermark-link:hover {
+  opacity: 1;
+}
+.watermark-link span {
+  font-size: 0.62rem;
+  color: var(--text-muted, #64748b);
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+.watermark-logo {
+  height: 15px;
+  width: auto;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: middle;
+}
 
 .btn-register {
   margin-top: 0;
@@ -1068,7 +1601,7 @@ input:focus, select:focus, textarea:focus {
   line-height: 1.2;
   width: 100%;
   background: var(--primary);
-  color: white;
+  color: var(--accent-yellow);
   border: none;
   cursor: pointer;
   transition: 0.2s;
@@ -1080,18 +1613,19 @@ input:focus, select:focus, textarea:focus {
   font-weight: 600;
 }
 .btn-register-sub {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 600;
   opacity: 0.9;
 }
 
 .social-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.4rem;
   margin-top: 0.75rem;
   padding-top: 0.75rem;
   border-top: 1px solid #e2e8f0;
+  width: 100%;
 }
 .social-btn {
   background: #ffffff;
@@ -1105,12 +1639,22 @@ input:focus, select:focus, textarea:focus {
   border: 1px solid #e2e8f0;
   transition: 0.2s;
   box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+  min-width: 0;
+  overflow: hidden;
+}
+.social-btn:active {
+  background: #f1f5f9;
+  transform: scale(0.98);
 }
 .social-text {
   font-size: 0.6rem;
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .step-padded { padding: 12px 15px; }
@@ -1137,7 +1681,7 @@ input:focus, select:focus, textarea:focus {
   padding: 10px;
   max-height: 250px;
   overflow-y: auto;
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   line-height: 1.5;
   color: var(--text-muted);
   margin-bottom: 10px;
@@ -1147,7 +1691,7 @@ input:focus, select:focus, textarea:focus {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.75rem;
+  font-size: 0.6rem; opacity: 0.75;
   font-weight: 600;
   cursor: pointer;
   margin-bottom: 15px;
@@ -1178,7 +1722,7 @@ input:focus, select:focus, textarea:focus {
 .btn-primary {
   flex: 7;
   background: var(--primary);
-  color: white;
+  color: var(--accent-yellow);
 }
 
 .ticket-header-star {
@@ -1284,128 +1828,19 @@ input:focus, select:focus, textarea:focus {
 
 
 
-/* Donasi Form (Matching ParticipantForm) */
-.donasi-form-card {
-  margin-top: 15px;
-  margin-bottom: 25px;
-  transition: opacity 0.3s;
+
+
+.legal-disclaimer {
+  font-size: 0.6rem; opacity: 0.75;
+  color: var(--text-muted, #64748b);
+  text-align: center;
+  margin: 16px 0;
+  line-height: 1.4;
+  padding: 0 10px;
 }
-.donasi-dim {
-  opacity: 0.6;
-}
-.donasi-header-flex {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.donasi-title-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--primary);
-}
-.donasi-svg {
-  width: 16px;
-  height: 16px;
-}
-.donasi-subtitle {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin: 4px 0 12px 24px;
-}
-.donasi-form-body {
-  margin-left: 24px;
-  margin-top: 10px;
-}
-.donasi-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.form-chip {
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--border-soft);
-  background: var(--bg-light);
-  color: var(--text-main);
-  font-size: 0.8rem;
+.legal-disclaimer a {
+  color: var(--primary, #0C387A);
   font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
+  text-decoration: underline;
 }
-.form-chip:hover {
-  background: #f1f5f9;
-}
-.form-chip-active {
-  background: var(--primary);
-  color: #ffffff;
-  border-color: var(--primary);
-}
-.form-input-group {
-  display: flex;
-  align-items: center;
-  background: var(--bg-light);
-  border: 1px solid var(--border-soft);
-  border-radius: 8px;
-  overflow: hidden;
-  max-width: 250px;
-}
-.form-input-prefix {
-  padding: 10px 12px;
-  background: #f1f5f9;
-  color: #64748b;
-  font-weight: 700;
-  font-size: 0.85rem;
-  border-right: 1px solid var(--border-soft);
-}
-.donasi-input {
-  border: none !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-/* Small Switch Toggle */
-.switch-small {
-  position: relative;
-  display: inline-block;
-  width: 36px;
-  height: 20px;
-}
-.switch-small input { 
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-.switch-small .slider-small {
-  position: absolute;
-  cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #cbd5e1;
-  transition: .3s;
-}
-.switch-small .slider-small:before {
-  position: absolute;
-  content: "";
-  height: 14px;
-  width: 14px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: .3s;
-}
-.switch-small input:checked + .slider-small {
-  background-color: var(--primary);
-}
-.switch-small input:checked + .slider-small:before {
-  transform: translateX(16px);
-}
-.switch-small .slider-small.round-small {
-  border-radius: 20px;
-}
-.switch-small .slider-small.round-small:before {
-  border-radius: 50%;
-}
-
 </style>

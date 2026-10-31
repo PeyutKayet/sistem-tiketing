@@ -1,0 +1,38 @@
+/* Global Styling Basic dari index.html */
+:root {
+  /* Diambil dari warna Logo tyket.id */
+  --primary: #123860;       /* Navy Blue gelap dari logo text & tiket */
+  --primary-hover: #1C5490; /* Hover state for primary */
+  --primary-shadow: rgba(18, 56, 96, 0.35); /* Shadow state */
+  --accent-main: #1C5490;   /* Biru sedikit lebih terang untuk tombol, link, aksi */
+  --accent-yellow: #FCEB9C; /* Kuning pucat/krem dari tiket logo */
+  
+  --bg-light: #F6F8FA;      /* Putih dengan hint biru sangat tipis */
+  --card-light: #FFFFFF;
+  --text-main: #123860;     /* Navy Blue untuk teks utama agar selaras */
+  --text-muted: #5C738A;    /* Abu-abu kebiruan untuk teks sekunder */
+  --border-soft: #DDE4EC;   /* Border yang lebih selaras dengan biru */
+  
+  --shadow-sm: 0 1px 2px 0 rgba(18, 56, 96, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(18, 56, 96, 0.08), 0 4px 6px -4px rgba(18, 56, 96, 0.04);
+  --transition: 0.25s ease-in-out;
+}
+
+html, body { 
+  max-width: 100%; 
+  overflow-x: hidden; 
+  position: relative;
+}
+
+body { 
+  font-family: 'Poppins', sans-serif; 
+  background: var(--bg-light); 
+  margin: 0; 
+  padding: 0;
+  color: var(--text-main); 
+  -webkit-tap-highlight-color: transparent;
+}
+
+*, *::before, *::after { 
+  box-sizing: border-box; 
+}

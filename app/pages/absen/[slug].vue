@@ -164,6 +164,6 @@ const resetForm = () => {
 }
 input:focus {
   border-color: var(--primary) !important;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 3px rgba(28, 84, 144, 0.15);
 }
 </style>

@@ -1,4 +1,6 @@
 export interface Peserta {
+  kategori_id?: string | number;
+  nama_tiket?: string;
   nama_lengkap: string;
   email: string;
   no_wa: string;
@@ -11,4 +13,5 @@ export interface CheckoutPayload {
   kategori_id: string | number;
   peserta: Peserta[];
   bukti_bayar_url?: string | null;
+  payment_method?: string;
 }

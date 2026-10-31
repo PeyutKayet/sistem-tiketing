@@ -42,14 +42,15 @@ export const useAdmin = () => {
   
   const formEvent = useState<any>('admin_formEvent', () => ({ 
     nama: '', slug: '', tanggal: '', lokasi: '', deskripsi: '', link_maps: '',
-    tipe_event: 'offline', sistem_checkin: 'scanner', target_absen: 0, link_online: '',
-    is_snk_active: true, snk_text: 'Syarat dan ketentuan berlaku mengikuti aturan panitia EventHub.',
+    tipe_event: 'offline', sistem_checkin: 'scanner', target_absen: 0, link_online: '', is_qr_active: true, is_online_absen_active: false,
+    is_snk_active: false, snk_text: 'Syarat dan ketentuan berlaku mengikuti kebijakan panitia dan tyket.id.',
     is_anti_calo_email: false, is_anti_calo_wa: false, is_wa_konfirm: false,
-    is_donasi_active: false, donasi_header: '', donasi_options: '',
+    is_limit_tiket_active: true, max_tiket_per_transaksi: 1,
+    is_donasi_active: false, donasi_header: '', donasi_options: '', is_donasi_custom: false,
     is_grup_wa_active: false, link_grup_wa: '',
     poster_file: null, poster_preview: null 
   }))
-  const formTiketBaru = useState<any>('admin_formTiketBaru', () => ({ nama: '', harga: '', is_gratis: false, kuota: '', is_unlimited: false, is_hidden: false, is_active: true, buka: '', tutup: '' }))
+  const formTiketBaru = useState<any>('admin_formTiketBaru', () => ({ nama: '', harga: '', is_gratis: true, kuota: '', is_unlimited: false, is_hidden: false, is_active: true, buka: '', tutup: '', is_no_time_limit: false }))
   const wizardTiketList = useState<any[]>('admin_wizardTiketList', () => [])
   const formForgeItems = useState<any[]>('admin_formForgeItems', () => [])
   const isSavingEvent = useState('admin_isSavingEvent', () => false)
@@ -58,9 +59,20 @@ export const useAdmin = () => {
   const totalLunas = useState('admin_totalLunas', () => 0)
   const totalPending = useState('admin_totalPending', () => 0)
   const totalHadir = useState('admin_totalHadir', () => 0)
+  const totalPendapatanTiket = useState('admin_totalPendapatanTiket', () => 0)
+  const totalPendapatanDonasi = useState('admin_totalPendapatanDonasi', () => 0)
   const persenHadir = computed(() => totalLunas.value === 0 ? 0 : Math.round((totalHadir.value / totalLunas.value) * 100))
 
-  const userName = computed(() => userEmail.value ? userEmail.value.split('@')[0] : 'Admin')
+  const organizerProfile = useState<any>('admin_organizerProfile', () => null)
+  const userName = computed(() => {
+    if (organizerProfile.value && organizerProfile.value.nama_organizer) {
+      return organizerProfile.value.nama_organizer
+    }
+    if (user.value?.user_metadata?.full_name || user.value?.user_metadata?.name) {
+      return user.value.user_metadata.full_name || user.value.user_metadata.name
+    }
+    return userEmail.value ? userEmail.value.split('@')[0] : 'Admin'
+  })
   const userInitials = computed(() => userName.value?.substring(0, 2)?.toUpperCase() || 'AD')
   
   const eventAktif = computed(() => {
@@ -113,27 +125,30 @@ export const useAdmin = () => {
   const muatStatistikPeserta = async () => {
     if (!selectedEvent.value) return
     try {
-      const { data, error } = await supabase.from('peserta').select('status_bayar, is_scanned').eq('event_id', selectedEvent.value.id)
+      const { data, error } = await supabase.rpc('get_admin_event_stats', { p_event_id: selectedEvent.value.id })
       if (error) throw error
-      if (data) {
-        totalPeserta.value = data.length
-        totalLunas.value = data.filter((p: any) => p.status_bayar === 'paid').length
-        totalPending.value = data.filter((p: any) => p.status_bayar === 'pending').length
-        totalHadir.value = data.filter((p: any) => p.is_scanned).length
+      if (data && data.length > 0) {
+        const stats = data[0]
+        totalPeserta.value = stats.total_peserta || 0
+        totalLunas.value = stats.total_lunas || 0
+        totalPending.value = stats.total_pending || 0
+        totalHadir.value = stats.total_hadir || 0
+        totalPendapatanTiket.value = stats.pendapatan_tiket || 0
+        totalPendapatanDonasi.value = stats.pendapatan_donasi || 0
       }
     } catch (err) {
       console.error('Gagal memuat statistik:', err)
     }
   }
 
-  const muatDaftarPeserta = async (query = '', status = 'semua', hadir = 'semua', limit = 50) => {
+  const muatDaftarPeserta = async (query = '', status = 'semua', hadir = 'semua', tiket = 'semua', limit = 20) => {
     if (!selectedEvent.value) return
     isLoadingPeserta.value = true
     try {
       const from = (pesertaPage.value - 1) * limit
       const to = from + limit - 1
 
-      let req = supabase.from('peserta').select('id, nama_lengkap, email, no_wa, nama_tiket, status_bayar, is_scanned, bukti_bayar_url, created_at', { count: 'exact' }).eq('event_id', selectedEvent.value.id)
+      let req = supabase.from('peserta').select('id, nama_lengkap, email, no_wa, nama_tiket, status_bayar, is_scanned, bukti_bayar_url, data_tambahan, created_at, kategori_tiket (harga)', { count: 'exact' }).eq('event_id', selectedEvent.value.id)
 
       if (query) {
         req = req.or(`nama_lengkap.ilike.%${query}%,email.ilike.%${query}%,no_wa.ilike.%${query}%`)
@@ -145,6 +160,9 @@ export const useAdmin = () => {
         req = req.eq('is_scanned', true)
       } else if (hadir === 'belum') {
         req = req.eq('is_scanned', false)
+      }
+      if (tiket !== 'semua') {
+        req = req.eq('kategori_id', tiket)
       }
 
       const { data, error, count } = await req.order('created_at', { ascending: false }).range(from, to)
@@ -166,22 +184,22 @@ export const useAdmin = () => {
   }, { immediate: true })
 
   const prosesLogout = async () => {
-    if (confirm('Yakin ingin mengakhiri sesi dan keluar dari aplikasi?')) {
-      // Bersihkan state global sebelum logout agar data tidak bocor (cross-contamination)
-      allEvents.value = []
-      selectedEvent.value = null
-      daftarPeserta.value = []
-      organizerProfile.value = null
-      totalPeserta.value = 0
-      totalLunas.value = 0
-      totalPending.value = 0
-      totalHadir.value = 0
-      pesertaPage.value = 1
-      pesertaTotalData.value = 0
-      
-      await supabase.auth.signOut()
-      router.push('/login')
-    }
+    // Bersihkan state global sebelum logout agar data tidak bocor (cross-contamination)
+    allEvents.value = []
+    // selectedEvent adalah computed (read-only), jadi kita reset sumbernya:
+    // lastActiveEventSlug → selectedEvent otomatis jadi null
+    lastActiveEventSlug.value = null
+    daftarPeserta.value = []
+    organizerProfile.value = null
+    totalPeserta.value = 0
+    totalLunas.value = 0
+    totalPending.value = 0
+    totalHadir.value = 0
+    pesertaPage.value = 1
+    pesertaTotalData.value = 0
+    
+    await supabase.auth.signOut()
+    router.push('/login')
   }
 
   // --- NEW UI STATES ---
@@ -202,17 +220,17 @@ export const useAdmin = () => {
     }, 3000)
   }
 
-  const confirmData = useState<any>('admin_confirm', () => ({ show: false, title: '', message: '', actionText: '', type: 'success', callback: null }))
-  const showConfirm = (title: string, message: string, actionText: string, type: string, callback: any) => {
-    confirmData.value = { show: true, title, message, actionText, type, callback }
+  const confirmData = useState<any>('admin_confirm', () => ({ show: false, title: '', message: '', actionText: '', type: 'success', callback: null, cancelCallback: null }))
+  const showConfirm = (title: string, message: string, actionText: string, type: string, callback: any, cancelCallback: any = null) => {
+    confirmData.value = { show: true, title, message, actionText, type, callback, cancelCallback }
   }
   const closeConfirm = () => {
+    if (confirmData.value.cancelCallback) confirmData.value.cancelCallback()
     confirmData.value.show = false
   }
 
   const isOnline = useState('admin_isOnline', () => true)
   const showOnboarding = useState('admin_showOnboarding', () => false)
-  const organizerProfile = useState<any>('admin_organizerProfile', () => null)
 
   const muatProfilOrganizer = async () => {
     try {
@@ -226,7 +244,11 @@ export const useAdmin = () => {
       
       if (data && !error) {
         organizerProfile.value = data
-        if (!(data as any).nama_organizer) showOnboarding.value = true
+        const pin = (data as any).pin_scanner
+        const isPinInsecure = !pin || pin === '123456'
+        if (!(data as any).nama_organizer || isPinInsecure) {
+          showOnboarding.value = true
+        }
       } else {
         console.warn('Failed to load profile or profile empty', error)
         showOnboarding.value = true
@@ -244,6 +266,7 @@ export const useAdmin = () => {
     daftarPeserta, isLoadingPeserta, formEditEvent, isSavingEdit, pesertaPage, pesertaTotalData,
     showWizard, wizardStepNow, formEvent, formTiketBaru, wizardTiketList, isSavingEvent, formForgeItems,
     totalPeserta, totalLunas, totalPending, totalHadir, persenHadir,
+    totalPendapatanTiket, totalPendapatanDonasi,
     userName, userInitials, eventAktif, eventSelesai, eventArsip,
     formatDate, muatDaftarEvent, muatDaftarPeserta, prosesLogout,
     toastList, showToast, confirmData, showConfirm, closeConfirm, isOnline, showOnboarding, organizerProfile, muatProfilOrganizer

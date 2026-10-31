@@ -10,14 +10,14 @@
       <!-- Brand tag -->
       <div style="display:flex; justify-content:center; margin-bottom:12px;">
         <span style="background:#eef3f9; color:var(--primary); padding:4px 12px; border-radius:20px; font-size:9px; font-weight:700; letter-spacing:0.5px; display:flex; align-items:center; gap:4px;">
-          <Icon name="lucide:ticket" style="font-size:10px;" /> EVENTHUB
+          <Icon name="lucide:ticket" style="font-size:10px;" /> TYKET.ID PASS
         </span>
       </div>
       
       <!-- Event Card -->
       <div style="background:#ffffff; border-radius:16px; padding:12px; box-shadow:0 4px 12px rgba(0,0,0,0.03); margin-bottom:12px; border:1px solid #e6edf5;">
         <div style="height:120px; border-radius:10px; margin-bottom:12px; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 28px; color:white; overflow:hidden;" 
-             :style="formEvent.poster_preview ? { backgroundImage: `url('${formEvent.poster_preview}')` } : { background: 'linear-gradient(145deg, var(--primary), #3b82f6)' }">
+             :style="formEvent.poster_preview ? { backgroundImage: `url('${formEvent.poster_preview}')` } : { background: 'linear-gradient(145deg, var(--primary), var(--primary-hover))' }">
           <Icon v-if="!formEvent.poster_preview" name="lucide:image" style="opacity: 0.5; font-size: 32px;" />
         </div>
         <div style="font-size:16px; font-weight:800; text-align:center; color:#0a1929; letter-spacing:-0.3px;">{{ formEvent.nama || 'Event Baru' }}</div>

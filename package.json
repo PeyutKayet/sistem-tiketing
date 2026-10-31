@@ -5,21 +5,26 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "tunnel": "./cloudflared tunnel run --token ${CLOUDFLARE_TUNNEL_TOKEN}",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
     "@nuxtjs/supabase": "^2.0.10",
+    "@pinia/nuxt": "^1.0.3",
     "html5-qrcode": "^2.3.8",
     "nuxt": "^4.5.2",
-    "resend": "^6.28.1",
+    "pinia": "^4.1.0",
+    "pinia-plugin-persistedstate": "^4.7.1",
+    "qrcode": "^1.5.4",
     "vue": "^3.5.42",
     "vue-router": "^5.3.1"
   },
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.135",
     "@nuxt/icon": "^2.5.1",
-    "@nuxt/image": "^2.1.0"
+    "@nuxt/image": "^2.1.0",
+    "@types/qrcode": "^1.5.6"
   }
 }

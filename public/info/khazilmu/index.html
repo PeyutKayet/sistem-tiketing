@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aku Sedang Belajar Menjadi Ibu — Khazilmu</title>
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '2222714938275350');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=2222714938275350&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Penyesuaian Palette sesuai Visual Blueprint "Whimsical - Transisi Istri Menjadi Ibu" */
+  --brand: #435119;       /* Olive Green Utama (#435119) */
+  --brand2: #2E3811;      /* Deep Olive untuk gradasi & kedalaman */
+  --brand-light: #5B6D24; /* Olive cerah untuk hover/aksen */
+  --pink-pastel: #FDB5C9; /* Soft Pink / Blush (#FDB5C9) */
+  --pink: #D25C7E;        /* Pink kontras tinggi untuk teks & border */
+  --pink-soft: #FDF1F4;   /* Tint pink lembut untuk card / tag */
+  --bg: #FFF8F1;          /* Warm Cream Background (#FFF8F1) */
+  --card: #FFFFFF;        /* Surface putih bersih */
+  --ink: #3C342E;         /* Espresso Brown untuk teks utama (#3C342E) */
+  --mute: #74675E;        /* Warm Taupe untuk teks sekunder */
+  --mint: #DDE3C9;        /* Sage / Soft Green (#DDE3C9) */
+  --mint-soft: #EEF2E3;   /* Tint sage lembut untuk latar section */
+  --line: #E8DDCF;        /* Garis pembatas hangat yang selaras */
+
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1C1714;
+    --card: #27211C;
+    --ink: #F7EFE8;
+    --mute: #B8ACA3;
+    --brand: #8FA848;
+    --brand2: #B5CE69;
+    --brand-light: #A4BE58;
+    --pink: #FDB5C9;
+    --pink-pastel: #FDB5C9;
+    --pink-soft: #38222A;
+    --mint: #2D361B;
+    --mint-soft: #202713;
+    --line: #3D322B;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #1C1714;
+  --card: #27211C;
+  --ink: #F7EFE8;
+  --mute: #B8ACA3;
+  --brand: #8FA848;
+  --brand2: #B5CE69;
+  --brand-light: #A4BE58;
+  --pink: #FDB5C9;
+  --pink-pastel: #FDB5C9;
+  --pink-soft: #38222A;
+  --mint: #2D361B;
+  --mint-soft: #202713;
+  --line: #3D322B;
+}
+
+html {
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+  scroll-behavior: smooth;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  line-height: 1.68;
+  overflow-x: hidden;
+}
+h1, h2, h3 {
+  font-family: 'Fraunces', Georgia, serif;
+  line-height: 1.25;
+  margin: 0 0 .6em;
+  color: var(--ink);
+}
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+section {
+  padding: 76px 0;
+}
+.eyebrow {
+  display: inline-block;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .15em;
+  color: var(--brand);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.btn {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--brand), var(--brand-light));
+  color: #FFF8F1;
+  padding: 14px 30px;
+  border-radius: 999px;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: .92rem;
+  letter-spacing: .03em;
+  box-shadow: 0 8px 24px -8px rgba(67, 81, 25, 0.45);
+  transition: all .25s ease;
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -6px rgba(67, 81, 25, 0.55);
+}
+.btn.ghost {
+  background: transparent;
+  color: var(--brand);
+  border: 1.5px solid var(--brand);
+  box-shadow: none;
+}
+.btn.ghost:hover {
+  background: var(--mint-soft);
+  transform: translateY(-2px);
+}
+.hero {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: 104px 0 88px;
+  background: 
+    radial-gradient(circle at 12% 15%, var(--pink-soft), transparent 45%),
+    radial-gradient(circle at 88% 85%, var(--mint-soft), transparent 50%),
+    var(--bg);
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 6px;
+  background: linear-gradient(90deg, var(--brand), var(--pink-pastel), var(--mint));
+}
+.hero h1 {
+  font-size: clamp(2.1rem, 5.6vw, 3.6rem);
+  max-width: 820px;
+  margin: 0 auto 22px;
+  font-weight: 700;
+}
+.hero h1 em {
+  color: var(--brand);
+  font-style: italic;
+}
+.hero p {
+  max-width: 660px;
+  margin: 0 auto 20px;
+  color: var(--mute);
+  font-size: 1.05rem;
+}
+.pill {
+  display: inline-block;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 18px;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  color: var(--brand);
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(60, 52, 46, 0.04);
+}
+.tag {
+  font-weight: 600;
+  color: var(--brand);
+  margin: 28px 0 24px;
+  font-size: 1rem;
+}
+.note {
+  font-size: .84rem;
+  color: var(--mute);
+  margin-top: 14px;
+}
+.center {
+  text-align: center;
+}
+.grid {
+  display: grid;
+  gap: 20px;
+}
+.g2 {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+.g3 {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+.benefit-grid h3 {
+  font-size: 1.1rem;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 28px;
+  box-shadow: 0 4px 16px -4px rgba(60, 52, 46, 0.04);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.card:hover {
+  box-shadow: 0 8px 24px -6px rgba(60, 52, 46, 0.08);
+}
+.feel .card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.feel .num {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  border-radius: 50%;
+  background: var(--pink-soft);
+  color: var(--pink);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.76rem;
+  margin-bottom: 0;
+  margin-top: 2px;
+  border: 1px solid var(--pink-pastel);
+}
+.feel h3 {
+  font-size: 1rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  line-height: 1.55;
+  margin: 0;
+}
+.card p {
+  color: var(--mute);
+  margin: 0;
+  font-size: .94rem;
+}
+.lead {
+  max-width: 700px;
+  margin: 0 auto 40px;
+  color: var(--mute);
+  font-size: 1.02rem;
+}
+.band {
+  background: var(--mint-soft);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0;
+  display: grid;
+  gap: 12px;
+  text-align: left;
+}
+.list li {
+  padding-left: 30px;
+  position: relative;
+  font-size: .95rem;
+  color: var(--ink);
+}
+.list li:before {
+  content: "🌸";
+  position: absolute;
+  left: 0;
+  font-size: .88rem;
+}
+.list-num {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 16px;
+  text-align: left;
+}
+.list-num li {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  font-size: .96rem;
+  color: var(--ink);
+  line-height: 1.55;
+}
+.list-num .n {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  border-radius: 50%;
+  background: var(--pink-soft);
+  color: var(--pink);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.76rem;
+  border: 1px solid var(--pink-pastel);
+  margin-top: 2px;
+}
+.wb {
+  display: grid;
+  gap: 28px;
+  grid-template-columns: 160px 1fr;
+  align-items: start;
+  margin-bottom: 24px;
+}
+.badge {
+  background: linear-gradient(160deg, var(--brand), var(--brand2));
+  color: #FFF8F1;
+  border-radius: 20px;
+  padding: 22px 16px;
+  text-align: center;
+  box-shadow: 0 6px 18px -4px rgba(67, 81, 25, 0.35);
+}
+.badge b {
+  display: block;
+  font-family: 'Fraunces', serif;
+  font-size: 2.6rem;
+  line-height: 1;
+  margin: 4px 0;
+}
+.badge span {
+  font-size: .7rem;
+  letter-spacing: .12em;
+  font-weight: 700;
+  opacity: .92;
+}
+.wb h3 {
+  font-size: 1.5rem;
+  margin-bottom: 6px;
+}
+.sub {
+  color: var(--brand);
+  font-weight: 700;
+  font-size: .98rem;
+  margin: -4px 0 14px;
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin: 18px 0;
+  font-size: .9rem;
+}
+.meta div {
+  color: var(--mute);
+}
+.meta strong {
+  color: var(--ink);
+}
+.ph {
+  background: var(--pink-soft);
+  border: 1px dashed var(--pink);
+  border-radius: 8px;
+  padding: 2px 8px;
+  font-size: .88em;
+  color: var(--ink);
+}
+.tix {
+  text-align: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.tix h3 {
+  font-size: 1.35rem;
+  margin-bottom: 6px;
+}
+.tix .price {
+  font-weight: 700;
+  margin: 18px 0;
+  font-size: 0.95rem;
+  color: var(--mute);
+}
+.tix .price .val {
+  font-family: 'Fraunces', serif;
+  font-size: 1.45rem;
+  color: var(--brand);
+  font-weight: 700;
+  display: block;
+  margin-top: 4px;
+}
+.tix.best {
+  border: 2px solid var(--brand);
+  box-shadow: 0 20px 40px -20px rgba(67, 81, 25, 0.3);
+}
+.tix .ribbon {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--brand);
+  color: #FFF8F1;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  padding: 4px 16px;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(67, 81, 25, 0.25);
+}
+.tix .btn {
+  margin-top: auto;
+  width: 100%;
+}
+.spk {
+  text-align: center;
+}
+.spk .ava {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pink-soft), var(--mint));
+  display: grid;
+  place-items: center;
+  font-size: .72rem;
+  color: var(--mute);
+  margin: 0 auto 16px;
+  border: 3px solid var(--card);
+  outline: 2px solid var(--pink-pastel);
+}
+.spk h3 {
+  font-size: 1.05rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.spk small {
+  color: var(--brand);
+  font-weight: 700;
+  font-size: .74rem;
+  letter-spacing: .08em;
+}
+details {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 20px 24px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 8px rgba(60, 52, 46, 0.03);
+}
+summary {
+  cursor: pointer;
+  font-weight: 700;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  color: var(--ink);
+}
+summary:after {
+  content: "+";
+  color: var(--brand);
+  font-size: 1.4rem;
+  line-height: 1;
+  font-weight: 400;
+}
+details[open] summary:after {
+  content: "–";
+}
+details p {
+  color: var(--mute);
+  margin: 14px 0 0;
+  font-size: .95rem;
+}
+.final {
+  background: linear-gradient(140deg, var(--brand2), var(--brand));
+  color: #FFF8F1;
+  text-align: center;
+  border-radius: 32px;
+  padding: 64px 30px;
+  margin: 0 auto;
+  box-shadow: 0 20px 48px -12px rgba(46, 56, 17, 0.4);
+}
+.final h2 {
+  font-size: clamp(1.8rem, 4.2vw, 2.6rem);
+  max-width: 660px;
+  margin: 0 auto 20px;
+  color: #FFF8F1;
+}
+.final p {
+  max-width: 620px;
+  margin: 0 auto 16px;
+  opacity: .94;
+  color: #FFF8F1;
+}
+.final .btn {
+  background: #FFF8F1;
+  color: var(--brand2);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.25);
+  margin: 18px 0 24px;
+}
+.final .btn:hover {
+  background: #FFFFFF;
+  transform: translateY(-2px);
+}
+.final .brand {
+  font-family: 'Fraunces', serif;
+  font-size: 1.15rem;
+  letter-spacing: .02em;
+}
+.final .note {
+  color: #FFF8F1;
+  opacity: .8;
+}
+footer {
+  padding: 48px 0;
+  text-align: center;
+  font-size: .88rem;
+  color: var(--mute);
+}
+footer a {
+  color: var(--brand);
+  text-decoration: none;
+  margin: 0 10px;
+  font-weight: 600;
+}
+footer a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .wrap {
+    padding: 0 18px;
+  }
+  section {
+    padding: 46px 0;
+  }
+  .hero {
+    padding: 68px 0 52px;
+  }
+  .hero h1 {
+    font-size: clamp(1.8rem, 7.2vw, 2.4rem);
+    margin-bottom: 16px;
+  }
+  .hero p {
+    font-size: 0.95rem;
+    margin-bottom: 16px;
+  }
+  .pill {
+    padding: 5px 14px;
+    font-size: 0.74rem;
+    margin-bottom: 18px;
+  }
+  .lead {
+    font-size: 0.95rem;
+    margin-bottom: 26px;
+  }
+  .card {
+    padding: 22px 18px;
+    border-radius: 18px;
+  }
+  .wb {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .badge {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 16px;
+    border-radius: 16px;
+  }
+  .badge b {
+    font-size: 1.8rem;
+    margin: 0;
+  }
+  .badge span {
+    font-size: 0.68rem;
+  }
+  .wb h3 {
+    font-size: 1.3rem;
+  }
+  .wb .btn {
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+  }
+
+  #tix {
+    display: grid;
+    gap: 18px;
+  }
+  .tix {
+    padding: 24px 20px;
+  }
+
+  .benefit-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px;
+  }
+  .benefit-grid .card {
+    padding: 16px 14px;
+    border-radius: 16px;
+  }
+  .benefit-grid h3 {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+    line-height: 1.35;
+  }
+  .benefit-grid p {
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+
+  .feel {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px;
+  }
+  .feel .card {
+    padding: 16px 12px;
+    gap: 10px;
+    border-radius: 16px;
+  }
+  .feel .num {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    font-size: 0.72rem;
+    margin-top: 1px;
+  }
+  .feel h3 {
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+
+  .final {
+    padding: 44px 20px;
+    border-radius: 24px;
+  }
+  .final h2 {
+    font-size: 1.6rem;
+  }
+  .btn {
+    padding: 13px 26px;
+  }
+}
+</style>
+</head>
+<body>
+
+<header class="hero"><div class="wrap">
+<div class="pill">KHAZILMU PRESENTS</div>
+<h1>Webinar Series <em>“Aku Sedang Belajar Menjadi Ibu”</em></h1>
+<p>Rangkaian webinar bersama psikolog terpercaya untuk membekali masa transisi seorang istri menjadi seorang ibu.</p>
+<div class="tag">Empat topik. Empat ruang belajar. Satu perjalanan untuk terus bertumbuh.</div>
+<a class="btn" href="#tiket">PILIH WEBINAR DAN DAFTAR</a>
+<div class="note">Pilih satu sesi yang paling kamu butuhkan atau ikuti rangkaian lengkapnya.</div>
+</div></header>
+
+<section style="padding-top: 32px"><div class="wrap">
+<div class="center">
+<h2>Pernah Mengalami Hal Ini?</h2>
+<p class="lead" style="margin-bottom:28px">Mungkin kamu sedang berada di salah satu situasi ini:</p></div>
+<div class="grid g2 feel">
+<div class="card"><div class="num">1</div><h3 style="margin-bottom:0">Ternyata pasangan yang kamu pilih tidak sesuai dengan ekspektasi.</h3></div>
+<div class="card"><div class="num">2</div><h3 style="margin-bottom:0">Lelah dengan tuntutan pekerjaan rumah tangga.</h3></div>
+<div class="card"><div class="num">3</div><h3 style="margin-bottom:0">Susah menahan emosi jika bertengkar dengan pasangan, sehingga anak menjadi korban.</h3></div>
+<div class="card"><div class="num">4</div><h3 style="margin-bottom:0">Merasa terkekang dan bersalah ketika menjadi seorang ibu.</h3></div>
+</div>
+<p class="lead center" style="margin:32px auto 0">Jika kamu pernah merasakannya, kamu tidak sendirian. Kita bisa mulai dengan memahami apa yang sedang terjadi dan belajar meresponsnya dengan lebih terarah.</p>
+</div></section>
+
+<section class="band"><div class="wrap" style="max-width:760px;text-align:center">
+<h2>Materi yang Akan Dipelajari</h2>
+<div class="card" style="margin-top:24px">
+<ul class="list-num">
+<li><div class="n">1</div><div>Bagaimana seseorang mengelola emosi ketika realita tidak sesuai harapan.</div></li>
+<li><div class="n">2</div><div>Bagaimana memahami pola respons ketika kelelahan dan tuntutan pengasuhan melanda setiap hari.</div></li>
+<li><div class="n">3</div><div>Bagaimana emosi yang tidak terkelola dapat terbawa ke pasangan atau anak.</div></li>
+<li><div class="n">4</div><div>Bagaimana seorang ibu bisa terus bertumbuh dan tidak merasa bersalah.</div></li>
+</ul>
+</div>
+</div></section>
+
+<section id="webinar"><div class="wrap">
+<div class="center"><span class="eyebrow">Pilih sesi yang paling relevan untukmu</span>
+<h2>Empat webinar untuk empat sisi perjalananmu</h2></div>
+<div id="wbs" style="margin-top:36px"></div>
+</div></section>
+
+<section class="band"><div class="wrap">
+<div class="center">
+<h2>Benefit yang Kamu Dapatkan</h2>
+<p class="lead">Setiap peserta mendapatkan fasilitas pembelajaran yang dirancang untuk mendukung pemahaman dan penerapan materi dalam kehidupan sehari-hari.</p></div>
+<div class="grid g3 benefit-grid">
+<div class="card"><h3>1. Voucher Diskon</h3><p>Potongan harga khusus untuk mengikuti kelas lanjutan atau program edukasi Khazilmu berikutnya.</p></div>
+<div class="card"><h3>2. Worksheet Praktis</h3><p>Panduan refleksi terstruktur untuk membantumu memetakan emosi dan menerapkannya secara mandiri.</p></div>
+<div class="card"><h3>3. Rekaman Webinar</h3><p>Akses playback rekaman agar kamu dapat mengulang dan menyimak materi kapan pun di waktu luangmu.</p></div>
+<div class="card"><h3>4. Rangkuman PDF</h3><p>Intisari materi ringkas yang praktis dibaca kembali tanpa harus memutar ulang video secara penuh.</p></div>
+<div class="card"><h3>5. Sesi dengan Para Ahli</h3><p>Belajar langsung dari psikolog dan praktisi terpercaya dengan pembahasan yang terarah dan aplikatif.</p></div>
+<div class="card"><h3>6. Sesi Tanya Jawab (Live Q&A)</h3><p>Ruang interaksi terarah untuk mengajukan pertanyaan dan berdiskusi langsung seputar topik webinar.</p></div>
+</div></div></section>
+
+<section id="tiket"><div class="wrap">
+<div class="center"><span class="eyebrow">Pilih tiketmu</span>
+<h2>Mulai dari topik yang paling kamu butuhkan.</h2>
+<div class="grid g3" id="tix"></div>
+<p class="note center" style="margin-top:22px">Harga dan ketentuan setiap paket akan ditampilkan secara transparan sebelum pembayaran. Pilihan paket, benefit, serta masa akses rekaman mengikuti ketentuan resmi penyelenggara.</p>
+</div></section>
+
+<section class="band"><div class="wrap">
+<div class="center"><span class="eyebrow">Kenali narasumber kami</span>
+<h2>Belajar dari perspektif dan pengalaman yang relevan.</h2>
+<p class="lead">Setiap sesi menghadirkan narasumber yang telah ditentukan untuk membahas tema tertentu.</p></div>
+<div class="grid g2" id="spk"></div>
+<p class="note center" style="margin-top:20px"><span class="ph">Bagian profil perlu dilengkapi dengan biografi dan kredensial terverifikasi dari penyelenggara atau masing-masing narasumber sebelum dipublikasikan.</span></p>
+</div></section>
+
+<section><div class="wrap" style="max-width:760px">
+<div class="center"><span class="eyebrow">FAQ</span><h2>Pertanyaan yang sering diajukan</h2></div>
+<div id="faq" style="margin-top:28px"></div>
+</div></section>
+
+<section style="padding-top:0"><div class="wrap"><div class="final">
+<h2>Kamu Tidak Harus Menjadi Ibu yang Sempurna untuk Terus Bertumbuh.</h2>
+<p>Menjadi istri dan ibu adalah perjalanan yang membawa banyak pengalaman baru. Ada hal-hal yang terasa mudah, ada pula yang membutuhkan waktu untuk dipahami.</p>
+<p>Kamu boleh terus belajar. Kamu boleh mengevaluasi diri. Dan kamu bisa memulai dari satu hal yang paling ingin kamu pahami hari ini.</p>
+<p>Mari belajar mengenali emosi, memahami relasi keluarga, dan bertumbuh dengan langkah yang lebih terarah bersama Khazilmu.</p>
+<p><strong>Pilih sesi yang paling sesuai dengan kebutuhanmu.</strong></p>
+<a class="btn" href="#tiket">LIHAT PILIHAN WEBINAR DAN DAFTAR</a>
+<div class="brand">Khazilmu — Bertumbuh Bersama Ilmu.</div>
+<p class="note" style="margin-top:18px">Program edukasi ini tidak menjanjikan perubahan psikologis tertentu. Manfaat yang diperoleh dapat berbeda pada setiap peserta, bergantung pada kebutuhan dan penerapan masing-masing.</p>
+</div></div></section>
+
+<footer><div class="wrap">
+<div style="font-family:'Fraunces',serif;font-size:1.15rem;color:var(--ink);margin-bottom:10px">Khazilmu | Bertumbuh Bersama Ilmu</div>
+<div><a href="https://www.instagram.com/khazilmuacademy/" target="_blank" rel="noopener">Instagram Khazilmu</a><a href="#">Kontak Admin</a><a href="#">Kebijakan Privasi</a><a href="#">Syarat dan Ketentuan</a></div>
+<div style="margin-top:14px">© Khazilmu — 2027</div>
+</div></footer>
+
+<script>
+var W=[
+["01","AKU DAN PASANGANKU","Ketika Ekspektasi Bertemu Realita","Mengelola Emosi dalam Pernikahan",["Mengenali situasi yang dapat memicu emosi dalam pernikahan.","Memahami respons emosional yang muncul ketika terjadi konflik.","Mempelajari cara merespons dan menyampaikan kebutuhan dengan lebih terarah."],"Jiemi Ardian / Kak Halfizh Alfara","20 Januari 2027"],
+["02","AKU DAN EMOSIKU","Adaptasi Seorang Ibu Dengan Anak Pertamanya","Mengelola Emosi dan Transisi Menjadi Ibu Baru",["Mengenali situasi yang memicu kemarahan.","Memahami tanda-tanda ketika emosi mulai meningkat.","Mempelajari cara mengambil jeda sebelum merespons.","Merefleksikan langkah untuk memperbaiki interaksi setelah konflik."],"Aisyah Dahlan / Ummu Yunengsih","21 Januari 2027"],
+["03","AKU DAN KELUARGAKU","Menjadi Istri dan Ibu Sekaligus","Mengelola Emosi dalam Relasi Keluarga",["Mengenali bagaimana tekanan dalam satu relasi dapat memengaruhi relasi lain.","Memahami respons diri ketika menghadapi konflik.","Mempelajari cara mengambil jeda dan memulihkan komunikasi.","Menyusun langkah untuk menjaga interaksi dengan anak ketika menghadapi tekanan."],"Silmy Risman / Dwita Priyanti","27 Januari 2027"],
+["04","AKU DAN DIRIKU","Bukan Ibu yang Sempurna","Menjadi Perempuan yang Terus Bertumbuh",["Mengenali ekspektasi yang membebani diri.","Membedakan evaluasi diri dari kebiasaan menyalahkan diri.","Menyusun langkah pertumbuhan yang realistis.","Memberi ruang bagi proses belajar dalam menjalani peran sebagai ibu."],"Ummu Balqis / Ummu Ihsan","28 Januari 2027"]];
+document.getElementById('wbs').innerHTML=W.map(function(w){return '<div class="card wb"><div class="badge"><span>WEBINAR</span><b>'+w[0]+'</b><span>'+w[1]+'</span></div><div><h3>'+w[2]+'</h3><div class="sub">'+w[3]+'</div><strong style="font-size:.9rem;color:var(--ink)">Yang akan dipelajari:</strong><ul class="list" style="margin-top:10px">'+w[4].map(function(i){return '<li>'+i+'</li>'}).join('')+'</ul><div class="meta"><div><strong>Narasumber:</strong> '+w[5]+'</div><div><strong>Tanggal:</strong> '+w[6]+'</div></div><a class="btn" href="#tiket">DAFTAR WEBINAR '+w[0]+'</a></div></div>'}).join('');
+function trackTicket(name, price) {
+  if (typeof window.fbq === 'function') {
+    window.fbq('track', 'InitiateCheckout', {
+      content_name: name,
+      currency: 'IDR',
+      value: price
+    });
+  }
+}
+var T=[
+  ["SINGLE PASS","Satu webinar pilihanmu","Cocok untuk kamu yang ingin mempelajari satu topik tertentu terlebih dahulu.",["Akses satu sesi webinar live.","Worksheet sesi terkait.","Rekaman sesi sesuai ketentuan akses."],"Harga","Rp 60.000","PILIH SATU WEBINAR","/seminar-iou?tiket=single", 60000],
+  ["DUO PASS","Dua webinar pilihanmu","Cocok untuk kamu yang ingin mempelajari dua topik yang saling berkaitan, misalnya pengelolaan emosi dalam pernikahan dan pengasuhan.",["Akses dua sesi webinar live yang dipilih.","Worksheet untuk sesi yang dipilih.","Rekaman sesi sesuai ketentuan akses."],"Harga paket","Rp 110.000","PILIH DUA WEBINAR","/seminar-iou?tiket=duo", 110000],
+  ["FULL JOURNEY PASS","Akses keempat webinar","Untuk kamu yang ingin mengikuti rangkaian pembelajaran dari dinamika pernikahan, pengelolaan emosi dalam pengasuhan, relasi keluarga, hingga pertumbuhan diri.",["Akses empat sesi webinar live.","Worksheet untuk setiap sesi.","Rekaman setiap sesi sesuai ketentuan akses."],"Harga paket","Rp 150.000","IKUTI KEEMPAT WEBINAR","/seminar-iou?tiket=full", 150000]
+];
+document.getElementById('tix').innerHTML=T.map(function(t,i){
+  var linkUrl = t[7] || '#';
+  return '<div class="card tix'+(i==2?' best':'')+'">'+(i==2?'<div class="ribbon">LENGKAP</div>':'')+'<h3>'+t[0]+'</h3><div class="sub">'+t[1]+'</div><p>'+t[2]+'</p><ul class="list">'+t[3].map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul><div class="price">'+t[4]+':<span class="val">'+t[5]+'</span></div><a class="btn'+(i==2?'':' ghost')+'" href="'+linkUrl+'" onclick="trackTicket(\''+t[0]+'\','+t[8]+')">'+t[6]+'</a></div>'
+}).join('');
+var S=[["Webinar 01","Jiemi Ardian / Kak Halfizh Alfara","pengelolaan emosi dalam pernikahan"],["Webinar 02","Aisyah Dahlan / Ummu Yunengsih","adaptasi seorang ibu dengan anak pertamanya"],["Webinar 03","Silmy Risman / Dwita Priyanti","emosi dalam relasi keluarga"],["Webinar 04","Ummu Balqis / Ummu Ihsan","pertumbuhan diri sebagai seorang ibu"]];
+document.getElementById('spk').innerHTML=S.map(function(s){return '<div class="card spk"><div class="ava">Foto narasumber</div><small>'+s[0].toUpperCase()+'</small><h3>'+s[1]+'</h3><p>Profil, pengalaman, dan kompetensi yang relevan dengan tema '+s[2]+'.</p></div>'}).join('');
+var F=[["Apakah saya harus mengikuti keempat webinar?","Tidak. Kamu bisa memilih satu webinar sesuai kebutuhan atau membeli paket jika ingin mengikuti beberapa sesi sekaligus."],["Apakah webinar ini cocok untuk ibu yang baru memiliki anak?","Topik-topiknya dirancang untuk membahas tantangan emosi dalam pernikahan, pengasuhan, relasi keluarga, dan pertumbuhan diri. Silakan pilih sesi yang paling sesuai dengan situasimu saat ini."],["Apakah saya akan mendapatkan rekaman?","Rekaman termasuk dalam benefit yang direncanakan. Durasi dan ketentuan aksesnya akan dijelaskan sebelum pendaftaran."],["Apakah saya akan mendapatkan worksheet?","Ya, worksheet termasuk dalam benefit peserta untuk mendukung proses refleksi dan pembelajaran."],["Apakah webinar ini merupakan layanan konsultasi psikologis?","Tidak. Webinar merupakan kegiatan edukasi dan pembelajaran, bukan pengganti konsultasi, asesmen, atau terapi profesional. Jika kamu membutuhkan bantuan personal, pertimbangkan untuk berkonsultasi dengan tenaga profesional yang sesuai."],["Bagaimana cara mendaftar?","Pilih webinar atau paket yang kamu inginkan, lanjutkan ke halaman pendaftaran, lalu ikuti instruksi yang tersedia."],["Bagaimana jika saya tidak bisa hadir secara live?","Periksa ketentuan rekaman dan masa akses yang akan dicantumkan pada halaman pendaftaran sebelum membeli tiket."]];
+document.getElementById('faq').innerHTML=F.map(function(f){return '<details><summary>'+f[0]+'</summary><p>'+f[1]+'</p></details>'}).join('');
+</script>
+</body>
+</html>

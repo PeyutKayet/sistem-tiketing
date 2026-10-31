@@ -5,6 +5,8 @@
 .nitro
 .cache
 dist
+12output/
+backup outp/
 
 # Node dependencies
 node_modules
@@ -12,6 +14,7 @@ node_modules
 # Logs
 logs
 *.log
+server.log
 
 # Misc
 .DS_Store
@@ -22,3 +25,14 @@ logs
 .env
 .env.*
 !.env.example
+
+# Binaries
+cloudflared
+
+# Certificates & Private Keys
+server/certs/
+*.pem
+*.pub
+
+# Scratch & Temporary Testing
+scratch/

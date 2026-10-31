@@ -1,3 +1,13 @@
 tree -I 'node_modules|.git|.nuxt|.output' > struktur.txt
 
 docker restart web-tiket
+
+cd /DATA/tyket.id
+docker compose up -d
+
+
+docker start supabase-studio
+docker stop supabase-studio
+
+cd /DATA/tyket.id
+docker compose up -d --force-recreate

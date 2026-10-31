@@ -113,14 +113,14 @@ import { onMounted, watch } from 'vue' // Tambahkan import Vue hooks
 const {
   isLoading, eventAktif, eventSelesai, eventArsip,
   showArsip, formatDate, selectedEvent, activeTab,
-  showWizard, wizardStepNow, formEvent, wizardTiketList, formForgeItems, muatDaftarPeserta,
+  showWizard, wizardStepNow, formEvent, formTiketBaru, wizardTiketList, formForgeItems, muatDaftarPeserta,
   muatDaftarEvent, currentUser // Kita keluarkan muatDaftarEvent & currentUser dari state
 } = useAdmin()
 
 // Fungsi untuk me-replace IP lokal ke URL https baru
 const fixPosterUrl = (url) => {
   if (!url) return ''
-  return url.replace('http://192.168.1.7:8000', 'https://supabase.e-tiket.web.id')
+  return url.replace('http://192.168.1.7:8000', 'https://supabase.tyket.id').replace('http://localhost:8000', 'https://supabase.tyket.id')
 }
 
 // Data dimuat oleh layout utama (admin.vue)
@@ -131,16 +131,27 @@ const pilihEvent = (ev) => {
 }
 
 const bukaWizard = () => {
-  formEvent.value = { nama: '', slug: '', tanggal: '', lokasi: '', deskripsi: '', poster_file: null, poster_preview: null }
+  formEvent.value = { 
+    nama: '', slug: '', tanggal: '', lokasi: '', deskripsi: '', link_maps: '',
+    tipe_event: 'offline', sistem_checkin: 'scanner', target_absen: 0, link_online: '', is_qr_active: true, is_online_absen_active: false,
+    is_snk_active: false, snk_text: 'Syarat dan ketentuan berlaku mengikuti kebijakan panitia dan tyket.id.',
+    is_anti_calo_email: false, is_anti_calo_wa: false, is_wa_konfirm: false,
+    is_limit_tiket_active: true, max_tiket_per_transaksi: 1,
+    is_donasi_active: false, donasi_header: '', donasi_options: '', is_donasi_custom: false,
+    is_grup_wa_active: false, link_grup_wa: '',
+    poster_file: null, poster_preview: null 
+  }
+  formTiketBaru.value = { nama: '', harga: '', is_gratis: true, kuota: '', is_unlimited: false, is_hidden: false, is_active: true, buka: '', tutup: '', is_no_time_limit: false }
   wizardTiketList.value = []
   
   // Reset FormForge Items to the 3 mandatory default fields
   formForgeItems.value = [
-      { id: 'ff_default_nama', type: 'short_text', label: 'Nama Lengkap', field_key: 'nama_lengkap', x: 0, y: 0, width: 12, height: 2, required: true, undeletable: true },
-      { id: 'ff_default_email', type: 'short_text', label: 'Email', field_key: 'email', x: 0, y: 2, width: 6, height: 2, required: true, undeletable: true },
-      { id: 'ff_default_wa', type: 'phone_wa', label: 'No. WhatsApp', field_key: 'no_wa', x: 6, y: 2, width: 6, height: 2, required: true, undeletable: true }
+      { id: 'ff_default_nama', type: 'short_text', label: 'Nama Lengkap', field_key: 'nama_lengkap', x: 0, y: 0, width: 12, height: 2, required: true, undeletable: true, unduplicable: true, is_mandatory: true },
+      { id: 'ff_default_email', type: 'short_text', label: 'Email', field_key: 'email', x: 0, y: 2, width: 6, height: 2, required: true, undeletable: true, unduplicable: true, is_mandatory: true },
+      { id: 'ff_default_wa', type: 'phone_wa', label: 'No. WhatsApp', field_key: 'no_wa', x: 6, y: 2, width: 6, height: 2, required: true, undeletable: true, unduplicable: true, is_mandatory: true },
+      { id: 'ff_default_domisili', type: 'domisili_api', label: 'Kota Domisili', field_key: 'domisili', x: 0, y: 4, width: 12, height: 2, required: true, undeletable: false, unduplicable: false, is_mandatory: false }
   ];
-  if (window._ffInstance) window._ffInstance.init(formForgeItems.value)
+  if (typeof window !== 'undefined' && window._ffInstance) window._ffInstance.init(formForgeItems.value)
   
   wizardStepNow.value = 1
   showWizard.value = true

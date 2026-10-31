@@ -1,1 +1,0 @@
-import{i as e}from"./E5176WAI.js";var t=()=>e().$supabase.client;export{t};

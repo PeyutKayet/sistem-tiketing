@@ -2,8 +2,10 @@
   <header class="topbar">
     <div class="left">
       <div class="greeting">
-        Halo, <span>{{ userName }}</span>
-        <small>· {{ route.path === '/admin' ? 'Beranda' : (selectedEvent ? selectedEvent.nama_event : (route.path.includes('settings') ? 'Pengaturan' : 'Loading...')) }}</small>
+        Halo, 
+        <span v-if="isLoadingName" class="skeleton" style="display:inline-block; width: 100px; height: 18px; border-radius: 4px; vertical-align: middle;"></span>
+        <span v-else style="text-transform: capitalize;">{{ localOrgName || userName }}</span>
+        <small>· {{ route.path === '/admin' ? 'Beranda' : (selectedEvent ? selectedEvent.nama_event : (route.path.includes('settings') ? 'Pengaturan' : (route.path.includes('dompet') ? 'Dompet & Keuangan' : 'Loading...'))) }}</small>
       </div>
     </div>
     <div class="right">
@@ -11,10 +13,16 @@
         <span id="networkDot" style="display:inline-block; width:8px; height:8px; border-radius:50%; transition:0.3s;" :style="{ background: isOnline ? '#1a6a4a' : '#d43f34', boxShadow: isOnline ? '0 0 6px rgba(26, 106, 74, 0.4)' : '0 0 6px rgba(212, 63, 52, 0.4)' }"></span>
         <span>{{ isOnline ? 'Online' : 'Offline' }}</span>
       </div>
-      <div class="avatar" @click.stop="showDropdown = !showDropdown">{{ userInitials }}</div>
+      <div class="avatar" @click.stop="showDropdown = !showDropdown" style="text-transform: uppercase;">
+        <span v-if="isLoadingName" class="skeleton" style="display:block; width:100%; height:100%; border-radius:50%;"></span>
+        <span v-else>{{ (localOrgName || userName)?.substring(0, 2) }}</span>
+      </div>
       <!-- DROPDOWN -->
       <div class="user-dropdown" :class="{ show: showDropdown }">
-        <div class="name">{{ userName }}</div>
+        <div class="name" style="text-transform: capitalize;">
+          <span v-if="isLoadingName">Memuat...</span>
+          <span v-else>{{ localOrgName || userName }}</span>
+        </div>
         <div class="email">{{ userEmail }}</div>
         <hr />
         <button class="btn-outline" style="width:100%; margin-bottom:8px; border-radius:12px; font-weight:600; display:flex; justify-content:center; align-items:center; gap:8px;" @click="router.push('/admin/dompet'); showDropdown = false">
@@ -32,9 +40,34 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
+
 const { userName, userInitials, userEmail, selectedEvent, showDropdown, activeTab, prosesLogout, isOnline, showConfirm } = useAdmin()
 const route = useRoute()
 const router = useRouter()
+const supabase = useSupabaseClient()
+const user = useSupabaseUser()
+
+const localOrgName = ref('')
+const isLoadingName = ref(true)
+
+onMounted(async () => {
+  try {
+    const { data: authData } = await supabase.auth.getUser()
+    const activeUser = authData?.user || user.value
+    
+    if (activeUser?.id) {
+      const { data } = await supabase.from('organizer_profile').select('nama_organizer').eq('id', activeUser.id).maybeSingle()
+      if (data && data.nama_organizer) {
+        localOrgName.value = data.nama_organizer
+      }
+    }
+  } catch (e) {
+    console.error('Gagal mengambil profil organizer:', e)
+  } finally {
+    isLoadingName.value = false
+  }
+})
 
 const handleLogout = () => {
   showDropdown.value = false

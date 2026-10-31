@@ -5,9 +5,28 @@
         <h4 class="participant-title">Data Peserta Ke-{{ index + 1 }}</h4>
         <span class="participant-badge">{{ peserta.namaTiket }}</span>
       </div>
+
+      <!-- Tombol Cepat Salin Kontak dari Peserta 1 (Mobile UX Booster) -->
+      <div v-if="index > 0" class="copy-participant-wrap">
+        <button 
+          type="button" 
+          @click="copyFromFirstParticipant(index)" 
+          class="btn-copy-participant"
+          title="Salin No WA, Email & Domisili dari Peserta 1"
+        >
+          <Icon name="lucide:copy" style="font-size: 13px;" />
+          <span>Salin kontak dari Peserta 1</span>
+        </button>
+      </div>
       
       <div class="form-grid">
-        <div v-for="field in customFields" :key="field.field_key" :style="{ gridColumn: `span ${field.width || 12}` }">
+        <div 
+          v-for="field in customFields" 
+          :key="field.field_key" 
+          class="form-field-col"
+          :class="`col-span-${field.width || 12}`"
+          :style="{ gridColumn: `span ${field.width || 12}` }"
+        >
           
           <div v-if="field.type === 'header'" class="form-section-header">
             <h3 class="form-section-title">{{ field.label }}</h3>
@@ -18,10 +37,27 @@
               {{ field.label }} <span v-if="field.required" class="required-mark">*</span>
             </label>
 
-            <!-- Phone Type (phone_wa) -->
-            <div v-if="field.type === 'phone_wa'" class="phone-input-group">
-              <input type="text" v-model="peserta['_cc_' + field.field_key]" placeholder="62" class="form-input cc-input" />
-              <input type="tel" v-model="peserta.jawaban[field.field_key]" @input="handlePhoneInput(peserta, field.field_key)" placeholder="81234567890" class="form-input phone-input" />
+            <!-- Phone Type (phone_wa): Desain Ramping & Menyatu -->
+            <div v-if="field.type === 'phone_wa'" class="phone-input-group-modern">
+              <div class="phone-cc-badge">
+                <span class="cc-plus">+</span>
+                <input 
+                  type="text" 
+                  v-model="peserta['_cc_' + field.field_key]" 
+                  placeholder="62" 
+                  class="cc-input-modern"
+                  maxlength="4"
+                  title="Kode Negara"
+                />
+              </div>
+              <div class="phone-divider"></div>
+              <input 
+                type="tel" 
+                v-model="peserta.jawaban[field.field_key]" 
+                @input="handlePhoneInput(peserta, field.field_key)" 
+                placeholder="81234567890" 
+                class="phone-input-modern" 
+              />
             </div>
 
             <!-- Domisili (Auto) -->
@@ -132,8 +168,8 @@
               <span class="terms-text">{{ field.termsText || field.label }}</span>
             </label>
             
-            <!-- Default / Short Text / Date / Time -->
-            <input v-else :type="field.type === 'date' ? 'date' : (field.type === 'time' ? 'time' : 'text')" v-model="peserta.jawaban[field.field_key]" class="form-input" :placeholder="field.label">
+            <!-- Default / Short Text / Email / Date / Time -->
+            <input v-else :type="field.type === 'email' ? 'email' : (field.type === 'date' ? 'date' : (field.type === 'time' ? 'time' : 'text'))" v-model="peserta.jawaban[field.field_key]" class="form-input" :placeholder="field.label">
           </div>
         </div>
       </div>
@@ -155,12 +191,51 @@ import { ref } from 'vue'
 
 const domisiliTimers = ref({})
 
+const copyFromFirstParticipant = (targetIndex) => {
+  if (!props.daftarPeserta || props.daftarPeserta.length <= 1) return
+  const first = props.daftarPeserta[0]
+  const target = props.daftarPeserta[targetIndex]
+  if (!first || !target) return
+
+  // Salin jawaban field yang bukan nama pribadi
+  let copiedCount = 0
+  props.customFields.forEach(f => {
+    const key = f.field_key
+    const isName = /nama|name/i.test(key) || /nama|name/i.test(f.label || '')
+    if (!isName && first.jawaban[key] !== undefined && first.jawaban[key] !== '') {
+      if (Array.isArray(first.jawaban[key])) {
+        target.jawaban[key] = [...first.jawaban[key]]
+      } else {
+        target.jawaban[key] = first.jawaban[key]
+      }
+      copiedCount++
+    }
+    // Salin juga country code No HP WhatsApp jika ada
+    if (first['_cc_' + key]) {
+      target['_cc_' + key] = first['_cc_' + key]
+    }
+    // Salin koordinat domisili jika ada
+    if (first['_lat_' + key]) {
+      target['_lat_' + key] = first['_lat_' + key]
+      target['_lon_' + key] = first['_lon_' + key]
+    }
+  })
+
+  if (copiedCount > 0) {
+    emit('toast', `Kontak berhasil disalin dari Peserta 1 ke Peserta ${targetIndex + 1}!`, 'success')
+  } else {
+    emit('toast', 'Data kontak pada Peserta 1 masih kosong.', 'error')
+  }
+}
+
 const handleDomisiliInput = (peserta, fieldKey, event) => {
-  const val = event.target.value.trim()
+  const val = event.target.value
   peserta.jawaban[fieldKey] = val
   peserta['_showDomisili_' + fieldKey] = true
   
-  if (val.length < 3) {
+  const searchVal = val.trim()
+  
+  if (searchVal.length < 3) {
     peserta['_domisiliSugs_' + fieldKey] = null
     peserta['_domisiliLoading_' + fieldKey] = false
     return
@@ -176,7 +251,7 @@ const handleDomisiliInput = (peserta, fieldKey, event) => {
   domisiliTimers.value[timerKey] = setTimeout(async () => {
     try {
       // Menggunakan Photon (berbasis Elasticsearch) yang mendukung pencarian suku kata / autocomplete dengan baik
-      const res = await fetch(`https://photon.komoot.io/api/?q=${val}&bbox=95.0,-11.0,141.0,6.0&limit=5`)
+      const res = await fetch(`https://photon.komoot.io/api/?q=${searchVal}&bbox=95.0,-11.0,141.0,6.0&limit=5`)
       const rawData = await res.json()
       
       const data = rawData.features ? rawData.features.map(f => {
@@ -198,7 +273,7 @@ const handleDomisiliInput = (peserta, fieldKey, event) => {
     } finally {
       peserta['_domisiliLoading_' + fieldKey] = false
     }
-  }, 800)
+  }, 300)
 }
 
 const selectDomisili = (peserta, fieldKey, name, lat, lon) => {
@@ -296,10 +371,41 @@ const handleCustomUpload = async (event, peserta, fieldKey) => {
   border-radius: 4px;
   text-transform: uppercase;
 }
+.copy-participant-wrap {
+  margin: -6px 0 14px 0;
+  display: flex;
+}
+.btn-copy-participant {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  touch-action: manipulation;
+}
+.btn-copy-participant:hover {
+  background: #f1f5f9;
+  color: var(--primary);
+  border-color: var(--primary);
+}
+.btn-copy-participant:active {
+  transform: scale(0.97);
+}
 .form-grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
+}
+.form-field-col {
+  min-width: 0;
+  box-sizing: border-box;
 }
 .form-section-header {
   border-bottom: 2px solid var(--border-soft);
@@ -313,8 +419,8 @@ const handleCustomUpload = async (event, peserta, fieldKey) => {
 }
 .form-label {
   display: block;
-  margin-bottom: 6px;
-  font-size: 0.75rem;
+  margin-bottom: 5px;
+  font-size: 0.74rem;
   font-weight: 600;
   color: var(--text-muted);
 }
@@ -323,29 +429,87 @@ const handleCustomUpload = async (event, peserta, fieldKey) => {
 }
 .form-input {
   width: 100%;
-  padding: 10px 12px;
+  padding: 9px 8px;
   box-sizing: border-box;
   background: var(--bg-light);
   border: 1px solid var(--border-soft);
   border-radius: 8px;
   font-family: inherit;
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   outline: none;
   color: var(--text-main);
-}
-.phone-input-group {
-  display: flex;
-  gap: 8px;
-}
-.cc-input {
-  width: 55px;
   min-width: 0;
-  text-align: center;
-  font-weight: 600;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-.phone-input {
+.form-input:focus {
+  border-color: var(--accent-main, #1c5490);
+  box-shadow: 0 0 0 2px rgba(28, 84, 144, 0.12);
+  background: #ffffff;
+}
+/* Desain Grup Input No. WA Menyatu & Sangat Ramping (Cocok untuk Berdampingan Kanan-Kiri) */
+.phone-input-group-modern {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--bg-light);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  min-width: 0;
+  overflow: hidden;
+}
+.phone-input-group-modern:focus-within {
+  border-color: var(--accent-main, #1c5490);
+  box-shadow: 0 0 0 2px rgba(28, 84, 144, 0.12);
+  background: #ffffff;
+}
+.phone-cc-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0 0 8px;
+  color: var(--text-muted, #64748b);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.cc-plus {
+  font-weight: 700;
+  color: #64748b;
+  font-size: 0.82rem;
+  margin-right: 1px;
+}
+.cc-input-modern {
+  width: 20px;
+  border: none;
+  background: transparent;
+  padding: 9px 0;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--text-main, #0f172a);
+  outline: none;
+  text-align: left;
+}
+.phone-divider {
+  width: 1px;
+  height: 18px;
+  background: #cbd5e1;
+  margin: 0 6px 0 2px;
+  flex-shrink: 0;
+}
+.phone-input-modern {
   flex: 1;
   min-width: 0;
+  border: none;
+  background: transparent;
+  padding: 9px 6px 9px 0;
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--text-main, #0f172a);
+  outline: none;
+  box-sizing: border-box;
+  letter-spacing: 0.2px;
 }
 .form-textarea {
   resize: vertical;

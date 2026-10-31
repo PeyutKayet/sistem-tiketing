@@ -82,30 +82,61 @@
               </div>
             </div>
 
-            <button @click="showAdvancedSettings = !showAdvancedSettings" style="width: 100%; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; color: #4a5a6e; font-weight: 600; font-size: 13px; cursor: pointer; margin-bottom: 20px; transition: 0.2s;">
+            
+            <div style="background: #ffffff; border: 1px solid #e6edf5; border-radius: 16px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); margin-bottom: 20px;">
+              <h4 style="margin-bottom:16px;font-weight:600;color:#0a1929;font-size:14px;display:flex;align-items:center;gap:6px;"><Icon name="lucide:sliders-horizontal" style="color:#4a5a6e; font-size:14px;" /> Pengaturan Sistem</h4>
+              
+              <div style="display:flex; gap: 16px; margin-bottom: 16px;">
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                  <input type="radio" v-model="formEvent.tipe_event" value="offline" style="width:16px; height:16px;" />
+                  <div style="font-size: 13px; font-weight: 600; color: #475569;">Offline</div>
+                </label>
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                  <input type="radio" v-model="formEvent.tipe_event" value="online" style="width:16px; height:16px;" />
+                  <div style="font-size: 13px; font-weight: 600; color: #475569;">Online</div>
+                </label>
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                  <input type="radio" v-model="formEvent.tipe_event" value="hybrid" style="width:16px; height:16px;" />
+                  <div style="font-size: 13px; font-weight: 600; color: #475569;">Hybrid</div>
+                </label>
+              </div>
+
+              <!-- PENGATURAN OFFLINE -->
+              <div v-if="formEvent.tipe_event === 'offline' || formEvent.tipe_event === 'hybrid'" style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                 <label class="checkbox-item mb-0" style="font-weight: 600;">
+                   <input type="checkbox" v-model="formEvent.is_qr_active" /> <span style="font-size: 12px;">Wajib Scan QR Code (Gunakan E-Ticket)</span>
+                 </label>
+                 <div v-if="formEvent.is_qr_active" style="margin-left: 24px; margin-top: 10px;">
+                   <label class="form-label" style="font-size: 11px;">Frekuensi Scan</label>
+                   <div style="display: flex; gap: 8px;">
+                     <select v-model="formEvent.sistem_checkin" class="form-control" style="font-size: 12px; padding: 6px 10px;">
+                       <option value="scanner">1x Scan Saja (Tiket Hangus)</option>
+                       <option value="none">Bebas Berkali-kali (Akses Keluar-Masuk / Bazar)</option>
+                       <option value="portal">Scan Dibatasi Kuota Hari (Training / Multi-hari)</option>
+                     </select>
+                     <input v-if="formEvent.sistem_checkin === 'portal'" type="number" v-model="formEvent.target_absen" class="form-control" placeholder="Jml hari: 3" style="font-size: 12px; padding: 6px 10px; width: 120px;" />
+                   </div>
+                 </div>
+                 <div v-else style="margin-left: 24px; margin-top: 6px; font-size: 11px; color: #8a9aa8;">
+                   Tiket peserta tetap akan dikirim, namun tidak akan memuat QR Code. Cocok untuk event bebas/santai.
+                 </div>
+              </div>
+              
+              <!-- PENGATURAN ONLINE -->
+              <div v-if="formEvent.tipe_event === 'online' || formEvent.tipe_event === 'hybrid'" style="background: #eff6ff; padding: 12px; border-radius: 8px; border: 1px dashed #bfdbfe; margin-top: 12px;">
+                 <label class="checkbox-item mb-0" style="font-weight: 600;">
+                   <input type="checkbox" v-model="formEvent.is_online_absen_active" /> <span style="font-size: 12px; color: #1e3a8a;">Sistem Absensi Online (Link Khusus Pembeli)</span>
+                 </label>
+              </div>
+            </div>
+
+            <button @click="showAdvancedSettings = !showAdvancedSettings"
+ style="width: 100%; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; color: #4a5a6e; font-weight: 600; font-size: 13px; cursor: pointer; margin-bottom: 20px; transition: 0.2s;">
               <span style="display:flex; align-items:center; gap:8px;"><Icon name="lucide:settings-2" style="font-size:16px; color:var(--primary);" /> Pengaturan Lanjutan (Opsional)</span>
               <Icon :name="showAdvancedSettings ? 'lucide:chevron-up' : 'lucide:chevron-down'" style="font-size:18px;" />
             </button>
 
             <div v-show="showAdvancedSettings" style="animation: slideDown 0.3s ease; padding: 16px; background: #f8fafc; border-radius: 16px; border: 1px solid #e6edf5;">
-              <div style="padding-bottom: 20px; border-bottom: 1px dashed #cbd5e1; margin-bottom: 20px;">
-                <h4 style="margin-bottom:16px;font-weight:600;color:#0a1929;font-size:14px;display:flex;align-items:center;gap:6px;"><Icon name="lucide:sliders-horizontal" style="color:#4a5a6e; font-size:14px;" /> Pengaturan Sistem</h4>
-                <div class="row mb-0" style="gap: 12px;">
-                  <div class="col" style="min-width: 120px;">
-                    <label class="form-label" style="font-size:11px;">Tipe Event</label>
-                    <select v-model="formEvent.tipe_event" class="form-control" style="font-size:12px; padding:6px 10px;"><option value="offline">Offline</option><option value="online">Online</option></select>
-                  </div>
-                  <div class="col" style="min-width: 120px;">
-                    <label class="form-label" style="font-size:11px;">Sistem Check-in</label>
-                    <select v-model="formEvent.sistem_checkin" class="form-control" style="font-size:12px; padding:6px 10px;"><option value="scanner">QR Scanner (1x Datang)</option><option value="portal">Portal Absen (Multi-hari)</option></select>
-                  </div>
-                  <div class="col" style="min-width: 120px;">
-                    <label class="form-label" style="font-size:11px;">Target Absen (Bila Portal)</label>
-                    <input type="number" v-model="formEvent.target_absen" class="form-control" placeholder="Isi 0 jika Scanner" style="font-size:12px; padding:6px 10px;" />
-                  </div>
-                </div>
-              </div>
-
               <div>
                 <h4 style="margin-bottom:16px;font-weight:600;color:#0a1929;font-size:14px;display:flex;align-items:center;gap:6px;"><Icon name="lucide:puzzle" style="color:#d43f34; font-size:14px;" /> Fitur Tambahan & Keamanan</h4>
                 <div class="row" style="gap: 16px;">
@@ -114,7 +145,10 @@
                       <label class="checkbox-item" style="font-weight:600; font-size:12px;"><input type="checkbox" v-model="formEvent.is_donasi_active" /> <Icon name="lucide:heart-handshake" class="mr-1" style="font-size:14px;color:#d43f34;" /> Donasi / Infaq</label>
                       <div v-if="formEvent.is_donasi_active" style="padding-top: 8px; margin-left:24px;">
                         <input type="text" v-model="formEvent.donasi_header" class="form-control mb-1" placeholder="Header: Infaq Masjid" style="padding: 6px 10px; font-size: 11px;" />
-                        <input type="text" v-model="formEvent.donasi_options" class="form-control" placeholder="Nominal: 10000, 50000, custom" style="padding: 6px 10px; font-size: 11px;" />
+                        <input type="text" v-model="formEvent.donasi_options" class="form-control mb-1" placeholder="Nominal: 10000, 50000" style="padding: 6px 10px; font-size: 11px;" />
+                        <label class="checkbox-item" style="font-size:11px; margin-top:4px;">
+                          <input type="checkbox" v-model="formEvent.is_donasi_custom" /> Izinkan nominal custom
+                        </label>
                       </div>
                     </div>
                     <div>
@@ -134,7 +168,15 @@
                       <div class="flex" style="flex-wrap:wrap; gap:8px; margin-left:24px;">
                         <label class="checkbox-item" style="font-size: 11px;"><input type="checkbox" v-model="formEvent.is_anti_calo_email" /> 1 Email = 1 Tiket</label>
                         <label class="checkbox-item" style="font-size: 11px;"><input type="checkbox" v-model="formEvent.is_anti_calo_wa" /> 1 No. WhatsApp = 1 Tiket</label>
-
+                      </div>
+                    </div>
+                    <div style="margin-top: 12px; border-top: 1px dashed #e2e8f0; padding-top: 12px;">
+                      <label class="checkbox-item mb-0" style="font-weight: 600; font-size: 12px;">
+                        <input type="checkbox" v-model="formEvent.is_limit_tiket_active" /> <span style="display:flex; align-items:center; gap:4px; color:#0a1929;"><Icon name="lucide:shopping-cart" style="font-size:14px;color:var(--primary);" /> Batasi Pembelian Tiket</span>
+                      </label>
+                      <div v-if="formEvent.is_limit_tiket_active" class="flex" style="align-items:center; gap:8px; margin-left:24px; margin-top: 8px;">
+                        <input type="number" v-model="formEvent.max_tiket_per_transaksi" class="form-control" style="width: 80px; padding: 4px 8px; font-size: 11px;" placeholder="1" />
+                        <span style="font-size: 11px; color:#8a9aa8;">Max tiket per checkout</span>
                       </div>
                     </div>
                   </div>
@@ -185,26 +227,32 @@
                 </div>
               </div>
               <div class="row mb-3">
-                <div class="col">
-                  <label class="form-label" style="font-size:11px;">Penjualan Dibuka</label>
-                  <div style="position:relative; display:flex; align-items:center; cursor:pointer;">
-                    <Icon name="lucide:calendar-clock" style="position:absolute; left:12px; color:#8a9aa8; font-size:14px; z-index:2; pointer-events:none;" />
-                    <div class="form-control" style="padding-left:34px; display:flex; align-items:center; font-size:12px;">
-                      <span v-if="!formTiketBaru.buka" style="color:#8a9aa8;">Pilih waktu buka...</span>
-                      <span v-else style="color:#0f172a; font-weight:500;">{{ formatDateTimeKustom(formTiketBaru.buka) }}</span>
+                <div class="col" style="flex:1;">
+                  <label class="form-label" style="font-size:11px; display:flex; justify-content:space-between; align-items:center;">
+                    <span>Waktu Penjualan Tiket</span>
+                    <label style="cursor:pointer; font-weight:normal; margin:0;"><input type="checkbox" v-model="formTiketBaru.is_no_time_limit" style="margin:0 4px 0 0;" /> Bebas (Tanpa Batas Waktu)</label>
+                  </label>
+                  
+                  <div v-if="!formTiketBaru.is_no_time_limit" style="display:flex; gap:12px;">
+                    <div style="flex:1; position:relative; display:flex; align-items:center; cursor:pointer;">
+                      <Icon name="lucide:calendar-clock" style="position:absolute; left:12px; color:#8a9aa8; font-size:14px; z-index:2; pointer-events:none;" />
+                      <div class="form-control" style="padding-left:34px; display:flex; align-items:center; font-size:12px;">
+                        <span v-if="!formTiketBaru.buka" style="color:#8a9aa8;">Waktu Buka...</span>
+                        <span v-else style="color:#0f172a; font-weight:500;">{{ formatDateTimeKustom(formTiketBaru.buka) }}</span>
+                      </div>
+                      <input type="datetime-local" v-model="formTiketBaru.buka" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:3;" />
                     </div>
-                    <input type="datetime-local" v-model="formTiketBaru.buka" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:3;" />
+                    <div style="flex:1; position:relative; display:flex; align-items:center; cursor:pointer;">
+                      <Icon name="lucide:calendar-clock" style="position:absolute; left:12px; color:#8a9aa8; font-size:14px; z-index:2; pointer-events:none;" />
+                      <div class="form-control" style="padding-left:34px; display:flex; align-items:center; font-size:12px;">
+                        <span v-if="!formTiketBaru.tutup" style="color:#8a9aa8;">Waktu Tutup...</span>
+                        <span v-else style="color:#0f172a; font-weight:500;">{{ formatDateTimeKustom(formTiketBaru.tutup) }}</span>
+                      </div>
+                      <input type="datetime-local" v-model="formTiketBaru.tutup" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:3;" />
+                    </div>
                   </div>
-                </div>
-                <div class="col">
-                  <label class="form-label" style="font-size:11px;">Penjualan Ditutup</label>
-                  <div style="position:relative; display:flex; align-items:center; cursor:pointer;">
-                    <Icon name="lucide:calendar-clock" style="position:absolute; left:12px; color:#8a9aa8; font-size:14px; z-index:2; pointer-events:none;" />
-                    <div class="form-control" style="padding-left:34px; display:flex; align-items:center; font-size:12px;">
-                      <span v-if="!formTiketBaru.tutup" style="color:#8a9aa8;">Pilih waktu tutup...</span>
-                      <span v-else style="color:#0f172a; font-weight:500;">{{ formatDateTimeKustom(formTiketBaru.tutup) }}</span>
-                    </div>
-                    <input type="datetime-local" v-model="formTiketBaru.tutup" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:3;" />
+                  <div v-else class="form-control" style="background:#f8fafc; color:#8a9aa8; text-align:center; font-style:italic; font-size:12px;">
+                    Tiket bebas dibeli kapan saja tanpa dibatasi waktu buka/tutup.
                   </div>
                 </div>
               </div>
@@ -310,8 +358,9 @@
             
             <div style="margin-top:24px;">
               <label style="font-size:12px; font-weight:600; color:#8a9aa8; text-transform:uppercase; margin-bottom:8px; display:flex; align-items:center; gap:4px;"><Icon name="lucide:link" style="font-size:14px;" /> Link Publikasi</label>
-              <div style="background:#e4edf8; padding:12px 18px; border-radius:12px; font-size:13px; font-family:monospace; color:#1a4a7a; border:1px dashed #b8c8d8;">
-                {{ baseUrl }}/<strong style="color:#0a1929;">{{ formEvent.slug || 'slug-event' }}</strong>
+              <div style="background:#e4edf8; padding:12px 18px; border-radius:12px; font-size:13px; font-family:monospace; color:#1a4a7a; border:1px dashed #b8c8d8; display:flex; justify-content:space-between; align-items:center;">
+                <span>{{ baseUrl }}/<strong style="color:#0a1929;">{{ formEvent.slug || 'slug-event' }}</strong></span>
+                <button @click="copyText(`${baseUrl}/${formEvent.slug || 'slug-event'}`)" class="btn-icon" style="background:white; padding:4px 8px; border-radius:6px; border:1px solid #cbd5e1; font-size:12px; cursor:pointer;"><Icon name="lucide:copy" style="margin-right:4px;"/> Copy</button>
               </div>
             </div>
           </div>
@@ -340,13 +389,17 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import AdminFormBuilder from '~/components/admin/AdminFormBuilder.vue'
+import { useImageCompress } from '~/composables/useImageCompress'
 
 const { 
   showWizard, wizardStepNow, formEvent, formTiketBaru, wizardTiketList, 
   isSavingEvent, currentUser, supabase, muatDaftarEvent, showToast, formForgeItems 
 } = useAdmin()
 
+const { compressImageFile } = useImageCompress()
+
 const showAdvancedSettings = ref(false)
+const copyText = (text) => { navigator.clipboard.writeText(text); showToast('Link berhasil disalin!', 'success') }
 const baseUrl = ref('')
 onMounted(() => {
   baseUrl.value = window.location.origin
@@ -456,28 +509,48 @@ const generateSlug = () => {
   formEvent.value.slug = formEvent.value.nama.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
 }
 
-const handlePosterUpload = (e) => {
+const handlePosterUpload = async (e) => {
   const file = e.target.files[0]
   if (!file) return
-  if (file.size > 2 * 1024 * 1024) {
-    showToast('Ukuran poster maksimal 2MB!', 'error')
+  if (!file.type || !file.type.startsWith('image/')) {
+    showToast('File yang diunggah harus berupa gambar!', 'error')
     e.target.value = ''
     return
   }
-  formEvent.value.poster_file = file
-  const reader = new FileReader()
-  reader.onload = (ev) => { formEvent.value.poster_preview = ev.target.result }
-  reader.readAsDataURL(file)
+  if (file.size > 15 * 1024 * 1024) {
+    showToast('Ukuran poster maksimal 15MB!', 'error')
+    e.target.value = ''
+    return
+  }
+  try {
+    const compressed = await compressImageFile(file, 1080, 0.82)
+    formEvent.value.poster_file = compressed
+    const reader = new FileReader()
+    reader.onload = (ev) => { formEvent.value.poster_preview = ev.target.result }
+    reader.readAsDataURL(compressed)
+  } catch (err) {
+    console.error('Gagal kompres poster:', err)
+    formEvent.value.poster_file = file
+    const reader = new FileReader()
+    reader.onload = (ev) => { formEvent.value.poster_preview = ev.target.result }
+    reader.readAsDataURL(file)
+  }
 }
 
 const tutupWizard = () => { showWizard.value = false }
 
 const tambahTiketSimulasi = () => {
-  const { nama, harga, is_gratis, kuota, is_unlimited, is_hidden, is_active, buka, tutup } = formTiketBaru.value
+  const { nama, harga, is_gratis, kuota, is_unlimited, is_hidden, is_active, buka, tutup, is_no_time_limit } = formTiketBaru.value
   if (!nama) return showToast('Nama tiket wajib diisi!', 'error')
+  
+  if (!is_gratis && (!harga || parseInt(harga.replace(/\./g, '')) === 0)) {
+    return showToast('Harga tiket berbayar wajib diisi dan lebih dari 0!', 'error')
+  }
+  
   if (!is_unlimited && !kuota) return showToast('Kuota wajib diisi jika tidak unlimited!', 'error')
   
-  if (buka && tutup) {
+  if (!is_no_time_limit) {
+    if (!buka || !tutup) return showToast('Waktu buka dan tutup wajib diisi jika ada batas waktu!', 'error')
     if (new Date(tutup) < new Date(buka)) return showToast('Waktu tutup tidak boleh sebelum waktu buka!', 'error')
   }
 
@@ -493,13 +566,13 @@ const tambahTiketSimulasi = () => {
     is_hidden,
     is_active: is_active !== false,
     secret_token: is_hidden ? Math.random().toString(36).substring(2, 10) : null,
-    buka: buka ? buka + ':00' : null,
-    tutup: tutup ? tutup + ':00' : null
+    buka: (!is_no_time_limit && buka) ? buka + ':00' : null,
+    tutup: (!is_no_time_limit && tutup) ? tutup + ':00' : null
   })
   resetFormTiket()
 }
 
-const resetFormTiket = () => { formTiketBaru.value = { nama: '', harga: '', is_gratis: false, kuota: '', is_unlimited: false, is_hidden: false, is_active: true, buka: '', tutup: '' } }
+const resetFormTiket = () => { formTiketBaru.value = { nama: '', harga: '', is_gratis: true, kuota: '', is_unlimited: false, is_hidden: false, is_active: true, buka: '', tutup: '', is_no_time_limit: false } }
 const hapusTiketSimulasi = (index) => { wizardTiketList.value.splice(index, 1) }
 
 const goNext = async () => {
@@ -541,17 +614,22 @@ const goNext = async () => {
       poster_url: posterUrl,
       settings: {
         tipe_event: formEvent.value.tipe_event,
+        is_qr_active: formEvent.value.is_qr_active,
+        is_online_absen_active: formEvent.value.is_online_absen_active,
         pertanyaan_kustom: formForgeItems.value,
         is_donasi_active: formEvent.value.is_donasi_active,
         donasi_header: formEvent.value.donasi_header,
         donasi_options: formEvent.value.donasi_options,
+        is_donasi_custom: formEvent.value.is_donasi_custom,
         link_grup_wa: formEvent.value.is_grup_wa_active ? formEvent.value.link_grup_wa : '',
         is_anti_calo_email: formEvent.value.is_anti_calo_email,
         is_anti_calo_wa: formEvent.value.is_anti_calo_wa,
         is_wa_konfirm: formEvent.value.is_wa_konfirm,
         link_maps: formEvent.value.link_maps,
         is_snk_active: formEvent.value.is_snk_active,
-        snk_text: formEvent.value.snk_text
+        snk_text: formEvent.value.snk_text,
+        is_limit_tiket_active: formEvent.value.is_limit_tiket_active,
+        max_tiket_per_transaksi: parseInt(formEvent.value.max_tiket_per_transaksi) || 1
       }
     }
 

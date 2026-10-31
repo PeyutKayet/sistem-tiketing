@@ -18,10 +18,10 @@
 const { confirmData, closeConfirm } = useAdmin()
 
 const handleConfirm = () => {
-  if (confirmData.value.callback) {
-    confirmData.value.callback()
-  }
+  const cb = confirmData.value.callback;
+  confirmData.value.cancelCallback = null; // Prevent cancel trigger
   closeConfirm()
+  if (cb) cb()
 }
 </script>
 

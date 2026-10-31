@@ -1,6 +1,6 @@
 <template>
   <aside class="sidebar">
-    <div class="logo"><Icon name="lucide:ticket" style="color:var(--primary); font-size:24px; margin-right:4px;" /> Event<span>Hub</span></div>
+    <div class="logo"><img src="/logo-tyket.svg" alt="tyket.id Logo" style="height: 38px; width: auto; object-fit: contain;" /></div>
     <nav>
       <div class="menu-label">Menu Utama</div>
       <NuxtLink to="/admin" exact-active-class="router-link-active">
@@ -29,7 +29,12 @@
     </nav>
     <div class="bottom">
       <a><Icon name="lucide:message-circle-question" class="icon" /> <span>Bantuan</span></a>
+      <div style="margin-top: 10px; font-size: 9px; color: #94a3b8; display: flex; justify-content: center; gap: 5px; align-items: center; white-space: nowrap;">
+        <NuxtLink to="/terms" target="_blank" style="color: #94a3b8; text-decoration: none;">Syarat & Ketentuan</NuxtLink> <span>•</span>
+        <NuxtLink to="/privacy" target="_blank" style="color: #94a3b8; text-decoration: none;">Privasi</NuxtLink>
+      </div>
     </div>
+  
   </aside>
 </template>
 

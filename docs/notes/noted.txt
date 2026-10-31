@@ -1,0 +1,78 @@
+# CATATAN FITUR MASA DEPAN: PEMISAHAN DUA GRUP WHATSAPP (IKHWAN & AKHWAT)
+=============================================================================
+Dibuat pada: 16 Oktober 2026
+Proyek: Sistem Tiketing Tyket.id (Nuxt 3 + Supabase)
+
+-----------------------------------------------------------------------------
+1. LATAR BELAKANG & KEBUTUHAN
+-----------------------------------------------------------------------------
+Untuk acara seperti kajian islami, seminar muslim, pesantren, youth camp, atau
+kegiatan yang memisahkan peserta laki-laki (ikhwan) dan perempuan (akhwat),
+Event Organizer membutuhkan pemisahan grup koordinasi WhatsApp resmi:
+- Grup Ikhwan (Khusus Laki-laki)
+- Grup Akhwat (Khusus Perempuan)
+
+Selain itu, arsitektur ini juga bisa diperluas di masa depan untuk:
+- Grup VIP vs Grup Reguler
+- Grup Batch 1 vs Grup Batch 2
+- Grup Wilayah / Regional
+
+-----------------------------------------------------------------------------
+2. RENCANA PERUBAHAN DI DASHBOARD ADMIN (PEMBUATAN & EDIT EVENT)
+-----------------------------------------------------------------------------
+File terkait:
+- app/components/admin/AdminWizard.vue (Wizard Buat Event Baru)
+- app/pages/admin/event/[slug]/edit.vue (Edit Pengaturan Event)
+
+Struktur Schema settings di Supabase (tabel `event`, kolom `settings` jsonb):
+Saat ini:
+  settings: {
+    link_grup_wa: "https://chat.whatsapp.com/..."
+  }
+
+Pembaruan yang direncanakan:
+  settings: {
+    tipe_grup_wa: "single" | "gender" | "custom", // default: "single"
+    link_grup_wa: "https://chat.whatsapp.com/...", // untuk single
+    link_grup_wa_ikhwan: "https://chat.whatsapp.com/Ikhwan...",
+    link_grup_wa_akhwat: "https://chat.whatsapp.com/Akhwat..."
+  }
+
+UI Admin:
+- Berikan radio toggle:
+  ( ) Satu Grup Umum
+  ( ) Pisah Ikhwan & Akhwat
+- Jika "Pisah Ikhwan & Akhwat" dipilih, tampilkan dua input URL:
+  1. Input Link Grup Ikhwan
+  2. Input Link Grup Akhwat
+
+-----------------------------------------------------------------------------
+3. RENCANA LOGIKA PENENTUAN GRUP DI SISI PESERTA
+-----------------------------------------------------------------------------
+File terkait:
+- app/pages/tiket/[id].vue
+- app/components/event/SuccessStep.vue
+- app/pages/cari-tiket.vue
+
+Ada 2 opsi implementasi:
+OPSI A (Rekomendasi - Dialog Pilihan Cepat 1 Detik):
+- Di halaman tiket, saat peserta menekan tombol "KABARI ADMIN & MASUK GRUP",
+  jika event berstatus `tipe_grup_wa === 'gender'`:
+  Munculkan Bottom Sheet / Modal mini:
+  "Pilih Grup Anda:"
+  [ 🔵 Grup Ikhwan (Laki-laki) ]
+  [ 🟣 Grup Akhwat (Perempuan) ]
+- Begitu peserta memilih salah satu, langsung redirect ke WhatsApp Admin
+  dengan draf pesan yang menyertakan tautan grup yang dipilihnya.
+
+OPSI B (Otomatis dari Jawaban Form / Nama Kategori Tiket):
+- Jika form pendaftaran memiliki pertanyaan "Jenis Kelamin" atau kategori tiket
+  bernama "Ikhwan" / "Akhwat", sistem langsung mencocokkan tanpa perlu tanya lagi.
+
+-----------------------------------------------------------------------------
+4. KEAMANAN GRUP (ANTI-BOCOR / ANTI-PENYUSUP)
+-----------------------------------------------------------------------------
+Ingatkan panitia untuk selalu menyalakan fitur bawaan WhatsApp:
+"Group Settings -> Approve new participants = ON" pada kedua grup.
+Dengan demikian, walaupun link diteruskan ke pihak luar, penyusup tidak bisa
+masuk tanpa persetujuan Admin panitia.

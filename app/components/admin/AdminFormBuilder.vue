@@ -24,7 +24,7 @@
       <button class="ff-field-type-btn btn-outline" data-type="file_upload" style="display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px; border-radius:8px;"><Icon name="lucide:paperclip" style="font-size:16px;" /> <span style="font-size:9px; font-weight:600;">Upload</span></button>
       <button class="ff-field-type-btn btn-outline" data-type="terms" style="display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px; border-radius:8px;"><Icon name="lucide:file-signature" style="font-size:16px;" /> <span style="font-size:9px; font-weight:600;">Terms</span></button>
       
-      <button class="ff-field-type-btn btn-outline" data-type="domisili_api" style="display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px; border-radius:8px; border-color: #3b82f6; background: #eff6ff;"><Icon name="lucide:map-pin" style="font-size:16px; color:#1d4ed8;" /> <span style="font-size:9px; font-weight:700; color: #1d4ed8;">Domisili</span></button>
+      <button class="ff-field-type-btn btn-outline" data-type="domisili_api" style="display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px; border-radius:8px; border-color: var(--primary); background: #f8fafc;"><Icon name="lucide:map-pin" style="font-size:16px; color:var(--primary);" /> <span style="font-size:9px; font-weight:700; color: var(--primary);">Domisili</span></button>
       <button class="ff-field-type-btn btn-outline" data-type="phone_wa" style="display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px; border-radius:8px; border-color: #22c55e; background: #f0fdf4;"><Icon name="lucide:phone" style="font-size:16px; color:#15803d;" /> <span style="font-size:9px; font-weight:700; color: #15803d;">No. WA</span></button>
       <button class="ff-field-type-btn btn-outline" data-type="currency_rp" style="display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px; border-radius:8px; border-color: #eab308; background: #fefce8;"><Icon name="lucide:banknote" style="font-size:16px; color:#a16207;" /> <span style="font-size:9px; font-weight:700; color: #a16207;">Rupiah</span></button>
       
@@ -72,11 +72,23 @@ const FIELD_LABELS = {
   domisili_api: 'Domisili (Auto)', phone_wa: 'No. WA (Auto)', currency_rp: 'Rupiah (Rp)'
 };
 
+const MANDATORY_FIELD_KEYS = ['nama_lengkap', 'email', 'no_wa'];
+
+function isMandatoryField(item) {
+  if (!item) return false;
+  if (item.is_mandatory || item.unduplicable) return true;
+  if (item.id === 'ff_default_nama' || item.id === 'ff_default_email' || item.id === 'ff_default_wa') return true;
+  if (MANDATORY_FIELD_KEYS.includes(item.field_key)) return true;
+  if (item.type === 'phone_wa') return true;
+  return false;
+}
+
 function getDefaultItems() {
   return [
-      { id: 'ff_default_nama', type: 'short_text', label: 'Nama Lengkap', field_key: 'nama_lengkap', x: 0, y: 0, width: 12, height: 2, required: true, undeletable: true },
-      { id: 'ff_default_email', type: 'short_text', label: 'Email', field_key: 'email', x: 0, y: 2, width: 6, height: 2, required: true, undeletable: true },
-      { id: 'ff_default_wa', type: 'phone_wa', label: 'No. WhatsApp', field_key: 'no_wa', x: 6, y: 2, width: 6, height: 2, required: true, undeletable: true }
+      { id: 'ff_default_nama', type: 'short_text', label: 'Nama Lengkap', field_key: 'nama_lengkap', x: 0, y: 0, width: 12, height: 2, required: true, undeletable: true, unduplicable: true, is_mandatory: true },
+      { id: 'ff_default_email', type: 'short_text', label: 'Email', field_key: 'email', x: 0, y: 2, width: 6, height: 2, required: true, undeletable: true, unduplicable: true, is_mandatory: true },
+      { id: 'ff_default_wa', type: 'phone_wa', label: 'No. WhatsApp', field_key: 'no_wa', x: 6, y: 2, width: 6, height: 2, required: true, undeletable: true, unduplicable: true, is_mandatory: true },
+      { id: 'ff_default_domisili', type: 'domisili_api', label: 'Kota Domisili', field_key: 'domisili', x: 0, y: 4, width: 12, height: 2, required: true, undeletable: false, unduplicable: false, is_mandatory: false }
   ];
 }
 
@@ -86,8 +98,8 @@ const resetGrid = () => {
 }
 
 const clearCanvas = () => {
-  showConfirm('Kosongkan Kanvas', 'Semua form field tambahan akan dihapus. Field bawaan sistem (Nama, Email, WA) akan tetap dipertahankan. Lanjutkan?', 'Ya, Hapus', 'danger', () => {
-      formForgeItems.value = formForgeItems.value.filter(it => it.undeletable)
+  showConfirm('Kosongkan Kanvas', 'Semua form field tambahan akan dihapus. Field bawaan wajib (Nama, Email, dan No. WA) akan tetap dipertahankan. Lanjutkan?', 'Ya, Hapus', 'danger', () => {
+      formForgeItems.value = formForgeItems.value.filter(it => isMandatoryField(it))
       if (window._ffInstance) window._ffInstance.init(formForgeItems.value)
   })
 }
@@ -169,6 +181,8 @@ onMounted(() => {
             div.style.width = (item.width * cellW - 4) + 'px'
             div.style.height = (item.height * cellH - 4) + 'px'
 
+            const isMandatory = isMandatoryField(item)
+
             div.innerHTML = `
                 <div class="ff-item-label">
                     <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1;">
@@ -176,20 +190,29 @@ onMounted(() => {
                         ${item.required ? '<span style="color:#d43f34;">*</span>' : ''} ${escapeHtml(item.label)}
                     </span>
                     <span class="ff-item-actions">
-                        <button class="btn-icon duplicate-btn" title="Duplicate" style="background:none;border:none;cursor:pointer;color:#8a9aa8;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+                        ${isMandatory ? '' : '<button class="btn-icon duplicate-btn" title="Duplicate Field" style="background:none;border:none;cursor:pointer;color:#8a9aa8;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>'}
                         <button class="btn-icon edit-btn" title="Edit Properties" style="background:none;border:none;cursor:pointer;color:#1a3a5c;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
-                        ${item.undeletable ? '' : '<button class="btn-icon danger delete-btn" title="Delete" style="background:none;border:none;cursor:pointer;color:#d43f34;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>'}
+                        ${(item.undeletable || isMandatory) ? '' : '<button class="btn-icon danger delete-btn" title="Delete" style="background:none;border:none;cursor:pointer;color:#d43f34;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>'}
                     </span>
                 </div>
                 <div class="ff-mini-preview"><div class="ff-mini-input">${item.type}</div></div>
-                <span class="ff-badge">${item.field_key || item.type}</span>
+                <div style="display:flex; gap:4px; align-items:center;">
+                    <span class="ff-badge">${item.field_key || item.type}</span>
+                    ${isMandatory ? '<span class="ff-badge" style="background:#e0f2fe; color:#0369a1; font-weight:700; letter-spacing:0.3px;">WAJIB</span>' : ''}
+                </div>
                 <div class="ff-resize-handle"></div>
             `
             
-            div.querySelector('.duplicate-btn').addEventListener('click', (e) => { e.stopPropagation(); duplicateItem(item.id) })
+            const dupBtn = div.querySelector('.duplicate-btn')
+            if (dupBtn) {
+                dupBtn.addEventListener('click', (e) => { e.stopPropagation(); duplicateItem(item.id) })
+            }
             div.querySelector('.edit-btn').addEventListener('click', (e) => { e.stopPropagation(); selectedId = item.id; renderGrid(); openPropertyModal() })
-            if (!item.undeletable) {
-                div.querySelector('.delete-btn').addEventListener('click', (e) => { e.stopPropagation(); deleteItem(item.id) })
+            if (!item.undeletable && !isMandatory) {
+                const delBtn = div.querySelector('.delete-btn')
+                if (delBtn) {
+                    delBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteItem(item.id) })
+                }
             }
             const handle = div.querySelector('.ff-resize-handle')
             const onRes = (e) => { e.stopPropagation(); if(e.type !== 'touchstart') e.preventDefault(); startResize(item.id, e) }
@@ -204,21 +227,49 @@ onMounted(() => {
     }
 
     function addItem(type, x, y) {
+        if (type === 'phone_wa') {
+            const hasPhone = items.some(it => isMandatoryField(it) && (it.type === 'phone_wa' || it.field_key === 'no_wa'))
+            if (hasPhone) {
+                showToast('Field No. WhatsApp sudah ada di formulir dan tidak dapat ditambahkan lebih dari satu.', 'warning')
+                return
+            }
+        }
         let w = (['multiple_choice_grid', 'checkbox_grid', 'paragraph', 'terms', 'header'].includes(type)) ? 12 : 6
-        const item = { id: generateId(), type: type, label: FIELD_LABELS[type] || 'Field', field_key: slugify(FIELD_LABELS[type]), x: x||0, y: y||0, width: w, height: 2, required: false }
+        const item = { 
+            id: generateId(), 
+            type: type, 
+            label: FIELD_LABELS[type] || 'Field', 
+            field_key: slugify((FIELD_LABELS[type] || 'field') + '_' + Date.now().toString().slice(-4)), 
+            x: x||0, 
+            y: y||0, 
+            width: w, 
+            height: 2, 
+            required: false,
+            undeletable: false,
+            unduplicable: false,
+            is_mandatory: false
+        }
         items.push(item); selectedId = item.id
         renderGrid(); openPropertyModal()
     }
     function deleteItem(id) { 
-        const item = items.find(it => it.id === id); if (item && item.undeletable) return
+        const item = items.find(it => it.id === id); if (item && (item.undeletable || isMandatoryField(item))) return
         items = items.filter(it => it.id !== id) 
         if(selectedId===id) { selectedId=null; propertyOverlay.classList.remove('open') } 
         renderGrid() 
     }
     function duplicateItem(id) {
         const src = items.find(it => it.id === id); if(!src) return
+        if (isMandatoryField(src)) {
+            showToast('Field wajib (' + src.label + ') tidak dapat diduplikat.', 'warning')
+            return
+        }
         const newItem = JSON.parse(JSON.stringify(src))
-        newItem.id = generateId(); newItem.field_key = slugify(newItem.label + '_' + newItem.id)
+        newItem.id = generateId()
+        newItem.field_key = slugify(newItem.label + '_' + newItem.id)
+        newItem.undeletable = false
+        newItem.unduplicable = false
+        newItem.is_mandatory = false
         newItem.y = src.y + src.height
         items.push(newItem); selectedId = newItem.id
         recalcWaterfall(); renderGrid(); openPropertyModal()
@@ -233,6 +284,8 @@ onMounted(() => {
         const item = getSelectedItem()
         if(!item) { propertyContent.innerHTML = '<div style="color:#8a9aa8; text-align:center;">Pilih field dulu</div>'; return }
         
+        const isMandatory = isMandatoryField(item)
+
         let html = `
             <div class="ff-property-group">
                 <label>${item.type === 'header' ? 'Teks Header' : 'Label / Pertanyaan'}</label>
@@ -240,16 +293,30 @@ onMounted(() => {
             </div>`
 
         if (item.type !== 'header') {
-            html += `
-            <div class="ff-property-group">
-                <label>Field Key (ID Database)</label>
-                <input type="text" id="ffPropKey" value="${escapeHtml(item.field_key)}" class="form-control" />
-            </div>
-            <div class="ff-property-group">
-                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:500; font-size:14px; text-transform:none; color:#0a1929;">
-                    <input type="checkbox" id="ffPropReq" ${item.required ? 'checked' : ''} style="width:18px; height:18px; accent-color:var(--primary);" /> Wajib diisi (Required)
-                </label>
-            </div>`
+            if (isMandatory) {
+                html += `
+                <div class="ff-property-group">
+                    <label>Field Key (ID Database) <span style="color:#0284c7; font-size:10px; font-weight:700;">[TERKUNCI]</span></label>
+                    <input type="text" id="ffPropKey" value="${escapeHtml(item.field_key)}" class="form-control" disabled style="background:#f1f5f9; color:#64748b; cursor:not-allowed;" title="Field key wajib sistem tidak dapat diubah" />
+                    <small style="color:#64748b; font-size:11px; margin-top:2px;">Field ID sistem terkunci agar data pesanan & tiket terhubung otomatis.</small>
+                </div>
+                <div class="ff-property-group">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:not-allowed; font-weight:500; font-size:14px; text-transform:none; color:#0a1929;">
+                        <input type="checkbox" id="ffPropReq" checked disabled style="width:18px; height:18px; accent-color:var(--primary);" /> Wajib diisi (Terkunci untuk field wajib)
+                    </label>
+                </div>`
+            } else {
+                html += `
+                <div class="ff-property-group">
+                    <label>Field Key (ID Database)</label>
+                    <input type="text" id="ffPropKey" value="${escapeHtml(item.field_key)}" class="form-control" />
+                </div>
+                <div class="ff-property-group">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:500; font-size:14px; text-transform:none; color:#0a1929;">
+                        <input type="checkbox" id="ffPropReq" ${item.required ? 'checked' : ''} style="width:18px; height:18px; accent-color:var(--primary);" /> Wajib diisi (Required)
+                    </label>
+                </div>`
+            }
         }
 
         if (['multiple_choice', 'checkboxes', 'dropdown'].includes(item.type)) {
@@ -288,7 +355,7 @@ onMounted(() => {
         }
 
         html += `
-            ${item.undeletable ? '<div style="font-size:11px; color:#8a9aa8; text-align:center; margin-top:10px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:middle;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Field bawaan sistem tidak bisa dihapus.</div>' : '<button class="btn-outline danger" id="ffBtnDelete" style="width:100%; margin-top:10px; display:flex; justify-content:center; align-items:center; gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Hapus Field Ini</button>'}
+            ${isMandatory ? '<div style="font-size:11px; color:#0369a1; background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:10px 12px; text-align:center; margin-top:10px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:middle;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Field wajib sistem (Nama, Email, No. HP) tidak dapat dihapus atau diduplikat.</div>' : (item.undeletable ? '<div style="font-size:11px; color:#8a9aa8; text-align:center; margin-top:10px;">Field bawaan sistem tidak bisa dihapus.</div>' : '<button class="btn-outline danger" id="ffBtnDelete" style="width:100%; margin-top:10px; display:flex; justify-content:center; align-items:center; gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Hapus Field Ini</button>')}
             <hr style="margin:20px 0; border:0; border-top:1px dashed #e6edf5;" />
             <button class="btn-primary" id="ffBtnSaveProp" style="width:100%; padding:10px; font-weight:600; font-size:14px; display:flex; justify-content:center; align-items:center; gap:6px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Simpan & Tutup</button>
         `
@@ -296,13 +363,31 @@ onMounted(() => {
         propertyContent.innerHTML = html
 
         propertyContent.querySelector('#ffPropLabel').addEventListener('input', function() {
-            const newKey = item.field_key === slugify(item.label) ? slugify(this.value) : item.field_key
-            updateItem(item.id, { label: this.value, field_key: newKey })
-            const keyInput = propertyContent.querySelector('#ffPropKey')
-            if (keyInput && item.field_key === slugify(item.label)) keyInput.value = newKey
+            if (!isMandatory) {
+                const newKey = item.field_key === slugify(item.label) ? slugify(this.value) : item.field_key
+                updateItem(item.id, { label: this.value, field_key: newKey })
+                const keyInput = propertyContent.querySelector('#ffPropKey')
+                if (keyInput && item.field_key === slugify(item.label)) keyInput.value = newKey
+            } else {
+                updateItem(item.id, { label: this.value })
+            }
         })
+        const keyInput = propertyContent.querySelector('#ffPropKey')
+        if (keyInput && !isMandatory) {
+            keyInput.addEventListener('change', function() {
+                const val = slugify(this.value)
+                if (MANDATORY_FIELD_KEYS.includes(val)) {
+                    showToast(`Field key "${val}" adalah kata kunci khusus sistem dan tidak boleh digunakan.`, 'error')
+                    this.value = item.field_key
+                    return
+                }
+                updateItem(item.id, { field_key: val })
+            })
+        }
         const reqInput = propertyContent.querySelector('#ffPropReq')
-        if (reqInput) reqInput.addEventListener('change', function() { updateItem(item.id, { required: this.checked }) })
+        if (reqInput && !isMandatory) {
+            reqInput.addEventListener('change', function() { updateItem(item.id, { required: this.checked }) })
+        }
         
         if (['multiple_choice', 'checkboxes', 'dropdown'].includes(item.type)) {
             propertyContent.querySelectorAll('.ff-opt-input').forEach(input => {
@@ -553,17 +638,93 @@ onMounted(() => {
     })
     ro.observe(gridContainer)
 
+    function sanitizeFormItems(rawItems) {
+      if (!rawItems || !Array.isArray(rawItems) || rawItems.length === 0) {
+        return getDefaultItems()
+      }
+
+      let namaItem = null
+      let emailItem = null
+      let waItem = null
+      const otherItems = []
+
+      for (const it of rawItems) {
+        if (!namaItem && (it.field_key === 'nama_lengkap' || it.id === 'ff_default_nama')) {
+          namaItem = {
+            ...it,
+            id: 'ff_default_nama',
+            type: 'short_text',
+            field_key: 'nama_lengkap',
+            label: it.label || 'Nama Lengkap',
+            required: true,
+            undeletable: true,
+            unduplicable: true,
+            is_mandatory: true
+          }
+        } else if (!emailItem && (it.field_key === 'email' || it.id === 'ff_default_email')) {
+          emailItem = {
+            ...it,
+            id: 'ff_default_email',
+            type: 'short_text',
+            field_key: 'email',
+            label: it.label || 'Email',
+            required: true,
+            undeletable: true,
+            unduplicable: true,
+            is_mandatory: true
+          }
+        } else if (!waItem && (it.field_key === 'no_wa' || it.type === 'phone_wa' || it.id === 'ff_default_wa')) {
+          waItem = {
+            ...it,
+            id: 'ff_default_wa',
+            type: 'phone_wa',
+            field_key: 'no_wa',
+            label: it.label || 'No. WhatsApp',
+            required: true,
+            undeletable: true,
+            unduplicable: true,
+            is_mandatory: true
+          }
+        } else if (
+          it.field_key !== 'nama_lengkap' &&
+          it.field_key !== 'email' &&
+          it.field_key !== 'no_wa' &&
+          it.type !== 'phone_wa' &&
+          it.id !== 'ff_default_nama' &&
+          it.id !== 'ff_default_email' &&
+          it.id !== 'ff_default_wa'
+        ) {
+          otherItems.push({
+            ...it,
+            undeletable: false,
+            unduplicable: false,
+            is_mandatory: false
+          })
+        }
+      }
+
+      if (!namaItem) {
+        namaItem = { id: 'ff_default_nama', type: 'short_text', label: 'Nama Lengkap', field_key: 'nama_lengkap', x: 0, y: 0, width: 12, height: 2, required: true, undeletable: true, unduplicable: true, is_mandatory: true }
+      }
+      if (!emailItem) {
+        emailItem = { id: 'ff_default_email', type: 'short_text', label: 'Email', field_key: 'email', x: 0, y: 2, width: 6, height: 2, required: true, undeletable: true, unduplicable: true, is_mandatory: true }
+      }
+      if (!waItem) {
+        waItem = { id: 'ff_default_wa', type: 'phone_wa', label: 'No. WhatsApp', field_key: 'no_wa', x: 6, y: 2, width: 6, height: 2, required: true, undeletable: true, unduplicable: true, is_mandatory: true }
+      }
+
+      return [namaItem, emailItem, waItem, ...otherItems]
+    }
+
     window._ffInstance = {
       init: (initItems) => {
-        if (!initItems || initItems.length === 0) {
-            items = getDefaultItems()
-        } else {
-            const hasDefaults = initItems.some(it => it.undeletable)
-            items = hasDefaults ? initItems : [...getDefaultItems(), ...initItems]
-        }
-        recalcWaterfall(); renderGrid()
+        items = sanitizeFormItems(initItems)
+        recalcWaterfall()
+        renderGrid()
       }
     }
+    window.renderGrid = renderGrid
+    window.items = items
 
     window._ffInstance.init(formForgeItems.value)
   })
