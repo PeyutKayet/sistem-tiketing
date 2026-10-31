@@ -1,0 +1,1 @@
+import{v as e}from"#entry";var t=e(`/logo-tyket.svg`);export{t};
