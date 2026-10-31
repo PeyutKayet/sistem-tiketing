@@ -217,7 +217,7 @@
               <h4 style="margin:0 0 12px 0; font-size:13px; color:#475569; text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">Formulir Tambahan</h4>
               <div style="display:flex; flex-direction:column; gap:12px;">
                 <template v-for="(val, key) in pesertaDetailData.data_tambahan" :key="key">
-                  <div v-if="!['lat', 'lon', 'payment', 'order_id', 'order id'].includes(key)" style="display:flex; flex-direction:column; gap:4px;">
+                  <div v-if="!['lat', 'lon', 'payment', 'order_id', 'order id', 'calm_survey_completed'].includes(key)" style="display:flex; flex-direction:column; gap:4px;">
                     <div style="display:flex; align-items:center; color:#64748b; font-size:12px; font-weight:600; text-transform:uppercase;">
                       {{ formatKey(key) }}
                       <button v-if="(key === 'ticket_id' || key === 'ticket id' || key === 'ticketId') && !isEditing" @click="kirimTiketWA" class="btn-primary btn-sm" style="margin-left: 8px; padding: 2px 8px; font-size: 10px; display:inline-flex; align-items:center;" :disabled="isSendingWA">
@@ -415,18 +415,41 @@ const isImageUrl = (str) => {
   return /\.(jpg|jpeg|png|gif|webp)$/i.test(str) || str.includes('/storage/v1/object/public/')
 }
 const formatKey = (key) => {
-  if (key === 'infaqNominal') return 'Jumlah Transfer'
+  if (key === 'infaqNominal') return 'Jumlah Infaq'
+  if (key === 'calm_jenis_kelamin') return 'Kuesioner: Jenis Kelamin'
+  if (key === 'calm_usia') return 'Kuesioner: Usia'
+  if (key === 'calm_profesi') return 'Kuesioner: Profesi'
+  if (key === 'calm_minat') return 'Kuesioner: Minat Program CALM'
+  if (key === 'calm_harapan') return 'Kuesioner: Harapan Program CALM'
+  if (key === 'calm_pilihan_kelas') return 'Kuesioner: Pilihan Kelas'
+  if (key === 'calm_tahap_pricing') return 'Kuesioner: Tahap Rotasi Harga'
+  if (key === 'calm_harga_reguler_diuji') return 'Kuesioner: Harga Reguler Diuji'
+  if (key === 'calm_respon_harga_reguler') return 'Kuesioner: Respon Harga Reguler'
+  if (key === 'calm_harga_eksklusif_diuji') return 'Kuesioner: Harga Eksklusif Diuji'
+  if (key === 'calm_respon_harga_eksklusif') return 'Kuesioner: Respon Harga Eksklusif'
+  if (key === 'calm_mau_info_wa') return 'Kuesioner: Bersedia Info Promo WA'
+  if (key === 'calm_no_wa_info') return 'Kuesioner: No WA Info Promo'
+  if (key === 'calm_consent_wa') return 'Kuesioner: Persetujuan Hubungi WA'
   return key.replace(/_/g, ' ')
 }
 const formatValue = (val, key) => {
   if (key === 'infaqNominal' && !isNaN(val)) {
     return `Rp ${Number(val).toLocaleString('id-ID')}`
   }
+  if ((key === 'calm_harga_reguler_diuji' || key === 'calm_harga_eksklusif_diuji') && !isNaN(val) && val) {
+    return `Rp ${Number(val).toLocaleString('id-ID')}`
+  }
+  if (key === 'calm_tahap_pricing' && val) {
+    return `Tahap ${val}`
+  }
+  if (key === 'calm_consent_wa') {
+    return val === true ? 'Setuju' : (val === false ? 'Tidak Setuju' : '-')
+  }
   if (typeof val === 'object' && val !== null) {
     if (val.gateway) return `💳 Pembayaran Digital`
     return '-'
   }
-  return val
+  return val || '-'
 }
 
 const totalPages = computed(() => Math.ceil(pesertaTotalData.value / perPage.value) || 1)
@@ -491,8 +514,35 @@ const downloadCSVPeserta = async () => {
       }
     }
 
-    // Kumpulkan kolom dinamis dari data_tambahan (Kecualikan data internal sistem seperti payment gateway & GPS)
-    const internalKeys = ['payment', 'order_id', 'order id', 'lat', 'lon', 'ticket_id', 'ticket id', 'ticketId', 'infaqNominal']
+    // Definisi kolom survei kuesioner B2B CALM Khazilmu secara terstruktur
+    const surveyColumnDefs = [
+      { key: 'calm_jenis_kelamin', title: 'Jenis Kelamin (Kuesioner)', format: (v) => v || '-' },
+      { key: 'calm_usia', title: 'Usia (Kuesioner)', format: (v) => v || '-' },
+      { key: 'calm_profesi', title: 'Profesi (Kuesioner)', format: (v) => v || '-' },
+      { key: 'calm_minat', title: 'Minat Program CALM', format: (v) => v || '-' },
+      { key: 'calm_harapan', title: 'Harapan Program CALM', format: (v) => v || '-' },
+      { key: 'calm_pilihan_kelas', title: 'Pilihan Kelas', format: (v) => v || '-' },
+      { key: 'calm_tahap_pricing', title: 'Tahap Rotasi Harga', format: (v) => v ? `Tahap ${v}` : '-' },
+      { key: 'calm_harga_reguler_diuji', title: 'Harga Reguler Diuji', format: (v) => (v && !isNaN(v)) ? `Rp ${Number(v).toLocaleString('id-ID')}` : (v || '-') },
+      { key: 'calm_respon_harga_reguler', title: 'Respon Harga Reguler', format: (v) => v || '-' },
+      { key: 'calm_harga_eksklusif_diuji', title: 'Harga Eksklusif Diuji', format: (v) => (v && !isNaN(v)) ? `Rp ${Number(v).toLocaleString('id-ID')}` : (v || '-') },
+      { key: 'calm_respon_harga_eksklusif', title: 'Respon Harga Eksklusif', format: (v) => v || '-' },
+      { key: 'calm_mau_info_wa', title: 'Bersedia Info Promo WA', format: (v) => v || '-' },
+      { key: 'calm_no_wa_info', title: 'No WA Info Promo', format: (v) => v || '-' },
+      { key: 'calm_consent_wa', title: 'Persetujuan Hubungi WA', format: (v) => v === true ? 'Setuju' : (v === false ? 'Tidak Setuju' : '-') }
+    ]
+    const surveyKeys = surveyColumnDefs.map(c => c.key)
+
+    // Cek apakah ada data survei di event ini
+    const hasSurveyData = selectedEvent.value?.settings?.b2b_survey?.active || semuaData.some(p => p.data_tambahan?.calm_survey_completed || p.data_tambahan?.calm_minat)
+
+    // Kumpulkan kolom dinamis dari data_tambahan (Kecualikan data internal sistem seperti payment gateway & GPS & survei)
+    const internalKeys = [
+      'payment', 'order_id', 'order id', 'lat', 'lon', 
+      'ticket_id', 'ticket id', 'ticketId', 'infaqNominal', 
+      'calm_survey_completed',
+      ...surveyKeys
+    ]
     let extraKeys = new Set()
     semuaData.forEach(p => {
       if (p.data_tambahan && typeof p.data_tambahan === 'object') {
@@ -505,11 +555,34 @@ const downloadCSVPeserta = async () => {
     })
     const extraHeaders = Array.from(extraKeys)
 
-    let csvContent = "data:text/csv;charset=utf-8,Nama Lengkap,Email,WhatsApp,Tiket,Harga Tiket,Infaq Donasi,Order ID,Status Bayar,Status Hadir"
+    // Bangun baris judul kolom (Header CSV)
+    let headerList = [
+      'Nama Lengkap',
+      'Email',
+      'WhatsApp',
+      'Tiket',
+      'Harga Tiket',
+      'Infaq Donasi',
+      'Order ID',
+      'Status Bayar',
+      'Status Hadir'
+    ]
+
+    // Sisipkan kolom formulir kustom umum (dengan nama yang diformat)
     if (extraHeaders.length > 0) {
-      csvContent += "," + extraHeaders.map(h => `"${h.replace(/"/g, '""')}"`).join(",")
+      extraHeaders.forEach(k => {
+        headerList.push(formatKey(k))
+      })
     }
-    csvContent += "\n"
+
+    // Sisipkan kolom hasil kuesioner survei jika ada
+    if (hasSurveyData) {
+      surveyColumnDefs.forEach(col => {
+        headerList.push(col.title)
+      })
+    }
+
+    let csvContent = headerList.map(h => `"${String(h).replace(/"/g, '""')}"`).join(",") + "\n"
 
     // Set untuk melacak order_id yang sudah diatribusikan infaqnya (MENCEGAH INFAQ BENGKAK PADA MULTI-TIKET)
     const seenOrdersForInfaq = new Set()
@@ -521,8 +594,8 @@ const downloadCSVPeserta = async () => {
       const wa = `"${(p.no_wa || '').replace(/"/g, '""')}"`
       const tiket = `"${(p.nama_tiket || 'Tiket').replace(/"/g, '""')}"`
       const hargaTiket = p.kategori_tiket?.harga !== undefined ? p.kategori_tiket.harga : 0
-      const statusBayar = p.status_bayar === 'paid' ? 'Lunas' : (p.status_bayar === 'cancelled' ? 'Batal' : 'Pending')
-      const hadir = p.is_scanned ? 'Hadir' : 'Belum'
+      const statusBayar = `"${p.status_bayar === 'paid' ? 'Lunas' : (p.status_bayar === 'cancelled' ? 'Batal' : 'Pending')}"`
+      const hadir = `"${p.is_scanned ? 'Hadir' : 'Belum'}"`
       
       const orderId = p.order_id || p.data_tambahan?.order_id || ''
       let infaq = 0
@@ -538,7 +611,7 @@ const downloadCSVPeserta = async () => {
       }
 
       const safeOrderId = `"${String(orderId).replace(/"/g, '""')}"`
-      let row = `${nama},${email},${wa},${tiket},${hargaTiket},${infaq},${safeOrderId},${statusBayar},${hadir}`
+      let rowParts = [nama, email, wa, tiket, hargaTiket, infaq, safeOrderId, statusBayar, hadir]
 
       // Masukkan data tambahan formulir kustom
       extraHeaders.forEach(k => {
@@ -547,13 +620,23 @@ const downloadCSVPeserta = async () => {
         if (typeof val === 'object') {
            try { val = JSON.stringify(val) } catch(e) { val = String(val) }
         }
-        val = `"${String(val).replace(/"/g, '""')}"`
-        row += `,${val}`
+        val = `"${String(val).replace(/\r?\n/g, ' ').replace(/"/g, '""')}"`
+        rowParts.push(val)
       })
 
-      csvContent += `${row}\n`
+      // Masukkan data hasil kuesioner survei jika ada
+      if (hasSurveyData) {
+        surveyColumnDefs.forEach(col => {
+          const rawVal = p.data_tambahan ? p.data_tambahan[col.key] : null
+          const formattedVal = col.format(rawVal)
+          const safeVal = `"${String(formattedVal).replace(/\r?\n/g, ' ').replace(/"/g, '""')}"`
+          rowParts.push(safeVal)
+        })
+      }
+
+      csvContent += `${rowParts.join(",")}\n`
     })
-    const blob = new Blob([csvContent.replace('data:text/csv;charset=utf-8,', '')], { type: 'text/csv;charset=utf-8;' })
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement("a")
     const url = URL.createObjectURL(blob)
     link.setAttribute("href", url)

@@ -1149,7 +1149,7 @@ var virtual_nuxt_node_modules_2F_cache_2Fnuxt_2F_nuxt_2Froutes_default = [
 			{
 				name: "admin-event-slug-peserta",
 				path: "event/:slug()/peserta",
-				component: () => import('../build/peserta-Ck9veXD4.mjs')
+				component: () => import('../build/peserta-CFC9o-KF.mjs')
 			},
 			{
 				name: "admin-event-slug-tiket",
