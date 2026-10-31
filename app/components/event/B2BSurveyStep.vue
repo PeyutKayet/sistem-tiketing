@@ -266,11 +266,6 @@
       </div>
     </transition>
 
-    <!-- BAGIAN DONASI & INFAQ DAKWAH (OPSIONAL) -->
-    <div class="donation-wrap mt-3">
-      <slot name="donation"></slot>
-    </div>
-
     <!-- TOMBOL AKSI SELESAIKAN SURVEI & DAFTAR -->
     <div class="action-buttons-wrap mt-4">
       <button type="button" @click="$emit('back')" class="btn-prev">
@@ -286,7 +281,7 @@
       >
         <span v-if="isSubmitting">MEMPROSES PENDAFTARAN...</span>
         <span v-else>
-          {{ isTrulyFree ? 'SELESAIKAN PENDAFTARAN &rarr;' : 'LANJUT KE PEMBAYARAN INFAQ &rarr;' }}
+          {{ isTrulyFree ? 'SELESAIKAN PENDAFTARAN &rarr;' : 'LANJUT KE PEMBAYARAN &rarr;' }}
         </span>
       </button>
     </div>

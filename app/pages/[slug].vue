@@ -168,9 +168,8 @@
         @toast="showToastMsg"
       />
 
-      <!-- Bagian Donasi Standar (Hanya jika bukan event survey B2B, karena di B2B ditaruh di akhir survey) -->
+      <!-- Bagian Donasi / Infaq di Tahap Data Diri -->
       <DonationForm 
-        v-if="!hasB2BSurvey"
         :eventData="eventData" 
         v-model:isInfaqOn="isInfaqOn" 
         :donasiAmount="donasiAmount" @update:donasiAmount="setDonasiAmount" 
@@ -200,16 +199,7 @@
         @back="currentStep = 'form'"
         @complete="handleSurveyComplete"
         @toast="showToastMsg"
-      >
-        <template #donation>
-          <DonationForm 
-            :eventData="eventData" 
-            v-model:isInfaqOn="isInfaqOn" 
-            :donasiAmount="donasiAmount" 
-            @update:donasiAmount="setDonasiAmount" 
-          />
-        </template>
-      </B2BSurveyStep>
+      />
     </div>
 
     <!-- Tampilan Pembayaran (BAYAR) -->
